@@ -13,35 +13,7 @@ The script configures your Kubuntu host as a Docker/LXD server with Ansible CLI 
 ./bldub.sh
 ```
 
-
-
-
-## 🌌 Our Universe of Features
-
-                                   *  .  . *       *    .        .        .   *    ..
-                                .  *        .        .      .        .            * .
-                    *   .   .        .     .     .        .   .  *         *  .    .
-                        .       .   *   .    .            .          *   .       .  *
-             .   *  .       .          .   *      *  .        .          .     *   .
-         .                .  *    .        .            .        .            .     .
-    * .        *  .  .  *    .     *      .      .        .  *     .      .    *  .
-                    .     .   *        *    .     *  .        .    .  *         *  .
-         .   *   .      .          .            .        .           *  .     .    .
-             .       .     *   .    .   *   .     .   *       .          .    *   .
-    *   .      *  .    .          .    .           .        .  *          .      * 
-         .                .     .        .      *        .        .            .   .
-    .          *    .   .    *      .       .      *  .    .  *     .     .      .
-       .   *     .    .            .   *      .        .            .      *    .  
-                    .     .   .      .          .   *      .    .  *    .     .   .
-         *    .  *    .        .  *    .     .    .     .      .        .       * .
-             .          .    *    .       .   .    .      * .        .        .    
-    .   *       .  *            .          .   .      .          .    *  .     .  .
-       .    .            .  *    .    .  *        .        .            .     *   .
-                 *  .        .    .     *      .      .        .  *     .    .    .
-
-<div align="center">
-
-## 🚀 Journey to the Stars
+## 🚀 Please keep the planet clean for our kids! 🌌
 
 ```
           .              +   .                    .   . .     .  .
