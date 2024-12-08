@@ -1068,7 +1068,8 @@ echo "[3]--[d] Docker: CREATE 1 freshubXX (docker container, sshkeygen'ed, root/
 echo "[4]. Docker: CREATE 3 fresh ub0123  (docker container, sshkeygen'ed, root/P@)"
 echo "[5]. Lxd: Install 'lxd init --minimal' for standard lxd host"
 echo "[6]--[l] Lxc: CREATE 1 fresh ubXX   (lxc **UNSAFE ROOTED** container, sshkeygen'ed, root/P@), use sudo -i... then everything is GOOD, plus the .ssh is ONLY FOR ROOT and autoignore warningified!!!"
-echo "7. EXIT SCRIPT! Try deploying admindash/copypasta/remoteshell-api!"
+echo "[7]--[r] Lxc: REMOVE ALL LXC CONTAINERS"
+echo "8. EXIT SCRIPT! Try deploying admindash/copypasta/remoteshell-api!"
 
 read -p "Enter your choice (1-5): " choice
 
@@ -1097,7 +1098,13 @@ case $choice in
     launch_ubuntu_1_lxc_container
     echo "Finished launching: launch_ubuntu_1_lxc_container"
     ;;
-7)
+7|r|R)
+    echo "Deleting ALL LXC Containers!!!"
+    lxc list
+    read -p "PRESS ENTER TO DELETE THEM OR CTRL C TO EXIST" ;
+    lxc list -c n --format csv | xargs -I {} lxc delete {} --force
+    ;;
+8)
     echo "Exiting..."
     exit 0
     ;;
