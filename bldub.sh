@@ -1,14 +1,15 @@
 #!/bin/bash
 
 # Description: Bash Script to build a Dev Ubuntu Coding Host with DockerCE/Ansible, as well as... 3 containers for testing anything via a bash menu!!!!!!!!!
+# Source: https://github.dev/animehunter123/bldub
 
+# TODO - I want a lxc build docker01, with dockerce ready to go... 
 # TODO there is another problem, i noticed if you do lxd init, it will say job systemd-networkd-wait-online on a reboot, i need to FORCE ERASE THIS
-
 # TODO Make a GuiDevApps Menu for VSCode and Meteor + Lazyvim, @@AND@@ prompt which USER to run these installs as, and that way they arent root!!
 # TODO I need to make PORTABLE VSCODE HERE, then chmod and allow ANYONE TO USE IT!!! <---------------- - -- -this is cool idea
 # TODO: Curl docker01:5000 as user lmadmin NOT WORKING B/c ETC HOSTS, but IT WORKS AS ROOT WHY!?!?!?
 # TODO: Sometimes ub01/ub02 changes ip addresses after reboot, how do i cronjob or fix this?
-# I NEED TO MAKE SUDO PASSWORDLESS #TODO
+# TODO: I NEED TO MAKE SUDO PASSWORDLESS 
 # TODO: Need Neovim + Lazyvim
 # TODO: Need to pin Brave/VSCode/Terminator/Kate to your KDE panel at the bottom of the screen, desktop shortcut atm is OK
 # todo allow running the script multiple times without breaking .bashrc and fishrc
@@ -355,8 +356,12 @@ EOF
     printf 'alias lxc "sudo lxc"\n' >> /etc/fish/config.fish
     printf 'alias lxcl "sudo lxc list -c nst4sS"\n' >> /etc/fish/config.fish  #This is a nice shorthand!
     printf 'alias docker "sudo docker"\n' >> /etc/fish/config.fish
-    printf 'echo Launching: lxc list -c nst4sS\n' >> /etc/fish/config.fish
-    printf 'lxc list -c nst4sS\n' >> /etc/fish/config.fish
+    printf 'echo PS Grepping for lxc running containers...\n' >> /etc/fish/config.fish
+    printf 'ps -efawww|grep -i "lxc mon" | sed "s/.*containers /container running: /" | grep -v " grep "\n' >> /etc/fish/config.fish
+    
+    # printf 'echo Launching: lxc list -c nst4sS\n' >> /etc/fish/config.fish
+    # printf 'lxc list -c nst4sS\n' >> /etc/fish/config.fish
+
     # FISH_CONFIG="/etc/fish/config.fish"
     # add_or_update_alias() {
     #     local alias_name="$1"

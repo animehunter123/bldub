@@ -4,43 +4,17 @@
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-Compatible-orange.svg)](https://ubuntu.com/)
 [![LXD](https://img.shields.io/badge/LXD-Powered-blue.svg)](https://linuxcontainers.org/lxd/)
 
-> Transform any Ubuntu system into a powerful host capable of running virtually anything on planet earth in Lxd. Simple, straightforward, and efficient.
-## 🚀 Quick Start
+> Unsafely turn the ubuntu server to be capable of running virtually anything on planet earth in Lxd. 
 
-The script configures your Kubuntu host as a Docker/LXD server with Ansible CLI ready to go. (Unsafe, do not use in production!)
+The script configures your Kubuntu host as a Docker/LXD server with Ansible CLI ready to go. 
 
+## Quick Start
+
+🌌🌌🌌 **WARNING: (THIS SCRIPT IS UNSAFE! NEVER USE IN PRODUCTION!)** 🌌🌌🌌
+
+* Ensure your host is backed up. Ensure it is a modern Ubuntu release.
+
+* Launch the bash and follow the prompts
 ```bash
-./bldub.sh
+   ./bldub.sh
 ```
-
-## 🚀 Please keep the planet clean for our kids! 🌌
-
-```
-          .              +   .                    .   . .     .  .
-                   .                    .       .     *
-    .       *    . . . .  .   .  + .     .    .       .   .
-            .      .   .  +  . . .   .   .   .   . .  .   .
-                                                       .
-  .     .  .   . .   .   .   . .  +      .           .
-         .     .   . +  .  .  .    .     . + .  .     .     .
-         .              .       .   . .
-   .      .   . .   .    .  .    .. .  .   .    + . 
-.      .    .     . .  .  .  +   . .  *   .    .   .   .
-     .      .   .    .    .   .  .   .    .      .  .   .
- .     .    .  .   . . .  .  .  +  . .  .   .    .    +  .
-  .      .   .   .    .  .    . .  .   .  . .  .  +  . .  .
-          .   .  +    . .  .  .  .  .. +  .  .     .      .
-   .      .     .    .      . . .  .  .     .     . .    .
-    .      . .   .    . .        .  .   .    .      . .  .
-            .     .     .     .      .    .     .     .
-     .      .  .  .  .          .  .  .  +       .     .
-.      .     .     . .  .  .       .   .    . +    .    .
- .     .    .    .     .     .  .    . .  .    .     . .
-   .     .    . .  .  .  .     .     .  .  . .  .  +  . .
-      .   .    .     . .   . .  .    .   . .  +  .  . +  .
-```
-
-### 🌍 Containerize Your World 🛸
-
-</div>
-
