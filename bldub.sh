@@ -3,6 +3,11 @@
 # Description: Bash Script to build a Dev Ubuntu Coding Host with DockerCE/Ansible, as well as... 3 containers for testing anything via a bash menu!!!!!!!!!
 # Source: https://github.dev/animehunter123/bldub
 
+# LXC SNAPSHOT COMMAND: lxc snapshot ub01 phoronix
+# LXC EXPORT COMMAND: lxc export ub01 phoronix01.tar.gz
+# LXC IMPORT COMMAND: lxc import phoronix01.tar.gz
+# LXC PUBLISH COMMAND (ONLY IF YOU WANT IT LISTED AS A IMAGE): lxc publish ub01/phoronix --alias phoronix01
+
 # TODO - I want a lxc build docker01, with dockerce ready to go... 
 # TODO there is another problem, i noticed if you do lxd init, it will say job systemd-networkd-wait-online on a reboot, i need to FORCE ERASE THIS
 # TODO Make a GuiDevApps Menu for VSCode and Meteor + Lazyvim, @@AND@@ prompt which USER to run these installs as, and that way they arent root!!
@@ -112,7 +117,7 @@ run_build_development_environment() {
         mlocate mtr mysql-client nano ncdu neofetch net-tools nethogs nfs-common nfs-kernel-server nginx
         nmap open-vm-tools open-vm-tools-desktop openssh-server partitionmanager pssh python-is-python3 python3-pip python3-venv qdirstat kate
         remmina rsync sed ssh sshfs sudo tcpdump telnet terminator timeshift tshark tcpdump usb-creator-gtk
-        wget whois wireshark xclip xz-utils rofi locate docker-compose 
+        wget whois wireshark xclip xz-utils rofi locate docker-compose chromium-browser
     )
 
     # Iterate through the list and install each package (Future proofing this script in case pknames chnge)
@@ -357,7 +362,7 @@ EOF
     printf 'alias lxcl "sudo lxc list -c nst4sS"\n' >> /etc/fish/config.fish  #This is a nice shorthand!
     printf 'alias docker "sudo docker"\n' >> /etc/fish/config.fish
     printf 'echo PS Grepping for lxc running containers...\n' >> /etc/fish/config.fish
-    printf 'ps -efawww|grep -i "lxc mon" | sed "s/.*containers /container running: /" | grep -v " grep "\n' >> /etc/fish/config.fish
+    printf 'ps -efawww|grep -i "lxc mon" | sed "s/.*containers /FOUND container running: /" | grep -v " grep "\n' >> /etc/fish/config.fish
     
     # printf 'echo Launching: lxc list -c nst4sS\n' >> /etc/fish/config.fish
     # printf 'lxc list -c nst4sS\n' >> /etc/fish/config.fish
