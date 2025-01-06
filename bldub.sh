@@ -128,6 +128,38 @@ run_build_development_environment() {
     done
 
 
+# THIS SECTION IS FOR ENABLING MODPROBE DUMMY mode so that kubespray will properly install kubernetes on LXD CONTAINERS!!!!!!!!!!!!
+    echo "For Kubernetes k8s with kubespray'ing the innards of lxds, its important to sudo modprobe dummy... enabling this permanently..."
+    sudo modprobe dummy
+# Function to add module to modules-load.d
+add_to_modules_load() {
+  echo "Adding dummy module to /etc/modules-load.d/dummy.conf"
+  echo "dummy" > /etc/modules-load.d/dummy.conf
+  echo "Module added successfully."
+}
+# Function to add module to /etc/modules
+add_to_etc_modules() {
+  echo "Adding dummy module to /etc/modules"
+  if grep -q "^dummy$" /etc/modules; then
+    echo "Module already exists in /etc/modules."
+  else
+    echo "dummy" >> /etc/modules
+    echo "Module added successfully."
+  fi
+}
+# Main execution
+echo "Adding dummy module for automatic loading at boot"
+# Try modules-load.d method first
+if [ -d "/etc/modules-load.d" ]; then
+  add_to_modules_load
+else
+  echo "/etc/modules-load.d directory not found. Falling back to /etc/modules method."
+  add_to_etc_modules
+fi
+# Load the module immediately
+echo "Loading dummy module now"
+modprobe dummy
+echo "OK DONE, remember after a reboot to check if dummy module is loaded, via: lsmod|grep -i dummy  "
 
 
 
