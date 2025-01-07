@@ -13,8 +13,8 @@ The script configures your Kubuntu host as a Docker/LXD server with Ansible CLI 
 
 **WARNING: (THIS SCRIPT IS UNSAFE!  NEVER USE IN PRODUCTION!), 🌌.** 
 
-* Ensure your host is backed up. Ensure it is a modern Ubuntu release.
-
+* Ensure your host is backed up. Once you launch this script, you can never undo it.
+* Ensure it is a modern Ubuntu release.
 * Launch the bash and follow the prompts
 ```bash
    ./bldub.sh
