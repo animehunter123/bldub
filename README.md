@@ -1,4 +1,4 @@
-# 🚀 Unsafe Dev Environment
+# Dev Environment Builder (Unsafe)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-Compatible-orange.svg)](https://ubuntu.com/)
@@ -6,11 +6,11 @@
 
 > Unsafely turn the ubuntu server to be capable of running virtually anything on planet earth in Lxd. 
 
-The script configures your Kubuntu host as a Docker/LXD server with Ansible CLI ready to go. 
+The script configures your Kubuntu host as a Docker/LXD server with Ansible CLI ready to go, along with the kernel dummy module. 
 
 ## Quick Start
 
-🌌🌌🌌 **WARNING: (THIS SCRIPT IS UNSAFE! NEVER USE IN PRODUCTION!)** 🌌🌌🌌
+**WARNING: (THIS SCRIPT IS UNSAFE!  NEVER USE IN PRODUCTION!), 🌌.** 
 
 * Ensure your host is backed up. Ensure it is a modern Ubuntu release.
 
