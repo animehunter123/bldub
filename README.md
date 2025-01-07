@@ -6,7 +6,8 @@
 
 > Unsafely turn the ubuntu server to be capable of running virtually anything on planet earth in Lxd. 
 
-The script configures your Kubuntu host as a Docker/LXD server with Ansible CLI ready to go, along with the kernel dummy module. 
+The script configures your Kubuntu host as a Docker/LXD server with Ansible CLI ready to go, along with the linux kernel dummy module [(see kernel docs; for k8s)](https://www.kernel.org/doc/html/latest/).
+
 
 ## Quick Start
 
