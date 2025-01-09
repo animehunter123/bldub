@@ -32,9 +32,11 @@ This script makes the kubuntu host a docker_or_lxd server with ansible cli ready
 (NOTE THIS REQUIRES: UBUNTU >=2404 FLAVOR + SNAPD (VSCode/Brave) if you want)
 - Read the menu below carefully!!! (Launching: ~~MAIN MENU~~ in bash code.)
 - Follow the prompts and watch your shell, i.e. lightdm/sddm install prompts etc.
-- Make sure you DO NOT HAVE /mnt/hgfs mounted for step1 (OS Prep)
+$(tput setaf 3)- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- ~ You can launch a lxd via: ./bldub.sh l myLxdUb01 ~
+- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(tput sgr0)
 - Remember that MAC OS will GET HOT so ENABLE SLEEP AFTER 20 MIN OF IDLE OR SHUTDOWN IN THE VM??????????????????CMD W in UTM FTW!
-- NOTE I DISABLED: /mnt/hgfs b/c sometimes uses 100% cpu, so this should be optional
+- NOTE I DISABLED: /mnt/hgfs b/c sometimes uses 100% cpu (step1 OS Prep)
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 "
 
@@ -1024,12 +1026,21 @@ launch_lxd_init() {
 
 launch_ubuntu_1_lxc_container() { #STILL NEED TO FIX SSH KEY
     local default_name="ub01"
+    # local container_name=${1:-$default_name}
     local image="ubuntu:24.04"
     local root_password="P@ssw0rd"
     local public_key=$(cat ~/.ssh/id_rsa.pub)
 
-    read -p "Enter a name for the $image container (default: $default_name): " container_name
-    container_name=${container_name:-$default_name}
+    # read -p "Enter a name for the $image container (default: $default_name): " container_name
+    # container_name=${container_name:-$default_name}
+
+    if [ -z "$1" ]; then
+        read -p "Enter a name for the $image container (default: $default_name): " container_name
+        container_name=${container_name:-$default_name}
+    else
+        container_name=$1
+    fi
+
     lxc delete $container_name --force 2>/dev/null 1>/dev/null
     sed -i "s/.*$container_name.*//" /etc/hosts
 
@@ -1104,6 +1115,14 @@ launch_ubuntu_1_lxc_container() { #STILL NEED TO FIX SSH KEY
     echo "To enter the container, use: lxc exec $container_name bash"
 } # End of launch_ubuntu_1_lxc_container
 
+# Check args to see of "./bldub.sh l NEWCONTAINERNAME" was provided
+if [ "$1" = "l" ] && [ -n "$2" ]; then
+    echo "Container name $2 was provided, creating a lxd container for it..."
+    launch_ubuntu_1_lxc_container "$2"
+    echo "Finished launching: launch_ubuntu_1_lxc_container"
+    exit
+fi
+
 # ~~MAIN MENU~~
 echo "Please select an option (ONLY USE ROOT NOBODY ELSE):"
 echo "[1]. Build Host OS with DockerCE/Ansible/Lxd"
@@ -1111,10 +1130,9 @@ echo "[2]. Docker: Build ub2404 fresh container from internet"
 echo "[3]--[d] Docker: CREATE 1 freshubXX (docker container, sshkeygen'ed, root/P@)"
 echo "[4]. Docker: CREATE 3 fresh ub0123  (docker container, sshkeygen'ed, root/P@)"
 echo "[5]. Lxd: Install 'lxd init --minimal', and Lxd WebUI: http://localhost:8443"
-echo "[6]--[l] Lxc: CREATE 1 fresh ubXX   (lxc **UNSAFE ROOTED** container, sshkeygen'ed, root/P@), use sudo -i... then everything is GOOD, plus the .ssh is ONLY FOR ROOT and autoignore warningified!!!"
+echo "[6]--[l] Lxc: CREATE 1 fresh ubXX   (lxc **UNSAFE ROOTED** container, sshkeygen'ed, root/P@), use sudo -i... then everything is GOOD, plus the .ssh is ONLY FOR ROOT and autoignore warningified!!! /// ALSO YOU CAN DIRECTLY CREATE A LXC via cli ==>  @@ ./bldub.sh l myUb01 @@  "
 echo "[7]--[r] Lxc: REMOVE ALL LXC CONTAINERS"
 echo "8. EXIT SCRIPT! Try deploying admindash/copypasta/remoteshell-api!"
-
 read -p "Enter your choice (1-5): " choice
 
 case $choice in
@@ -1139,6 +1157,7 @@ case $choice in
     echo "Finished launching: launch_lxd_init, and exposing lxd webpage: http://localhost:8443"
     ;;
 6|l|L)
+    echo "No container name was provided, defaulting to creating with name 'ub01'..."
     launch_ubuntu_1_lxc_container
     echo "Finished launching: launch_ubuntu_1_lxc_container"
     ;;
