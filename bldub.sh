@@ -1017,6 +1017,8 @@ launch_lxd_init() {
     chmod 777 /etc/hosts
     echo "Launching: lxd init --minimal ..."
     lxd init --minimal
+    echo "Exposing Lxd WebUI webpage, and starting it up as http://localhost:8443/ "
+    lxc config set core.https_address :8443
 } # END OF launch_lxd_init
 
 
@@ -1108,7 +1110,7 @@ echo "[1]. Build Host OS with DockerCE/Ansible/Lxd"
 echo "[2]. Docker: Build ub2404 fresh container from internet"
 echo "[3]--[d] Docker: CREATE 1 freshubXX (docker container, sshkeygen'ed, root/P@)"
 echo "[4]. Docker: CREATE 3 fresh ub0123  (docker container, sshkeygen'ed, root/P@)"
-echo "[5]. Lxd: Install 'lxd init --minimal' for standard lxd host"
+echo "[5]. Lxd: Install 'lxd init --minimal', and Lxd WebUI: http://localhost:8443"
 echo "[6]--[l] Lxc: CREATE 1 fresh ubXX   (lxc **UNSAFE ROOTED** container, sshkeygen'ed, root/P@), use sudo -i... then everything is GOOD, plus the .ssh is ONLY FOR ROOT and autoignore warningified!!!"
 echo "[7]--[r] Lxc: REMOVE ALL LXC CONTAINERS"
 echo "8. EXIT SCRIPT! Try deploying admindash/copypasta/remoteshell-api!"
@@ -1134,7 +1136,7 @@ case $choice in
     ;;
 5)
     launch_lxd_init
-    echo "Finished launching: launch_lxd_init"
+    echo "Finished launching: launch_lxd_init, and exposing lxd webpage: http://localhost:8443"
     ;;
 6|l|L)
     launch_ubuntu_1_lxc_container
