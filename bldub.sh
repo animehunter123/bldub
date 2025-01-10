@@ -433,58 +433,64 @@ EOF
     done
 
 
-    # SET THE FISH PROMPT TO A NONSTANDARD SO I KNOW IM SSHd into it, non default
-    # Function to generate a random, readable color
-    generate_readable_color() {
-        # Use brighter colors (181-255) for better readability on dark backgrounds
-        echo $((RANDOM % 75 + 181))
-    }
-    # Function to create or update Fish config with a random color
-    update_fish_config() {
-        local config_dir="$1/.config/fish"
-        local config_file="$config_dir/config.fish"
-        # Generate random colors
-        local user_color=$(generate_readable_color)
-        local host_color=$(generate_readable_color)
-        local pwd_color=$(generate_readable_color)
-        local prompt_color=$(generate_readable_color)
-        # Create config directory if it doesn't exist
-        mkdir -p "$config_dir"
-        # Backup existing config if it exists
-        if [ -f "$config_file" ]; then
-            cp "$config_file" "${config_file}.backup"
-        fi
-        # Write new Fish configuration
-        cat << EOF > "$config_file"
+
+
+
+
+
+
+# SET THE FISH PROMPT TO A NONSTANDARD SO I KNOW IM SSHd into it, non default
+# Function to generate a random, readable color
+generate_readable_color() {
+    local colors=("red" "green" "yellow" "blue" "magenta" "cyan" "white")
+    echo "${colors[$RANDOM % ${#colors[@]}]}"
+}
+
+# Function to create or update Fish config with a random color
+update_fish_config() {
+    local config_dir="$1/.config/fish"
+    local config_file="$config_dir/config.fish"
+    # Generate random colors
+    local user_color=$(generate_readable_color)
+    local host_color=$(generate_readable_color)
+    local pwd_color=$(generate_readable_color)
+    local prompt_color=$(generate_readable_color)
+    # Create config directory if it doesn't exist
+    mkdir -p "$config_dir"
+    # Backup existing config if it exists
+    if [ -f "$config_file" ]; then
+        cp "$config_file" "${config_file}.backup"
+    fi
+    # Write new Fish configuration
+    cat << EOF > "$config_file"
 function fish_prompt
-    set_color $user_color
+    set_color --bold $user_color
     echo -n (whoami)
     set_color normal
     echo -n "@"
-    set_color $host_color
+    set_color --bold $host_color
     echo -n (hostname)
     set_color normal
     echo -n ":"
-    set_color $pwd_color
+    set_color --bold $pwd_color
     echo -n (prompt_pwd)
-    set_color $prompt_color
+    set_color --bold $prompt_color
     echo -n " > "
     set_color normal
 end
 EOF
-        echo "Updated Fish config for $(basename "$1") with random colors"
-    }
-    # Update root's Fish config
-    update_fish_config "/root"
-    # Update Fish config for all users with a home directory
-    for user_home in /home/*; do
-        if [ -d "$user_home" ]; then
-            update_fish_config "$user_home"
-        fi
-    done
-    echo "Fish configuration update complete with random colors for each user."
+    echo "Updated Fish config for $(basename "$1") with random colors"
+}
 
-
+# Update root's Fish config
+update_fish_config "/root"
+# Update Fish config for all users with a home directory
+for user_home in /home/*; do
+    if [ -d "$user_home" ]; then
+        update_fish_config "$user_home"
+    fi
+done
+echo "Fish configuration update complete with random colors for each user."
 
 
     # Now finally, lets add the meteor configuration from bashrc to fishrc FOR ROOT
