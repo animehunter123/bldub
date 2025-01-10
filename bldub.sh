@@ -1087,8 +1087,8 @@ launch_ubuntu_1_lxc_container() { #STILL NEED TO FIX SSH KEY
     temp_hosts=$(mktemp)
     cp /etc/hosts $temp_hosts
 
-    # echo "Enabling the linux kernel modules for full network / nat / kubernetes capability..."
-    # lxc config set $container_name linux.kernel_modules overlay,nf_nat,ip_tables,ip6_tables,netlink_diag,br_netfilter
+    echo "Enabling the linux kernel modules for full network / nat / kubernetes capability..."
+    lxc config set $container_name linux.kernel_modules overlay,nf_nat,ip_tables,ip6_tables,netlink_diag,br_netfilter
 
 
 
