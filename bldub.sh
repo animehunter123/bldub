@@ -1079,7 +1079,7 @@ launch_ubuntu_1_lxc_container() { #STILL NEED TO FIX SSH KEY
     lxc exec $container_name -- bash -c "echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config"
     lxc exec $container_name -- bash -c "echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config ; systemctl restart ssh"
 
-    echo "Ensuring the DNS INSIDE THE CONTAINER is using the HOST, so they dig/nslookup each other!"
+    echo "Ensuring the DNS INSIDE THE CONTAINER is using the HOST (assuming 'lxdbr0' is ON THIS HOST, this is ubuntu2404 specific!!!), so they dig/nslookup each other!"
     lxd_dns_server=`ip a | grep -A99 lxdbr0 | grep -v '.*: ' | grep lxdbr0 | sed 's/.*inet //' | sed 's/\/.*//'`
     lxc exec $container_name -- bash -c "sed -i 's/^nameserver/#nameserver/' /etc/resolv.conf; printf '\n#ADDING THE BLDUB HOST AS A DNS SERVER TO THE CONTAINER\nnameserver $lxd_dns_server\n' >> /etc/resolv.conf"
 
