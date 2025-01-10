@@ -3,7 +3,7 @@
 # Description: Bash Script to build a Dev Ubuntu Coding Host with DockerCE/Ansible, as well as... 3 containers for testing anything via a bash menu!!!!!!!!!
 # Source: https://github.dev/animehunter123/bldub
 
-# LXC SNAPSHOT COMMAND: lxc snapshot ub01 phoronix
+# LXC SNAPSHOT COMMAND: lxc snapshot poop02 FRESH ; lxc restore poop02 FRESH
 # LXC EXPORT COMMAND: lxc export ub01 phoronix01.tar.gz
 # LXC IMPORT COMMAND: lxc import phoronix01.tar.gz
 # LXC PUBLISH COMMAND (ONLY IF YOU WANT IT LISTED AS A IMAGE): lxc publish ub01/phoronix --alias phoronix01
@@ -35,6 +35,9 @@ This script makes the kubuntu host a docker_or_lxd server with ansible cli ready
 $(tput setaf 3)- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - ~ You can launch a lxd via: ./bldub.sh l k8ctl01   ~
 - ~ You can delete all lxd:   ./bldub.sh d           ~
+- ~ To take/restore snapshots:                       ~
+- ~   lxc snapshot poop02 FRESH                      ~
+- ~   lxc restore poop02 FRESH                       ~
 - ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(tput sgr0)
 - Remember that MAC OS will GET HOT so ENABLE SLEEP AFTER 20 MIN OF IDLE OR SHUTDOWN IN THE VM??????????????????CMD W in UTM FTW!
 - NOTE I DISABLED: /mnt/hgfs b/c sometimes uses 100% cpu (step1 OS Prep)
