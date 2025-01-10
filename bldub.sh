@@ -1086,6 +1086,17 @@ launch_ubuntu_1_lxc_container() { #STILL NEED TO FIX SSH KEY
     temp_hosts=$(mktemp)
     cp /etc/hosts $temp_hosts
 
+    echo "Enabling the linux kernel modules for full network / nat / kubernetes capability..."
+    lxc config set $container_name linux.kernel_modules overlay,nf_nat,ip_tables,ip6_tables,netlink_diag,br_netfilter
+
+
+
+
+
+
+
+
+
     echo "SLEEPING for 5... to ENSURE THE CONTAINER IS FULLY UP BEFORE ATTEMPTING TO ADD IP ADDRESS"
     sleep 5
     update_hosts() {
@@ -1132,8 +1143,10 @@ if [ "$1" = "l" ] && [ -n "$2" ]; then
     echo "Finished launching: launch_ubuntu_1_lxc_container"
     exit
 fi
-
+# Check args to see the user wanted to MASS DELETE ALL CONTAINERS (like good ol' docker purge...)
 if [ "$1" = "d" ]; then
+    echo "Lxd Delete all was requested... DELETING ALL LXD CONTAINERS!!! PLEASE WAIT..."
+    read -p "PRESS ENTER TO CONTINUE, OR Ctrl + C to QUIT!!! THIS IS YOUR LAST CHANCE"
     lxc list -c n --format csv | xargs lxc delete --force
     echo "Finished REMOVING ALL LXD CONTAINERS!!!!!!!!"
     exit
