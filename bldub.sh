@@ -33,8 +33,8 @@ This script makes the kubuntu host a docker_or_lxd server with ansible cli ready
 - Read the menu below carefully!!! (Launching: ~~MAIN MENU~~ in bash code.)
 - Follow the prompts and watch your shell, i.e. lightdm/sddm install prompts etc.
 $(tput setaf 3)- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-- ~ You can launch a lxd via: ./bldub.sh l k8ctl01 ~
-- ~ You can delete all lxd:   ./bldub.sh d ~
+- ~ You can launch a lxd via: ./bldub.sh l k8ctl01   ~
+- ~ You can delete all lxd:   ./bldub.sh d           ~
 - ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(tput sgr0)
 - Remember that MAC OS will GET HOT so ENABLE SLEEP AFTER 20 MIN OF IDLE OR SHUTDOWN IN THE VM??????????????????CMD W in UTM FTW!
 - NOTE I DISABLED: /mnt/hgfs b/c sometimes uses 100% cpu (step1 OS Prep)
@@ -1080,14 +1080,15 @@ launch_ubuntu_1_lxc_container() { #STILL NEED TO FIX SSH KEY
     lxc exec $container_name -- bash -c "echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config ; systemctl restart ssh"
 
     echo "Ensuring the DNS INSIDE THE CONTAINER is using the HOST, so they dig/nslookup each other!"
-    lxc exec $container_name -- bash -c "sed -i 's/^nameserver/#nameserver/' /etc/resolv.conf; printf '\n#ADDING THE BLDUB HOST AS A DNS SERVER TO THE CONTAINER\nnameserver 10.0.0.1\n' >> /etc/resolv.conf"
+    lxd_dns_server=`ip a | grep -A99 lxdbr0 | grep -v '.*: ' | grep lxdbr0 | sed 's/.*inet //' | sed 's/\/.*//'`
+    lxc exec $container_name -- bash -c "sed -i 's/^nameserver/#nameserver/' /etc/resolv.conf; printf '\n#ADDING THE BLDUB HOST AS A DNS SERVER TO THE CONTAINER\nnameserver $lxd_dns_server\n' >> /etc/resolv.conf"
 
     echo "ADDING IT TO HOST's HOSTS FILE (lol), and ensuring ALL OTHER LXC's are in /etc/hosts... now..."
     temp_hosts=$(mktemp)
     cp /etc/hosts $temp_hosts
 
-    echo "Enabling the linux kernel modules for full network / nat / kubernetes capability..."
-    lxc config set $container_name linux.kernel_modules overlay,nf_nat,ip_tables,ip6_tables,netlink_diag,br_netfilter
+    # echo "Enabling the linux kernel modules for full network / nat / kubernetes capability..."
+    # lxc config set $container_name linux.kernel_modules overlay,nf_nat,ip_tables,ip6_tables,netlink_diag,br_netfilter
 
 
 
@@ -1145,8 +1146,9 @@ if [ "$1" = "l" ] && [ -n "$2" ]; then
 fi
 # Check args to see the user wanted to MASS DELETE ALL CONTAINERS (like good ol' docker purge...)
 if [ "$1" = "d" ]; then
-    echo "Lxd Delete all was requested... DELETING ALL LXD CONTAINERS!!! PLEASE WAIT..."
-    read -p "PRESS ENTER TO CONTINUE, OR Ctrl + C to QUIT!!! THIS IS YOUR LAST CHANCE"
+    echo "Lxd Delete all was requested... DELETING ALL LXD CONTAINERS!!! Say goodbye to these:"
+    sudo lxc list -c nst4sS
+    read -p "PRESS ENTER TO CONTINUE, OR Ctrl + C to QUIT!!! THIS IS YOUR LAST CHANCE."
     lxc list -c n --format csv | xargs lxc delete --force
     echo "Finished REMOVING ALL LXD CONTAINERS!!!!!!!!"
     exit
