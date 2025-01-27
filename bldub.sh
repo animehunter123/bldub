@@ -18,8 +18,8 @@
 # TODO: I NEED TO MAKE SUDO PASSWORDLESS 
 # TODO: Need Neovim + Lazyvim
 # TODO: Need to pin Brave/VSCode/Terminator/Kate to your KDE panel at the bottom of the screen, desktop shortcut atm is OK
-# todo allow running the script multiple times without breaking .bashrc and fishrc
-# todo add a check if lxd init isnt done, do it before launching ub01lxc
+# TODO: allow running the script multiple times without breaking .bashrc and fishrc
+# TODO: add a check if lxd init isnt done, do it before launching ub01lxc
 
 # Exit if not root
 if [ "$(id -u)" -ne 0 ]; then
@@ -110,6 +110,9 @@ run_build_development_environment() {
     yes | apt-get update -y --fix-missing
     # yes | DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
     yes | apt-get upgrade -y
+
+    # Disable unattended upgrades and prevent automatic updates in Ubuntu 24.04
+    sudo systemctl disable --now unattended-upgrades &
 
     # Wireshark ignoring the prompt, workaround
     sudo echo wireshark-common wireshark-common/install-setuid boolean true | sudo debconf-set-selections
