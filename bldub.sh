@@ -8,10 +8,11 @@
 # LXC IMPORT COMMAND: lxc import phoronix01.tar.gz
 # LXC PUBLISH COMMAND (ONLY IF YOU WANT IT LISTED AS A IMAGE): lxc publish ub01/phoronix --alias phoronix01
 
-# TODO - I want a lxc build docker01, with dockerce ready to go... 
-# TODO there is another problem, i noticed if you do lxd init, it will say job systemd-networkd-wait-online on a reboot, i need to FORCE ERASE THIS
-# TODO Make a GuiDevApps Menu for VSCode and Meteor + Lazyvim, @@AND@@ prompt which USER to run these installs as, and that way they arent root!!
-# TODO I need to make PORTABLE VSCODE HERE, then chmod and allow ANYONE TO USE IT!!! <---------------- - -- -this is cool idea
+# TODO: FEDORA (This worked in Ubuntu, but I need a way to make fedora's, since I already apt installed lxc-templates!), I.E THIS COMMAND >>> sudo lxc-create -t download -n my_fedora_container -- -d fedora -r 41 -a amd64
+# TODO: DOCKER01 - I want a lxc build docker01, with dockerce ready to go... 
+
+# TODO: Make a GuiDevApps Menu for VSCode and Meteor + Lazyvim, @@AND@@ prompt which USER to run these installs as, and that way they arent root!!
+# TODO: I need to make PORTABLE VSCODE HERE, then chmod and allow ANYONE TO USE IT!!! <---------------- - -- -this is cool idea
 # TODO: Curl docker01:5000 as user lmadmin NOT WORKING B/c ETC HOSTS, but IT WORKS AS ROOT WHY!?!?!?
 # TODO: Sometimes ub01/ub02 changes ip addresses after reboot, how do i cronjob or fix this?
 # TODO: I NEED TO MAKE SUDO PASSWORDLESS 
@@ -1021,6 +1022,7 @@ run_launch_1_ubuntu_container() {
     echo "Step: run_launch_1_ubuntu_container completed successfully!"
 
 } # END OF run_launch_1_ubuntu_container
+
 
 launch_lxd_init() {
     echo "Cleaning /etc/hosts from any ub01/ub02/ub03 ..."
