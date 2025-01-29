@@ -282,6 +282,9 @@ apt install -y fish
     # will be like: ModuleNotFoundError: No module named 'ansible.module_utils.six.moves', So we...:
     pip install --upgrade ansible
 
+    # UB2404 KICKSTART NEEDS THIS TO ALLOW UNPRIV VSCODE TO WORK:
+    sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
+    sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
 
     # Fish Shell Disable Greeting
