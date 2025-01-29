@@ -285,6 +285,12 @@ apt install -y fish
     # UB2404 KICKSTART NEEDS THIS TO ALLOW UNPRIV VSCODE TO WORK:
     sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
     sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+    (
+    crontab -l 2>/dev/null
+    echo "# ALLOW UNPRIV VSCODE TO WORK:"
+    echo "@reboot sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0"
+    echo "@reboot sysctl -w kernel.apparmor_restrict_unprivileged_userns=0"
+    ) | crontab -
 
 
     # Fish Shell Disable Greeting
