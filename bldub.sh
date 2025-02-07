@@ -127,7 +127,7 @@ run_build_development_environment() {
         mlocate mtr mysql-client nano ncdu neofetch net-tools nethogs nfs-common nfs-kernel-server nginx
         nmap open-vm-tools open-vm-tools-desktop openssh-server partitionmanager pssh python-is-python3 python3-pip python3-venv qdirstat kate
         remmina rsync sed ssh sshfs sudo tcpdump telnet terminator timeshift tshark tcpdump usb-creator-gtk
-        wget whois wireshark xclip xz-utils rofi locate docker-compose chromium-browser
+        wget whois wireshark xclip xz-utils rofi locate docker-compose chromium-browser htop btop
     )
 
     # Iterate through the list and install each package (Future proofing this script in case pknames chnge)
