@@ -196,29 +196,28 @@ apt install -y npm nodejs
 
 
     # RUN A SET OF COMMANDS FOR EACH USER
-    echo "%%% PHASE 2 EACH_USER IS GETTING METEOR/NPX/NODEJS via FNM.... %%%%"
+    # echo "%%% PHASE 2 EACH_USER IS GETTING METEOR/NPX/NODEJS via FNM.... %%%%"
     run_commands_for_user() {
         local user=$1
         local home_dir=$2
         echo "Running commands for user: $user"
         # Run commands as the user
-    su - $user << EOF
-    USER=`whoami`
-rm -rf /home/$user/.local/share/fnm
-sed -i 's/^# fnm.*¥n.*¥n.*¥nfi$//' /home/$user/.bashrc
-rm -f /home/$user/.bash_profile
 
-cd
-rm -rf .meteor
-
+#IM DISABLING METEOR
+# su - $user << EOF
+# USER=`whoami`
+# rm -rf /home/$user/.local/share/fnm
+# sed -i 's/^# fnm.*¥n.*¥n.*¥nfi$//' /home/$user/.bashrc
+# rm -f /home/$user/.bash_profile
+# cd
+#rm -rf .meteor
 #bash -c 'SUDO_USER="" npx -y meteor'
 #source /home/$user/.bashrc || shift || SUDO_USER="" npx -y meteor
-bash -c 'SUDO_USER="" npx -y meteor'
-
+#bash -c 'SUDO_USER="" npx -y meteor'
 #export PATH=/home/$user/.meteor:$PATH
 #set PATH=/home/$user/.meteor:$PATH
 #echo "export PATH=~/.meteor:$user" >> ~/.bashrc && echo "fish_add_path ~/.meteor" >> ~/.config/fish/config.fish
-EOF
+#EOF
         new_password="P@ssw0rd"
         set new_password P@ssw0rd
         echo Launching... "$user:$new_password" 
@@ -510,14 +509,15 @@ done
 echo "Fish configuration update complete with random colors for each user."
 
 
+#IM DISABLING METEOR
     # Now finally, lets add the meteor configuration from bashrc to fishrc FOR ROOT
-    for i in /home/* ; do
-        username=$(echo $i | sed 's/\/home\///'  )
-        su - $username -c grep 'meteor' .bashrc | sed 's/export PATH=/set PATH /' >> $user_home/.config/fish/config.fish 
-    done
-    echo 'set PATH /home/kenshin/.meteor:$PATH' >> /home/kenshin/.config/fish/config.fish
-    # Now do it for root #TODO Still not working for root but idgaf atm.
-    grep 'meteor' .bashrc | sed 's/export PATH=/set PATH /' >> /root/.config/fish/config.fish 2>/dev/null 1>/dev/null
+    # for i in /home/* ; do
+    #     username=$(echo $i | sed 's/\/home\///'  )
+    #     su - $username -c grep 'meteor' .bashrc | sed 's/export PATH=/set PATH /' >> $user_home/.config/fish/config.fish 
+    # done
+    # echo 'set PATH /home/kenshin/.meteor:$PATH' >> /home/kenshin/.config/fish/config.fish
+    # # Now do it for root #TODO Still not working for root but idgaf atm.
+    # grep 'meteor' .bashrc | sed 's/export PATH=/set PATH /' >> /root/.config/fish/config.fish 2>/dev/null 1>/dev/null
 
 
 
