@@ -196,28 +196,29 @@ apt install -y npm nodejs
 
 
     # RUN A SET OF COMMANDS FOR EACH USER
-    # echo "%%% PHASE 2 EACH_USER IS GETTING METEOR/NPX/NODEJS via FNM.... %%%%"
+    echo "%%% PHASE 2 EACH_USER IS GETTING METEOR/NPX/NODEJS via FNM.... %%%%"
     run_commands_for_user() {
         local user=$1
         local home_dir=$2
         echo "Running commands for user: $user"
         # Run commands as the user
+    su - $user << EOF
+    USER=`whoami`
+rm -rf /home/$user/.local/share/fnm
+sed -i 's/^# fnm.*¥n.*¥n.*¥nfi$//' /home/$user/.bashrc
+rm -f /home/$user/.bash_profile
 
-#IM DISABLING METEOR
-# su - $user << EOF
-# USER=`whoami`
-# rm -rf /home/$user/.local/share/fnm
-# sed -i 's/^# fnm.*¥n.*¥n.*¥nfi$//' /home/$user/.bashrc
-# rm -f /home/$user/.bash_profile
-# cd
-#rm -rf .meteor
+cd
+rm -rf .meteor
+
 #bash -c 'SUDO_USER="" npx -y meteor'
 #source /home/$user/.bashrc || shift || SUDO_USER="" npx -y meteor
-#bash -c 'SUDO_USER="" npx -y meteor'
+bash -c 'SUDO_USER="" npx -y meteor'
+
 #export PATH=/home/$user/.meteor:$PATH
 #set PATH=/home/$user/.meteor:$PATH
 #echo "export PATH=~/.meteor:$user" >> ~/.bashrc && echo "fish_add_path ~/.meteor" >> ~/.config/fish/config.fish
-#EOF
+EOF
         new_password="P@ssw0rd"
         set new_password P@ssw0rd
         echo Launching... "$user:$new_password" 
@@ -234,6 +235,32 @@ apt install -y npm nodejs
         fi
     done
 
+# NOW LETS GET MINICONDA IN HERE!!!
+# IF ROCKY, ITS EASY:
+dnf install -y conda 2>/dev/null
+
+# IF UBUNTU IT IS LONG 
+if grep -q "Ubuntu" /etc/os-release; then
+    echo "Ubuntu environment detected. Proceeding with Conda installation."
+    # Download the latest Miniconda installer
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+    # Install Miniconda silently
+    bash miniconda.sh -b -p $HOME/miniconda
+    # Remove the installer
+    rm miniconda.sh
+    # Initialize conda for bash
+    $HOME/miniconda/bin/conda init bash
+    $HOME/miniconda/bin/conda init fish
+    # Reload the shell configuration
+    source ~/.bashrc
+    # Disable auto-activation of base environment
+    conda config --set auto_activate_base false
+    # Verify installation
+    conda --version
+    echo "Conda installation complete. Please restart your terminal or run 'source ~/.bashrc' to use conda."
+else
+    echo "Continuing, since ubuntu wasnt detected."
+fi
 
 
 
@@ -509,15 +536,14 @@ done
 echo "Fish configuration update complete with random colors for each user."
 
 
-#IM DISABLING METEOR
     # Now finally, lets add the meteor configuration from bashrc to fishrc FOR ROOT
-    # for i in /home/* ; do
-    #     username=$(echo $i | sed 's/\/home\///'  )
-    #     su - $username -c grep 'meteor' .bashrc | sed 's/export PATH=/set PATH /' >> $user_home/.config/fish/config.fish 
-    # done
-    # echo 'set PATH /home/kenshin/.meteor:$PATH' >> /home/kenshin/.config/fish/config.fish
-    # # Now do it for root #TODO Still not working for root but idgaf atm.
-    # grep 'meteor' .bashrc | sed 's/export PATH=/set PATH /' >> /root/.config/fish/config.fish 2>/dev/null 1>/dev/null
+    for i in /home/* ; do
+        username=$(echo $i | sed 's/\/home\///'  )
+        su - $username -c grep 'meteor' .bashrc | sed 's/export PATH=/set PATH /' >> $user_home/.config/fish/config.fish 
+    done
+    echo 'set PATH /home/kenshin/.meteor:$PATH' >> /home/kenshin/.config/fish/config.fish
+    # Now do it for root #TODO Still not working for root but idgaf atm.
+    grep 'meteor' .bashrc | sed 's/export PATH=/set PATH /' >> /root/.config/fish/config.fish 2>/dev/null 1>/dev/null
 
 
 
