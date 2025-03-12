@@ -39,6 +39,8 @@ $(tput setaf 3)- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - ~ To take/restore snapshots:                       ~
 - ~   lxc snapshot poop02 FRESH                      ~
 - ~   lxc restore poop02 FRESH                       ~
+- ~   lxc file pull -r poop02/dev/myApp01 .          ~
+- ~   lxc file push -r ./myApp01 poop03/dev/         ~
 - ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(tput sgr0)
 - Remember that MAC OS will GET HOT so ENABLE SLEEP AFTER 20 MIN OF IDLE OR SHUTDOWN IN THE VM??????????????????CMD W in UTM FTW!
 - NOTE I DISABLED: /mnt/hgfs b/c sometimes uses 100% cpu (step1 OS Prep)
@@ -236,37 +238,30 @@ EOF
     done
 
 # NOW LETS GET MINICONDA IN HERE!!!
-# IF ROCKY, ITS EASY:
+apt install -y wget
+dnf install -y wget
 dnf install -y conda 2>/dev/null
-
-# IF UBUNTU IT IS LONG 
-if grep -q "Ubuntu" /etc/os-release; then
-    echo "Ubuntu environment detected. Proceeding with Conda installation."
-    # Download the latest Miniconda installer
-    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-    # Install Miniconda silently
-    bash miniconda.sh -b -p $HOME/miniconda
-    # Remove the installer
-    rm miniconda.sh
-    # Initialize conda for bash
-    $HOME/miniconda/bin/conda init bash
-    $HOME/miniconda/bin/conda init fish
-    # Reload the shell configuration
-    source ~/.bashrc
-    # Disable auto-activation of base environment
-    conda config --set auto_activate_base false
-    # Verify installation
-    conda --version
-    echo "Conda installation complete. Please restart your terminal or run 'source ~/.bashrc' to use conda."
-else
-    echo "Continuing, since ubuntu wasnt detected."
-fi
+echo "Ubuntu environment detected. Proceeding with Conda installation."
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+bash miniconda.sh -b -p $HOME/miniconda
+$HOME/miniconda/bin/conda init bash
+$HOME/miniconda/bin/conda init fish
+source ~/.bashrc
+conda config --set auto_activate_base false
+conda --version
+echo "Conda installation complete. Please restart your terminal or run 'source ~/.bashrc' to use conda."
 
 
 
 
 
-# NOW THAT FNM/NPX/NODEJS AND METEOR FINISHE INSTALLING, ITS SAFE TO INSTALL FISH!!
+
+
+
+
+
+
+# NOW THAT FNM/NPX/NODEJS AND METEOR FINISHED INSTALLING, ITS SAFE TO INSTALL FISH!!
 apt install -y fish
 
 
