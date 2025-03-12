@@ -39,8 +39,8 @@ $(tput setaf 3)- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - ~ To take/restore snapshots:                       ~
 - ~   lxc snapshot poop02 FRESH                      ~
 - ~   lxc restore poop02 FRESH                       ~
-- ~   lxc file pull -r poop02/dev/myApp01 .          ~
-- ~   lxc file push -r ./myApp01 poop03/dev/         ~
+- ~   lxc file pull -r poop02/home/user01/myApp01 .  ~
+- ~   lxc file push -r ./myApp01 poop03/home/user01/ ~
 - ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(tput sgr0)
 - Remember that MAC OS will GET HOT so ENABLE SLEEP AFTER 20 MIN OF IDLE OR SHUTDOWN IN THE VM??????????????????CMD W in UTM FTW!
 - NOTE I DISABLED: /mnt/hgfs b/c sometimes uses 100% cpu (step1 OS Prep)
