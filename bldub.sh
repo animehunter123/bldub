@@ -556,6 +556,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 source $HOME/.cargo/env 2>/dev/null 1>/dev/null
 # Next Update and pre-reqs!!!
 rustup update # To Update Rustup Compiler to latest version
+cargo install cargo-watch # Can't live without this "watchexec" alternative!
 echo "Ok Done! Open a fresh new terminal and it should be in fish or bash!"
 
 
