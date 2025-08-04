@@ -429,9 +429,15 @@ EOF
         fi
     done
 
-    # Add rules to iptables (ubuntu) to accept forwarding traffic for our containers subnet
+    # Add rules to iptables (ubuntu) to accept forwarding traffic for our containers subnet to the internet. Cloud servers and Ubuntu do not save iptables rules by default on reboot.
+    echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
+    echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
+    sudo apt install -y iptables-persistent
+    sudo netfilter-persistent save
     sudo iptables -A FORWARD -i lxdbr0 -j ACCEPT
     sudo iptables -A FORWARD -o lxdbr0 -j ACCEPT
+    sudo sysctl -w net.ipv4.ip_forward=1
+    sudo netfilter-persistent save
 
 
     # ensure that the system fish config has 'lxc' aliased to 'sudo lxc' and the same for 'sudo docker
