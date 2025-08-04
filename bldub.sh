@@ -429,6 +429,11 @@ EOF
         fi
     done
 
+    # Add rules to iptables (ubuntu) to accept forwarding traffic for our containers subnet
+    sudo iptables -A FORWARD -i lxdbr0 -j ACCEPT
+    sudo iptables -A FORWARD -o lxdbr0 -j ACCEPT
+
+
     # ensure that the system fish config has 'lxc' aliased to 'sudo lxc' and the same for 'sudo docker
     printf 'alias lxc "sudo lxc"\n' >> /etc/fish/config.fish
     printf 'alias lxcl "sudo lxc list -c nst4sS"\n' >> /etc/fish/config.fish  #This is a nice shorthand!
