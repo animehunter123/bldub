@@ -1235,7 +1235,7 @@ fi
 # ~~MAIN MENU~~
 echo "Please select an option (ONLY USE ROOT NOBODY ELSE):"
 echo "[1]. Build Host OS with DockerCE/Ansible/Lxd"
-echo "[2]. Docker: Build ub2404 fresh container from internet"
+echo "[2]. Docker: Build ub2404 fresh container from internet (and fix lxdbr0 for lxc!!!)"
 echo "[3]--[d] Docker: CREATE 1 freshubXX (docker container, sshkeygen'ed, root/P@)"
 echo "[4]. Docker: CREATE 3 fresh ub0123  (docker container, sshkeygen'ed, root/P@)"
 echo "[5]. Lxd: Install 'lxd init --minimal', and Lxd WebUI: http://localhost:8443"
