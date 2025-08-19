@@ -252,6 +252,128 @@ conda --version
 echo "Conda installation complete. Please restart your terminal or run 'source ~/.bashrc' to use conda."
 
 
+# 20250818 @@@@@@@@@@@@@@@@@@@@@@@@
+# 20250818 @@@@@@@@@@@@@@@@@@@@@@@@
+# 20250818 @@@@@@@@@@@@@@@@@@@@@@@@
+# NOW LETS GET NVIM WITH LAZYVIM AND RUST IN HERE!!!!!!
+echo -e "\e[32mInstalling pre-reqs...\e[0m"
+# Assuming you're using apt; adjust if using dnf/pacman/brew/etc.
+sudo apt-get update
+sudo apt-get install -y build-essential fzf fd-find bat ripgrep zoxide git curl unzip 
+sudo apt install -y luajit libluajit-5.1-dev # THIS IS FOR MY CargoRun plugin, THERE MIGHT BE A NEWER VERSION IN THE FUTURE
+echo "INSTALLING RUSTUP!!!!!!!!!!"
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+. "$HOME/.cargo/env"            # For sh/bash/zsh/ash/dash/pdksh
+source "$HOME/.cargo/env.fish"  # For fish
+rustup component add rust-analyzer rustfmt clippy rust-src
+# Optional, I disabled to speed up this installer
+# cargo install rust-analyzer
+# cargo install cargo-edit
+# cargo install cargo-watch
+echo -e "\e[32mInstalling Neovim (LazyVim base)...\e[0m"
+timestamp=$(date +"%Y%m%d%H%M%S")
+rm -f nvim.appimage
+curl -LO  https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
+chmod 777 nvim-linux-x86_64.appimage
+OLDNVIM=`which nvim`
+sudo mv "$OLDNVIM" "$OLDNVIM"_"$timestamp" 2>/dev/null
+sudo mv /usr/bin/nvim /usr/bin/nvim_"$timestamp" 2>/dev/null
+sudo mv /bin/nvim /bin/nvim_"$timestamp" 2>/dev/null
+sudo cp nvim-linux-x86_64.appimage /bin/ 2>/dev/null
+sudo mv /bin/nvim-linux-x86_64.appimage /bin/nvim
+sudo chmod 777 /bin/nvim
+echo -e "\e[32mClearing old LazyVim config...\e[0m"
+if [ -d "$HOME/.config/nvim" ]; then
+  mv "$HOME/.config/nvim" "$HOME/.config/nvim.$timestamp"
+fi
+if [ -d "$HOME/.local/share/nvim" ]; then
+  mv "$HOME/.local/share/nvim" "$HOME/.local/share/nvim.$timestamp"
+fi
+echo -e "\e[32mInstalling LazyVim starter config...\e[0m"
+git clone https://github.com/LazyVim/starter "$HOME/.config/nvim"
+rm -rf "$HOME/.config/nvim/.git"
+echo RUNNING MASON INSTALLER PER THERE GUIDE...
+echo "
+
+-- This is so that we can get MasonInstall instead of just Mason
+require(\"mason\").setup()
+" >> "$HOME/.config/nvim/init.lua"
+
+echo INSTALLING MY FAVORITE CargoRun Addon
+folder="$HOME/.config/nvim/lua/plugins"
+file="$folder/cargoMINE.lua"
+mkdir -p "$folder"
+cat > "$file" << 'EOF'
+-- I THINK THIS ADDED the :CargoRun which makes a popup in nvim
+-- THEN YOU JUST SAVE THIS AS A NEW FILE IN ~/.config/nvim/lua/plugins/cargoMINE.lua
+-- THEN YOU REOPEN NVIM, then just run :CargoRun on a main.rs file i guess
+-- BY THE WAY THIS IS SOOO AWESOME BECAUSE IT AUTOSAVES!!!! OMG COOL!!
+return {
+    {
+        "nwiizo/cargo.nvim",
+        build = "cargo build --release",
+        config = function()
+            require("cargo").setup({
+                float_window = true,
+                window_width = 0.8,
+                window_height = 0.8,
+                border = "rounded",
+                auto_close = true,
+                close_timeout = 5000,
+            })
+        end,
+        ft = { "rust" },
+        cmd = {
+            "CargoBench",
+            "CargoBuild",
+            "CargoClean",
+            "CargoDoc",
+            "CargoNew",
+            "CargoRun",
+            "CargoRunTerm",
+            "CargoTest",
+            "CargoUpdate",
+            "CargoCheck",
+            "CargoClippy",
+            "CargoAdd",
+            "CargoRemove",
+            "CargoFmt",
+            "CargoFix",
+        },
+    },
+}
+EOF
+pushd .
+cd ~/.local/share/nvim/lazy/cargo.nvim
+cargo build --release
+popd
+echo "INSTALL MY NORMAL PLUGINS I WANTED VIA MASONINSTALL CLI..."
+nvim --headless -c "MasonInstall rust-analyzer" -c "qall"
+nvim --headless -c "MasonInstall rustfmt" -c "qall"
+nvim --headless -c "MasonInstall codelldb" -c "qall"
+# nvim --headless -c "MasonInstall cpptools" -c "qall"
+nvim --headless -c "MasonInstall crates.nvim" -c "qall"
+nvim --headless -c "MasonInstall rustaceanvim" -c "qall"
+echo "INSTALL MY EXTRA PLUGINS I WANTED VIA MASONINSTALL CLI..."
+sed -i 's/"extras": \[/"extras": \[\n"lazyvim.plugins.extras.lang.rust"\n"lazyvim.plugins.extras.editor.telescope"\n/' ~/.config/nvim/lazyvim.json 2>/dev/null
+echo 'OK INSTALL COMPLETE
+
+To Debug Rust, Be sure to install or confirm: 
+
+(Normal Plugins) i >>
+rust-analyzer
+rustfmt    <--- obe, but gives io::std::stdin() method
+
+(Extra Plugins) x >> 
+lang.rust  <-- for rust basic
+test.core  <-- for debug
+
+OK PRESS ANY BUTTON TO CONTINUE!!
+'
+# nvim test.rs # dummy filename to ensure any downloads are needed?
+# sed -i 's/"extras": \[/"extras": \[\n"lazyvim.plugins.extras.lang.rust"\n"lazyvim.plugins.extras.editor.telescope"\n/' ~/.config/nvim/lazyvim.json 2>/dev/null
+
+
 
 
 
@@ -1285,5 +1407,10 @@ case $choice in
     exit 1
     ;;
 esac
+
+
+# Workaround I put at the end, so that nvim creates a lazyvim.json, then I can add telescope/rust in it.
+nvim test.rs # dummy filename to ensure any downloads are needed? (Do this once at the end of the bldub)
+sed -i 's/"extras": \[/"extras": \[\n"lazyvim.plugins.extras.lang.rust"\n"lazyvim.plugins.extras.editor.telescope"\n/' ~/.config/nvim/lazyvim.json 2>/dev/null
 
 echo "Script complete."
