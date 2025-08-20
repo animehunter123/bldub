@@ -1417,7 +1417,7 @@ esac
 
 
 # Workaround I put at the end, so that nvim creates a lazyvim.json, then I can add telescope/rust in it.
-nvim test.rs # dummy filename to ensure any downloads are needed? (Do this once at the end of the bldub)
-sed -i 's/"extras": \[/"extras": \[\n"lazyvim.plugins.extras.lang.rust"\n"lazyvim.plugins.extras.editor.telescope"\n/' ~/.config/nvim/lazyvim.json 2>/dev/null
+# nvim test.rs # dummy filename to ensure any downloads are needed? (Do this once at the end of the bldub)
+# sed -i 's/"extras": \[/"extras": \[\n"lazyvim.plugins.extras.lang.rust"\n"lazyvim.plugins.extras.editor.telescope"\n/' ~/.config/nvim/lazyvim.json 2>/dev/null
 
 echo "Script complete."
