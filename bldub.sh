@@ -129,7 +129,7 @@ run_build_development_environment() {
         mlocate mtr mysql-client nano ncdu neofetch net-tools nethogs nfs-common nfs-kernel-server nginx
         nmap open-vm-tools open-vm-tools-desktop openssh-server partitionmanager pssh python-is-python3 python3-pip python3-venv qdirstat kate
         remmina rsync sed ssh sshfs sudo tcpdump telnet terminator timeshift tshark tcpdump usb-creator-gtk
-        wget whois wireshark xclip xz-utils rofi locate docker-compose chromium-browser htop btop fish
+        wget whois wireshark xclip xz-utils rofi locate docker-compose chromium-browser htop btop fish lxc lxc-templates lxcfs
     )
 
     # Iterate through the list and install each package (Future proofing this script in case pknames chnge)
@@ -252,6 +252,9 @@ conda config --set auto_activate_base false
 conda --version
 echo "Conda installation complete. Please restart your terminal or run 'source ~/.bashrc' to use conda."
 
+echo ok.... yum groupinstall Development Tools
+yum groupinstall "Development Tools"
+dnf groupinstall "Development Tools"
 
 # 20250818 @@@@@@@@@@@@@@@@@@@@@@@@
 # 20250818 @@@@@@@@@@@@@@@@@@@@@@@@
