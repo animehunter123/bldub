@@ -701,6 +701,9 @@ source $HOME/.cargo/env 2>/dev/null 1>/dev/null
 # Next Update and pre-reqs!!!
 rustup update # To Update Rustup Compiler to latest version
 cargo install cargo-watch # Can't live without this "watchexec" alternative!
+cargo install bacon
+cargo install rustlings
+cargo install clippy
 echo "Ok Done! Open a fresh new terminal and it should be in fish or bash!"
 
 
