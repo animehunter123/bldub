@@ -34,13 +34,14 @@ This script makes the kubuntu host a docker_or_lxd server with ansible cli ready
 - Read the menu below carefully!!! (Launching: ~~MAIN MENU~~ in bash code.)
 - Follow the prompts and watch your shell, i.e. lightdm/sddm install prompts etc.
 $(tput setaf 3)- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-- ~ You can launch a lxd via: ./bldub.sh l k8ctl01   ~
-- ~ You can delete all lxd:   ./bldub.sh d           ~
-- ~ To take/restore snapshots:                       ~
-- ~   lxc snapshot poop02 FRESH                      ~
-- ~   lxc restore poop02 FRESH                       ~
-- ~   lxc file pull -r poop02/home/user01/myApp01 .  ~
-- ~   lxc file push -r ./myApp01 poop03/home/user01/ ~
+- ~ You can launch lxd: ./bldub.sh l k8ctl01                        ~
+- ~ Which is basically:  lxc launch images:debian/13/cloud pve01    ~
+- ~ You can delete all lxd:   ./bldub.sh d                          ~
+- ~ To take/restore snapshots:                                      ~
+- ~   lxc snapshot poop02 FRESH                                     ~
+- ~   lxc restore poop02 FRESH                                      ~
+- ~   lxc file pull -r poop02/home/user01/myApp01 .                 ~
+- ~   lxc file push -r ./myApp01 poop03/home/user01/                ~
 - ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(tput sgr0)
 - Remember that MAC OS will GET HOT so ENABLE SLEEP AFTER 20 MIN OF IDLE OR SHUTDOWN IN THE VM??????????????????CMD W in UTM FTW!
 - NOTE I DISABLED: /mnt/hgfs b/c sometimes uses 100% cpu (step1 OS Prep)
