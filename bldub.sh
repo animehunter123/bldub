@@ -175,69 +175,71 @@ echo "Loading dummy module now"
 modprobe dummy
 echo "OK DONE, remember after a reboot to check if dummy module is loaded, via: lsmod|grep -i dummy  "
 
+apt install -y npm nodejs
 
-
-    echo "%%% PHASE 1 ROOT IS GETTING METEOR/NPX/NODEJS via FNM.... %%%%"
+# DISABLED METEOR INSTALLLLLLLLLLL
+# echo "%%% PHASE 1 ROOT IS GETTING METEOR/NPX/NODEJS via FNM.... %%%%"
 #    curl -fsSL https://fnm.vercel.app/install | bash
 #    source ~/.bashrc
 #    source /root/.config/fish/conf.d/fnm.fish
-    #fnm install --lts
+#fnm install --lts
 #    /root/.local/share/fnm/fnm install --lts
+#     rm -rf .meteor
+#     # npx -y meteor
+#     bash -c 'SUDO_USER="" npx -y meteor'
+#     export PATH=/root/.meteor:$PATH
+#     set PATH=/root/.meteor:$PATH
+#     echo "Finished running commands as root"
+#     # RUN A SET OF COMMANDS FOR EACH USER
+#     echo "%%% PHASE 2 EACH_USER IS GETTING METEOR/NPX/NODEJS via FNM.... %%%%"
+#     run_commands_for_user() {
+#         local user=$1
+#         local home_dir=$2
+#         echo "Running commands for user: $user"
+#         # Run commands as the user
+#     su - $user << EOF
+#     USER=`whoami`
+# rm -rf /home/$user/.local/share/fnm
+# sed -i 's/^# fnm.*¥n.*¥n.*¥nfi$//' /home/$user/.bashrc
+# rm -f /home/$user/.bash_profile
+# cd
+# rm -rf .meteor
+# #bash -c 'SUDO_USER="" npx -y meteor'
+# #source /home/$user/.bashrc || shift || SUDO_USER="" npx -y meteor
+# bash -c 'SUDO_USER="" npx -y meteor'
+# #export PATH=/home/$user/.meteor:$PATH
+# #set PATH=/home/$user/.meteor:$PATH
+# #echo "export PATH=~/.meteor:$user" >> ~/.bashrc && echo "fish_add_path ~/.meteor" >> ~/.config/fish/config.fish
+# EOF
+# # Now finally, lets add the meteor configuration from bashrc to fishrc FOR ROOT
+# for i in /home/* ; do
+#     username=$(echo $i | sed 's/\/home\///'  )
+#     su - $username -c grep 'meteor' .bashrc | sed 's/export PATH=/set PATH /' >> $user_home/.config/fish/config.fish 
+# done
+# echo 'set PATH /home/kenshin/.meteor:$PATH' >> /home/kenshin/.config/fish/config.fish
+# # Now do it for root #TODO Still not working for root but idgaf atm.
+# grep 'meteor' .bashrc | sed 's/export PATH=/set PATH /' >> /root/.config/fish/config.fish 2>/dev/null 1>/dev/null
+# }
 
-apt install -y npm nodejs
-
-
-    rm -rf .meteor
-    # npx -y meteor
-    bash -c 'SUDO_USER="" npx -y meteor'
-    export PATH=/root/.meteor:$PATH
-    set PATH=/root/.meteor:$PATH
-    echo "Finished running commands as root"
 
 
 
 
+new_password="P@ssw0rd"
+set new_password P@ssw0rd
+echo Launching... "$user:$new_password" 
+echo "$user:$new_password" | chpasswd
+echo "Finished running commands for user: $user"
+echo "----------------------------------------"
 
-
-    # RUN A SET OF COMMANDS FOR EACH USER
-    echo "%%% PHASE 2 EACH_USER IS GETTING METEOR/NPX/NODEJS via FNM.... %%%%"
-    run_commands_for_user() {
-        local user=$1
-        local home_dir=$2
-        echo "Running commands for user: $user"
-        # Run commands as the user
-    su - $user << EOF
-    USER=`whoami`
-rm -rf /home/$user/.local/share/fnm
-sed -i 's/^# fnm.*¥n.*¥n.*¥nfi$//' /home/$user/.bashrc
-rm -f /home/$user/.bash_profile
-
-cd
-rm -rf .meteor
-
-#bash -c 'SUDO_USER="" npx -y meteor'
-#source /home/$user/.bashrc || shift || SUDO_USER="" npx -y meteor
-bash -c 'SUDO_USER="" npx -y meteor'
-
-#export PATH=/home/$user/.meteor:$PATH
-#set PATH=/home/$user/.meteor:$PATH
-#echo "export PATH=~/.meteor:$user" >> ~/.bashrc && echo "fish_add_path ~/.meteor" >> ~/.config/fish/config.fish
-EOF
-        new_password="P@ssw0rd"
-        set new_password P@ssw0rd
-        echo Launching... "$user:$new_password" 
-        echo "$user:$new_password" | chpasswd
-        echo "Finished running commands for user: $user"
-        echo "----------------------------------------"
-    }   
-    for user_home in /home/*; do
-        if [ -d "$user_home" ]; then
-            user=$(basename "$user_home")
-            run_commands_for_user $user $user_home
-            echo OK RUNNING chown -R $user:$user /home/$user 
-            chown -R $user:$user /home/$user 2>/dev/null
-        fi
-    done
+for user_home in /home/*; do
+    if [ -d "$user_home" ]; then
+        user=$(basename "$user_home")
+        run_commands_for_user $user $user_home
+        echo OK RUNNING chown -R $user:$user /home/$user 
+        chown -R $user:$user /home/$user 2>/dev/null
+    fi
+done
 
 # NOW LETS GET MINICONDA IN HERE!!!
 apt install -y wget
@@ -676,14 +678,6 @@ done
 echo "Fish configuration update complete with random colors for each user."
 
 
-    # Now finally, lets add the meteor configuration from bashrc to fishrc FOR ROOT
-    for i in /home/* ; do
-        username=$(echo $i | sed 's/\/home\///'  )
-        su - $username -c grep 'meteor' .bashrc | sed 's/export PATH=/set PATH /' >> $user_home/.config/fish/config.fish 
-    done
-    echo 'set PATH /home/kenshin/.meteor:$PATH' >> /home/kenshin/.config/fish/config.fish
-    # Now do it for root #TODO Still not working for root but idgaf atm.
-    grep 'meteor' .bashrc | sed 's/export PATH=/set PATH /' >> /root/.config/fish/config.fish 2>/dev/null 1>/dev/null
 
 
 
