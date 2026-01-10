@@ -272,7 +272,8 @@ echo "INSTALLING RUSTUP!!!!!!!!!!"
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 . "$HOME/.cargo/env"            # For sh/bash/zsh/ash/dash/pdksh
 source "$HOME/.cargo/env.fish"  # For fish
-rustup component add rust-analyzer rustfmt clippy rust-src
+# rustup component add rust-analyzer rustfmt clippy rust-src #REMOVED CLIPPY IT IS OBE I THINK?
+rustup component add rust-analyzer rustfmt rust-src
 echo -e "\e[32mInstalling Neovim (LazyVim base)...\e[0m"
 timestamp=$(date +"%Y%m%d%H%M%S")
 rm -f nvim.appimage
