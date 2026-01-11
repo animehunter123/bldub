@@ -131,6 +131,7 @@ run_build_development_environment() {
         nmap open-vm-tools open-vm-tools-desktop openssh-server partitionmanager pssh python-is-python3 python3-pip python3-venv qdirstat kate
         remmina rsync sed ssh sshfs sudo tcpdump telnet terminator timeshift tshark tcpdump usb-creator-gtk
         wget whois wireshark xclip xz-utils rofi locate docker-compose chromium-browser htop btop fish lxc lxc-templates lxcfs cmake
+        guake
     )
 
     # Iterate through the list and install each package (Future proofing this script in case pknames chnge)
