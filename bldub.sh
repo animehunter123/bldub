@@ -176,7 +176,12 @@ echo "Loading dummy module now"
 modprobe dummy
 echo "OK DONE, remember after a reboot to check if dummy module is loaded, via: lsmod|grep -i dummy  "
 
-apt install -y npm nodejs
+# THE LATEST NODE, New cool way I found... (I think... this will work with.... Fedora/RHEL/ROCKY too?)
+curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# THIS IS THE CRAPPY CANONICAL NODE... I HATE IT
+# apt install -y npm nodejs
 
 # DISABLED METEOR INSTALLLLLLLLLLL
 # echo "%%% PHASE 1 ROOT IS GETTING METEOR/NPX/NODEJS via FNM.... %%%%"
