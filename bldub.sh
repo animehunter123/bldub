@@ -262,8 +262,8 @@ conda --version
 echo "Conda installation complete. Please restart your terminal or run 'source ~/.bashrc' to use conda."
 
 echo ok.... yum groupinstall Development Tools
-yum groupinstall "Development Tools"
-dnf groupinstall "Development Tools"
+yes | yum groupinstall -y "Development Tools"
+yes | dnf groupinstall -y "Development Tools"
 
 # 20250818 @@@@@@@@@@@@@@@@@@@@@@@@
 # 20250818 @@@@@@@@@@@@@@@@@@@@@@@@
