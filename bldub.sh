@@ -264,6 +264,19 @@ echo "Conda installation complete. Please restart your terminal or run 'source ~
 echo ok.... yum groupinstall Development Tools
 yes | yum groupinstall -y "Development Tools"
 yes | dnf groupinstall -y "Development Tools"
+yes | dnf install -y util-linux-user
+
+echo ok... Rocky Installing LIBVIRT/KVM/VIRSH
+yes | dnf groupinstall "Virtualization Host" -y
+yes | dnf install -y util-linux-user qemu-kvm libvirt virt-install libvirt-client virt-manager cockpit
+systemctl enable --now libvirtd
+systemctl enable --now cockpit.socket
+usermod -aG libvirt root
+usermod -aG libvirt lmadmin
+virsh net-start default
+virsh net-autostart default
+dnf install -y cockpit-machines 
+
 
 # 20250818 @@@@@@@@@@@@@@@@@@@@@@@@
 # 20250818 @@@@@@@@@@@@@@@@@@@@@@@@
@@ -1372,7 +1385,7 @@ fi
 
 # ~~MAIN MENU~~
 echo "Please select an option (ONLY USE ROOT NOBODY ELSE):"
-echo "[1]. Build Host OS with DockerCE/Ansible/Lxd"
+echo "[1]. Build Host OS with DockerCE/Ansible/Lxd/Libvirt"
 echo "[2]. Docker: Build ub2404 fresh container from internet (and fix lxdbr0 for lxc!!!)"
 echo "[3]--[d] Docker: CREATE 1 freshubXX (docker container, sshkeygen'ed, root/P@)"
 echo "[4]. Docker: CREATE 3 fresh ub0123  (docker container, sshkeygen'ed, root/P@)"
