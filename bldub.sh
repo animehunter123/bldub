@@ -266,8 +266,14 @@ yes | yum groupinstall -y "Development Tools"
 yes | dnf groupinstall -y "Development Tools"
 yes | dnf install -y util-linux-user
 
+echo ok... Ubuntu Installing LIBVIRT/KVM/VIRSH
+sudo apt install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virtinst libvirt-clients ;
+sudo systemctl enable --now libvirtd ;
+sudo adduser $USER libvirt ;
+sudo adduser $USER kvm ;
+
 echo ok... Rocky Installing LIBVIRT/KVM/VIRSH
-yes | dnf groupinstall "Virtualization Host" -y
+
 yes | dnf install -y util-linux-user qemu-kvm libvirt virt-install libvirt-client virt-manager cockpit
 systemctl enable --now libvirtd
 systemctl enable --now cockpit.socket
