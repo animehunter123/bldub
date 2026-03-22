@@ -68,24 +68,6 @@ run_build_development_environment() {
     echo "SNAP: Installing vscode via snap/snapd!!!"
     snap install code --classic
 
-
-    # TODO THIS WONT WORK< I NEED TO USE A PORTABLE ZIP FILE AND ALLOW IT FOR EVERY USER 
-    # vscode_extension_list="vscodevim.vim aaron-bond.better-comments ahmadawais.shades-of-purple akamud.vscode-theme-onedark anbuselvanrocky.bootstrap5-vscode arcticicestudio.nord-visual-studio-code azemoh.one-monokai batisteo.vscode-django bwildeman.tabulous christian-kohler.path-intellisense cstrap.flask-snippets danielpinto8zz6.c-cpp-compile-run daylerees.rainglow dracula-theme.theme-dracula dracula-theme.theme-dracula eamodio.gitlens emmanuelbeziat.vscode-great-icons enkia.tokyo-night esbenp.prettier-vscode file-icons.file-icons formulahendry.code-runner gep13.chocolatey-vscode github.github-vscode-theme grapecity.gc-excelviewer hoovercj.vscode-power-mode idleberg.hopscotch johnpapa.winteriscoming jolaleye.horizon-theme-vscode jprestidge.theme-material-theme Kelvin.vscode-sshfs Kipjr.vscode-language-ipxe liviuschera.noctis magicstack.magicpython mariorodeghiero.vue-theme mechatroner.rainbow-csv monokai.theme-monokai-pro-vscode ms-azuretools.vscode-docker MS-CEINTL.vscode-language-pack-ja ms-edgedevtools.vscode-edge-devtools ms-mssql.mssql ms-python.python ms-python.vscode-pylance ms-python.vscode-pylance ms-toolsai.jupyter ms-vscode-remote.remote-ssh-edit ms-vscode-remote.remote-ssh ms-vscode-remote.remote-wsl ms-vscode-remote.vscode-remote-extensionpack ms-vscode.cpptools-extension-pack ms-vscode.cpptools ms-vscode.hexeditor ms-vscode.hexeditor ms-vscode.powershell noxiz.jinja-snippets pdconsec.vscode-print pkief.material-icon-theme Remisa.shellman ritwickdey.LiveServer robbowen.synthwave-vscode sdras.night-owl swyphcosmo.spellchecker teabyii.ayu thekalinga.bootstrap4-vscode tommasov.hosts vangware.dark-plus-material vscjava.vscode-java-pack vscode-icons-team.vscode-icons wesbos.theme-cobalt2 whizkydee.material-palenight-theme wholroyd.jinja wraith13.unsaved-files-vscode wyattferguson.jinja2-snippet-kit zhuangtongfa.material-theme ms-python.autopep8 sainnhe.gruvbox-material RoweWilsonFrederiskHolme.wikitext ms-vscode.makefile-tools mark-wiemer.vscode-autohotkey-plus-plus eliostruyf.vscode-hide-comments hediet.vscode-drawio rangav.vscode-thunder-client Postman.postman-for-vscode rjmacarthy.twinny alefragnani.Bookmarks oderwat.indent-rainbow johnpapa.vscode-peacock ms-vscode.live-server tomoki1207.pdf vscode-org-mode.org-mode"
-    # IFS=' ' read -ra extensions <<< "$vscode_extension_list"
-    # VSCODE_DATA='/VSCODE-DATA'
-    # mkdir $VSCODE_DATA
-    # for extension in "${extensions[@]}"
-    # do
-    #     echo "Installing $extension..."
-    #     code --install-extension "$extension" --no-sandbox --user-data-dir $VSCODE_DATA
-    #     # code --install-extension "$extension"
-    # done
-    # echo "@@@ DISABLING VIM MODE IN VSCODE!!!"
-    # code --disable-extension vscodevim.vim    --no-sandbox --user-data-dir $VSCODE_DATA
-    # chmod 777 -R $VSCODE_DATA
-    # echo "All VSCode extensions have been installed. (ALIAS WILL BE ADDED AT THE END)"
-
-
     snap install brave #Webdev most def.
 
     #Just in case mlocate3/locate is still trying to index your MOUNTPOINTS
@@ -180,57 +162,6 @@ echo "OK DONE, remember after a reboot to check if dummy module is loaded, via: 
 curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
-# THIS IS THE CRAPPY CANONICAL NODE... I HATE IT
-# apt install -y npm nodejs
-
-# DISABLED METEOR INSTALLLLLLLLLLL
-# echo "%%% PHASE 1 ROOT IS GETTING METEOR/NPX/NODEJS via FNM.... %%%%"
-#    curl -fsSL https://fnm.vercel.app/install | bash
-#    source ~/.bashrc
-#    source /root/.config/fish/conf.d/fnm.fish
-#fnm install --lts
-#    /root/.local/share/fnm/fnm install --lts
-#     rm -rf .meteor
-#     # npx -y meteor
-#     bash -c 'SUDO_USER="" npx -y meteor'
-#     export PATH=/root/.meteor:$PATH
-#     set PATH=/root/.meteor:$PATH
-#     echo "Finished running commands as root"
-#     # RUN A SET OF COMMANDS FOR EACH USER
-#     echo "%%% PHASE 2 EACH_USER IS GETTING METEOR/NPX/NODEJS via FNM.... %%%%"
-#     run_commands_for_user() {
-#         local user=$1
-#         local home_dir=$2
-#         echo "Running commands for user: $user"
-#         # Run commands as the user
-#     su - $user << EOF
-#     USER=`whoami`
-# rm -rf /home/$user/.local/share/fnm
-# sed -i 's/^# fnm.*¥n.*¥n.*¥nfi$//' /home/$user/.bashrc
-# rm -f /home/$user/.bash_profile
-# cd
-# rm -rf .meteor
-# #bash -c 'SUDO_USER="" npx -y meteor'
-# #source /home/$user/.bashrc || shift || SUDO_USER="" npx -y meteor
-# bash -c 'SUDO_USER="" npx -y meteor'
-# #export PATH=/home/$user/.meteor:$PATH
-# #set PATH=/home/$user/.meteor:$PATH
-# #echo "export PATH=~/.meteor:$user" >> ~/.bashrc && echo "fish_add_path ~/.meteor" >> ~/.config/fish/config.fish
-# EOF
-# # Now finally, lets add the meteor configuration from bashrc to fishrc FOR ROOT
-# for i in /home/* ; do
-#     username=$(echo $i | sed 's/\/home\///'  )
-#     su - $username -c grep 'meteor' .bashrc | sed 's/export PATH=/set PATH /' >> $user_home/.config/fish/config.fish 
-# done
-# echo 'set PATH /home/kenshin/.meteor:$PATH' >> /home/kenshin/.config/fish/config.fish
-# # Now do it for root #TODO Still not working for root but idgaf atm.
-# grep 'meteor' .bashrc | sed 's/export PATH=/set PATH /' >> /root/.config/fish/config.fish 2>/dev/null 1>/dev/null
-# }
-
-
-
-
-
 new_password="P@ssw0rd"
 set new_password P@ssw0rd
 echo Launching... "$user:$new_password" 
@@ -273,7 +204,6 @@ sudo adduser $USER libvirt ;
 sudo adduser $USER kvm ;
 
 echo ok... Rocky Installing LIBVIRT/KVM/VIRSH
-
 yes | dnf install -y util-linux-user qemu-kvm libvirt virt-install libvirt-client virt-manager cockpit
 systemctl enable --now libvirtd
 systemctl enable --now cockpit.socket
@@ -414,21 +344,8 @@ echo "Script complete! No need to relaunch nvim!"
 
 
 
-
-
-
-
-
-
-
-
-
 # NOW THAT FNM/NPX/NODEJS AND METEOR FINISHED INSTALLING, ITS SAFE TO INSTALL FISH!!
 apt install -y fish
-
-
-
-
 
 
     # Allow VMWARE TOOLS to work with KUBUNTU 2404 and onwards to show /mnt/hgfs correctly
@@ -609,30 +526,7 @@ EOF
     # printf 'echo PS Grepping for lxc running containers...\n' >> /etc/fish/config.fish
     printf 'ps -efawww|grep -i "lxc mon" | sed "s/.*containers /FOUND container running: /" | grep -v " grep "\n' >> /etc/fish/config.fish
     
-    # printf 'echo Launching: lxc list -c nst4sS\n' >> /etc/fish/config.fish
-    # printf 'lxc list -c nst4sS\n' >> /etc/fish/config.fish
-
-    # FISH_CONFIG="/etc/fish/config.fish"
-    # add_or_update_alias() {
-    #     local alias_name="$1"
-    #     local alias_command="$2"
-    #     if grep -q "alias $alias_name" "$FISH_CONFIG"; then
-    #         sed -i "s|alias $alias_name.*|alias $alias_name '$alias_command'|" "$FISH_CONFIG"
-    #         echo "Updated alias: $alias_name"
-    #     else
-    #         echo "alias $alias_name '$alias_command'" >> "$FISH_CONFIG"
-    #         echo "Added new alias: $alias_name"
-    #     fi
-    # }
-    # touch "$FISH_CONFIG"
-    # add_or_update_alias "lxc" "sudo lxc"
-    # add_or_update_alias "docker" "sudo docker"
-
     # Add Shortcuts to desktop
-    # for i in /home/* ; do echo $i ;  pushd . ; cd $i/Desktop ; locate -i brave | grep "brave\.desktop$" | sort | tail -n 1 | xargs ln -s ; chmod 777 brave.desktop ; popd ;   done
-    # for i in /home/* ; do echo $i ;  pushd . ; cd $i/Desktop ; locate -i terminator | grep "terminator\.desktop$" | sort | tail -n 1 | xargs ln -s ; chmod 777 terminator.desktop ; popd ;   done
-    # for i in /home/* ; do echo $i ;  pushd . ; cd $i/Desktop ; locate -i kate | grep "kate\.desktop$" | sort | tail -n 1 | xargs ln -s ; chmod 777 kate.desktop ; popd ;   done
-    # for i in /home/* ; do echo $i ;  pushd . ; cd $i/Desktop ; locate -i code | grep "code\.desktop$" | sort | tail -n 1 | xargs ln -s ; chmod 777 code.desktop ; popd ;   done
     for i in /home/*; do
         echo $i
         pushd .
