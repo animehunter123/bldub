@@ -600,7 +600,7 @@ EOF
     printf 'alias lxc "sudo lxc"\n' >> /etc/fish/config.fish
     printf 'alias lxcl "sudo lxc list -c nst4sS"\n' >> /etc/fish/config.fish  #This is a nice shorthand!
     printf 'alias docker "sudo docker"\n' >> /etc/fish/config.fish
-    printf 'echo PS Grepping for lxc running containers...\n' >> /etc/fish/config.fish
+    # printf 'echo PS Grepping for lxc running containers...\n' >> /etc/fish/config.fish
     printf 'ps -efawww|grep -i "lxc mon" | sed "s/.*containers /FOUND container running: /" | grep -v " grep "\n' >> /etc/fish/config.fish
     
     # printf 'echo Launching: lxc list -c nst4sS\n' >> /etc/fish/config.fish
