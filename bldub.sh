@@ -202,6 +202,8 @@ sudo apt install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils 
 sudo systemctl enable --now libvirtd ;
 sudo adduser $USER libvirt ;
 sudo adduser $USER kvm ;
+sudo apt install -y cockpit-packagekit cockpit-storaged cockpit-networkmanager cockpit-sosreport -y ; sudo ufw allow 9090/tcp ; sudo systemctl enable --now cockpit.socket
+for i in `apt list | grep '^cockpit' | sed 's/\/.*//' ` ; do echo $i ; apt-get install -y $i ; done
 
 echo ok... Rocky Installing LIBVIRT/KVM/VIRSH
 yes | dnf install -y util-linux-user qemu-kvm libvirt virt-install libvirt-client virt-manager cockpit
