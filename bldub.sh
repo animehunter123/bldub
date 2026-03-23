@@ -342,6 +342,28 @@ lang.rust  <-- for rust basic
 test.core  <-- for debug
 OK PRESS ANY BUTTON TO CONTINUE!!
 '
+# Autosave : This is my Auto-save Automatically every 1 second!!!
+cat >> "$HOME/.config/nvim/init.lua" << 'EOF'
+
+-- Auto-save all modified buffers every 1 second
+local timer = vim.loop.new_timer()
+timer:start(
+  1000,
+  1000,
+  vim.schedule_wrap(function()
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+      if vim.api.nvim_buf_is_loaded(buf)
+        and vim.api.nvim_buf_get_option(buf, "modifiable")
+        and vim.api.nvim_buf_get_option(buf, "modified")
+      then
+        vim.api.nvim_buf_call(buf, function()
+          vim.cmd("silent! write")
+        end)
+      end
+    end
+  end)
+)
+EOF
 echo "Script complete! No need to relaunch nvim!"
 
 
