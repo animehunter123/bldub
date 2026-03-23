@@ -342,8 +342,8 @@ lang.rust  <-- for rust basic
 test.core  <-- for debug
 OK PRESS ANY BUTTON TO CONTINUE!!
 '
-# Autosave : This is my Auto-save Automatically every 1 second!!!
-cat >> "$HOME/.config/nvim/init.lua" << 'EOF'
+# Autosave : This is my Auto-save Automatically every 1 second!!! I DISABLED THIS B/C LAZYVIM IS AUTOFORMATTING ON SAVE WHICH IS KIND OF ANNOYING NOW IN THE NEW VERSIONS
+cat >> "$HOME/.config/nvim/init.lua_DISABLED_FOR_NOW" << 'EOF'
 
 -- Auto-save all modified buffers every 1 second
 local timer = vim.loop.new_timer()
