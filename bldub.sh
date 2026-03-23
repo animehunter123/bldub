@@ -198,7 +198,7 @@ yes | dnf groupinstall -y "Development Tools"
 yes | dnf install -y util-linux-user
 
 echo ok... Ubuntu Installing LIBVIRT/KVM/VIRSH
-sudo apt install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virtinst libvirt-clients ;
+sudo apt install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virtinst libvirt-clients virt-manager;
 sudo systemctl enable --now libvirtd ;
 sudo adduser $USER libvirt ;
 sudo adduser $USER kvm ;
