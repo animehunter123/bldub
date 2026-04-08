@@ -219,6 +219,192 @@ dnf install -y cockpit-machines
 
 
 
+# NOW THAT FNM/NPX/NODEJS AND METEOR FINISHED INSTALLING, ITS SAFE TO INSTALL FISH!!
+apt install -y fish
+
+
+    # Allow VMWARE TOOLS to work with KUBUNTU 2404 and onwards to show /mnt/hgfs correctly
+    mkdir /mnt/hgfs
+    # sudo vmhgfs-fuse .host:/ /mnt/hgfs/ -o allow_other -o uid=1000
+
+    # Now, lets install DOCKER CE (USING OFFICIAL DOCS)
+    for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove -y $pkg; done
+
+    sudo apt-get -y install ca-certificates curl
+    sudo install -y -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+    # Add the repository to Apt sources:
+    echo \
+        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" |
+        sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+    sudo apt-get update
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    sudo systemctl enable --now docker
+
+    # Pip Installs for Flask Coding Projects
+    yes | sudo apt install -y sqlite3
+    pip3 install requests autopep8 flask flask_sqlalchemy flask_admin flask_cors wtforms flask_migrate flask_wtf flask_socketio flask_login virtualenv email_validator --break-system-packages
+
+    #Install my plotly/dash stuff
+    pip3 install plotly numpy pandas dash --break-system-packages
+
+    #Install the best python3 repl command line i think. Latest python no worky on: setuptools-rust docker-compose
+    pip3 install ipython --break-system-packages
+
+    # The next thing is very common if you ANSIBLE from UB2204 to CONTROL a UB2404! The error
+    # will be like: ModuleNotFoundError: No module named 'ansible.module_utils.six.moves', So we...:
+    pip install --upgrade ansible
+
+    # UB2404 KICKSTART NEEDS THIS TO ALLOW UNPRIV VSCODE TO WORK:
+    sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
+    sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+    (
+    crontab -l 2>/dev/null
+    echo "# ALLOW UNPRIV VSCODE TO WORK:"
+    echo "@reboot sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0"
+    echo "@reboot sysctl -w kernel.apparmor_restrict_unprivileged_userns=0"
+    ) | crontab -
+
+
+    # Fish Shell Disable Greeting
+    printf '\n\nset fish_greeting ""' >>/etc/fish/config.fish
+    chsh -s /usr/bin/fish
+    echo "Step: run_build_development_environment completed successfully!"
+
+    # Setup SSHD PERFECTLY
+cat <<EOF >> /etc/ssh/sshd_config
+# @@ baselineUbContainer DOCKER SPECIFIC SECTION @@
+PasswordAuthentication yes
+PermitRootLogin yes
+UsePAM no
+UseDNS no
+#NOTE UNCOMMENT THE BELOW IF YOU WANT VSCODE TO SSH IN (AND COMMENT THE ABOVE ORIGINAL)
+#Subsystem sftp internal-sftp
+# @@ END baselineUbContainer DOCKER SPECIFIC SECTION @@
+EOF
+systemctl restart ssh
+new_password="P@ssw0rd"
+echo "root:$new_password" | chpasswd
+
+
+    # DISABLE SSH WARNING FOR "THIS HOST CHANGED" and "THiS IS THE FIRST TIME TO CONNECT"
+    SSH_CONFIG="$HOME/.ssh/config"
+    # Create the .ssh directory if it doesn't exist
+    mkdir -p "$HOME/.ssh" 2>/dev/null 1>/dev/null
+    # Check if the config file exists, create it if not
+    touch "$SSH_CONFIG"
+    # Add the configuration if it doesn't already exist
+    # if ! grep -q "Host 10.199.179.*" "$SSH_CONFIG"; then
+    cat <<EOF >>"$SSH_CONFIG"
+Host *
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+EOF
+    echo "Configuration added to $SSH_CONFIG"
+    # Set appropriate permissions
+    chmod 600 "$SSH_CONFIG"
+
+    echo "Generating/SSH KEY..."
+    # SSH key path
+    ssh_key_path="$HOME/.ssh/id_rsa"
+    # Generate SSH key if it doesn't exist
+    if [ ! -f "$ssh_key_path" ]; then
+        echo "Generating new SSH key..."
+        ssh-keygen -t rsa -b 4096 -f "$ssh_key_path" -N ""
+    else
+        echo "SSH key already exists."
+    fi
+
+    echo "Adding NOPASSWD: to everyone in sudoers/sudoers.d"
+    sed -i 's/ ALL$/ NOPASSWD: ALL/' /etc/sudoers
+    sed -i 's/ ALL$/ NOPASSWD: ALL/' /etc/sudoers.d/*
+
+    # To fix sudo -i from hanging on the host
+    printf '\n # To fix sudo -i from hanging on the host. ;\nDefaults !fqdn\n\n' >> /etc/sudoers
+
+    # Add VMware Wkstn Host of /mnt/hgfs (since open-vm-tools and open-vm-tools-desktop didnt have it)
+    # (crontab -l 2>/dev/null; echo "@reboot sudo vmhgfs-fuse .host:/ /mnt/hgfs/ -o allow_other -o uid=1000") | crontab -    
+
+    # Ensure that /etc/hosts has localhost IN IT AT THE TOP OF THE FILE
+    HOSTS_FILE="/etc/hosts"
+    TEMP_FILE="/tmp/hosts_temp"
+    ESSENTIAL_ENTRIES=(
+        "127.0.0.1\tlocalhost"
+        "::1\tlocalhost ip6-localhost ip6-loopback"
+        "fe00::0\tip6-localnet"
+        "ff00::0\tip6-mcastprefix"
+        "ff02::1\tip6-allnodes"
+        "ff02::2\tip6-allrouters"
+    )
+    touch "$TEMP_FILE"
+    for entry in "${ESSENTIAL_ENTRIES[@]}"; do
+        echo -e "$entry" >> "$TEMP_FILE"
+    done
+    # Append existing entries from /etc/hosts, excluding the essential ones
+    grep -vE "^(127\.0\.0\.1|::1|fe00::0|ff00::0|ff02::1|ff02::2)" "$HOSTS_FILE" >> "$TEMP_FILE"
+    mv "$TEMP_FILE" "$HOSTS_FILE"
+    chmod 777 /etc/hosts
+
+    # bash script, for every username found in /home/*, chsh -s that user to fish as the default shell
+    # Get the path to fish shell
+    FISH_PATH=$(which fish)
+    # Check if fish is in /etc/shells
+    if ! grep -q "^$FISH_PATH$" /etc/shells; then
+        echo "Adding $FISH_PATH to /etc/shells"
+        echo "$FISH_PATH" >> /etc/shells
+    fi
+
+    # for every user in /home/* // Add them to the docker and lxd groups
+    add_user_to_group() {
+        local username="$1"
+        local groupname="$2"
+        if getent group "$groupname" > /dev/null; then
+            if ! groups "$username" | grep -q "\b$groupname\b"; then
+                usermod -aG "$groupname" "$username"
+                echo "Added $username to $groupname group"
+            else
+                echo "$username is already in $groupname group"
+            fi
+        else
+            echo "Group $groupname does not exist"
+        fi
+    }
+    for USER_HOME in /home/*; do
+        USERNAME=$(basename "$USER_HOME")
+        if [ -d "$USER_HOME" ]; then
+            echo "Processing user: $USERNAME"
+            # Add user to docker group
+            add_user_to_group "$USERNAME" "docker"
+            # Add user to lxd group
+            add_user_to_group "$USERNAME" "lxd"
+            echo "-------------------"
+        fi
+    done
+
+    # Add rules to iptables (ubuntu) to accept forwarding traffic for our containers subnet to the internet. Cloud servers and Ubuntu do not save iptables rules by default on reboot.
+    echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
+    echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
+    sudo apt install -y iptables-persistent
+    sudo netfilter-persistent save
+    sudo iptables -A FORWARD -i lxdbr0 -j ACCEPT
+    sudo iptables -A FORWARD -o lxdbr0 -j ACCEPT
+    sudo sysctl -w net.ipv4.ip_forward=1
+    sudo netfilter-persistent save
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -452,179 +638,21 @@ echo "Script complete! No need to relaunch nvim!"
 
 
 
-# NOW THAT FNM/NPX/NODEJS AND METEOR FINISHED INSTALLING, ITS SAFE TO INSTALL FISH!!
-apt install -y fish
 
 
-    # Allow VMWARE TOOLS to work with KUBUNTU 2404 and onwards to show /mnt/hgfs correctly
-    mkdir /mnt/hgfs
-    # sudo vmhgfs-fuse .host:/ /mnt/hgfs/ -o allow_other -o uid=1000
-
-    # Now, lets install DOCKER CE (USING OFFICIAL DOCS)
-    for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove -y $pkg; done
-
-    sudo apt-get -y install ca-certificates curl
-    sudo install -y -m 0755 -d /etc/apt/keyrings
-    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-    sudo chmod a+r /etc/apt/keyrings/docker.asc
-    # Add the repository to Apt sources:
-    echo \
-        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" |
-        sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
-    sudo apt-get update
-    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-    sudo systemctl enable --now docker
-
-    # Pip Installs for Flask Coding Projects
-    yes | sudo apt install -y sqlite3
-    pip3 install requests autopep8 flask flask_sqlalchemy flask_admin flask_cors wtforms flask_migrate flask_wtf flask_socketio flask_login virtualenv email_validator --break-system-packages
-
-    #Install my plotly/dash stuff
-    pip3 install plotly numpy pandas dash --break-system-packages
-
-    #Install the best python3 repl command line i think. Latest python no worky on: setuptools-rust docker-compose
-    pip3 install ipython --break-system-packages
-
-    # The next thing is very common if you ANSIBLE from UB2204 to CONTROL a UB2404! The error
-    # will be like: ModuleNotFoundError: No module named 'ansible.module_utils.six.moves', So we...:
-    pip install --upgrade ansible
-
-    # UB2404 KICKSTART NEEDS THIS TO ALLOW UNPRIV VSCODE TO WORK:
-    sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
-    sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-    (
-    crontab -l 2>/dev/null
-    echo "# ALLOW UNPRIV VSCODE TO WORK:"
-    echo "@reboot sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0"
-    echo "@reboot sysctl -w kernel.apparmor_restrict_unprivileged_userns=0"
-    ) | crontab -
 
 
-    # Fish Shell Disable Greeting
-    printf '\n\nset fish_greeting ""' >>/etc/fish/config.fish
-    chsh -s /usr/bin/fish
-    echo "Step: run_build_development_environment completed successfully!"
-
-    # Setup SSHD PERFECTLY
-cat <<EOF >> /etc/ssh/sshd_config
-# @@ baselineUbContainer DOCKER SPECIFIC SECTION @@
-PasswordAuthentication yes
-PermitRootLogin yes
-UsePAM no
-UseDNS no
-#NOTE UNCOMMENT THE BELOW IF YOU WANT VSCODE TO SSH IN (AND COMMENT THE ABOVE ORIGINAL)
-#Subsystem sftp internal-sftp
-# @@ END baselineUbContainer DOCKER SPECIFIC SECTION @@
-EOF
-systemctl restart ssh
-new_password="P@ssw0rd"
-echo "root:$new_password" | chpasswd
 
 
-    # DISABLE SSH WARNING FOR "THIS HOST CHANGED" and "THiS IS THE FIRST TIME TO CONNECT"
-    SSH_CONFIG="$HOME/.ssh/config"
-    # Create the .ssh directory if it doesn't exist
-    mkdir -p "$HOME/.ssh" 2>/dev/null 1>/dev/null
-    # Check if the config file exists, create it if not
-    touch "$SSH_CONFIG"
-    # Add the configuration if it doesn't already exist
-    # if ! grep -q "Host 10.199.179.*" "$SSH_CONFIG"; then
-    cat <<EOF >>"$SSH_CONFIG"
-Host *
-    StrictHostKeyChecking no
-    UserKnownHostsFile /dev/null
-EOF
-    echo "Configuration added to $SSH_CONFIG"
-    # Set appropriate permissions
-    chmod 600 "$SSH_CONFIG"
 
-    echo "Generating/SSH KEY..."
-    # SSH key path
-    ssh_key_path="$HOME/.ssh/id_rsa"
-    # Generate SSH key if it doesn't exist
-    if [ ! -f "$ssh_key_path" ]; then
-        echo "Generating new SSH key..."
-        ssh-keygen -t rsa -b 4096 -f "$ssh_key_path" -N ""
-    else
-        echo "SSH key already exists."
-    fi
 
-    echo "Adding NOPASSWD: to everyone in sudoers/sudoers.d"
-    sed -i 's/ ALL$/ NOPASSWD: ALL/' /etc/sudoers
-    sed -i 's/ ALL$/ NOPASSWD: ALL/' /etc/sudoers.d/*
 
-    # To fix sudo -i from hanging on the host
-    printf '\n # To fix sudo -i from hanging on the host. ;\nDefaults !fqdn\n\n' >> /etc/sudoers
 
-    # Add VMware Wkstn Host of /mnt/hgfs (since open-vm-tools and open-vm-tools-desktop didnt have it)
-    # (crontab -l 2>/dev/null; echo "@reboot sudo vmhgfs-fuse .host:/ /mnt/hgfs/ -o allow_other -o uid=1000") | crontab -    
 
-    # Ensure that /etc/hosts has localhost IN IT AT THE TOP OF THE FILE
-    HOSTS_FILE="/etc/hosts"
-    TEMP_FILE="/tmp/hosts_temp"
-    ESSENTIAL_ENTRIES=(
-        "127.0.0.1\tlocalhost"
-        "::1\tlocalhost ip6-localhost ip6-loopback"
-        "fe00::0\tip6-localnet"
-        "ff00::0\tip6-mcastprefix"
-        "ff02::1\tip6-allnodes"
-        "ff02::2\tip6-allrouters"
-    )
-    touch "$TEMP_FILE"
-    for entry in "${ESSENTIAL_ENTRIES[@]}"; do
-        echo -e "$entry" >> "$TEMP_FILE"
-    done
-    # Append existing entries from /etc/hosts, excluding the essential ones
-    grep -vE "^(127\.0\.0\.1|::1|fe00::0|ff00::0|ff02::1|ff02::2)" "$HOSTS_FILE" >> "$TEMP_FILE"
-    mv "$TEMP_FILE" "$HOSTS_FILE"
-    chmod 777 /etc/hosts
 
-    # bash script, for every username found in /home/*, chsh -s that user to fish as the default shell
-    # Get the path to fish shell
-    FISH_PATH=$(which fish)
-    # Check if fish is in /etc/shells
-    if ! grep -q "^$FISH_PATH$" /etc/shells; then
-        echo "Adding $FISH_PATH to /etc/shells"
-        echo "$FISH_PATH" >> /etc/shells
-    fi
 
-    # for every user in /home/* // Add them to the docker and lxd groups
-    add_user_to_group() {
-        local username="$1"
-        local groupname="$2"
-        if getent group "$groupname" > /dev/null; then
-            if ! groups "$username" | grep -q "\b$groupname\b"; then
-                usermod -aG "$groupname" "$username"
-                echo "Added $username to $groupname group"
-            else
-                echo "$username is already in $groupname group"
-            fi
-        else
-            echo "Group $groupname does not exist"
-        fi
-    }
-    for USER_HOME in /home/*; do
-        USERNAME=$(basename "$USER_HOME")
-        if [ -d "$USER_HOME" ]; then
-            echo "Processing user: $USERNAME"
-            # Add user to docker group
-            add_user_to_group "$USERNAME" "docker"
-            # Add user to lxd group
-            add_user_to_group "$USERNAME" "lxd"
-            echo "-------------------"
-        fi
-    done
 
-    # Add rules to iptables (ubuntu) to accept forwarding traffic for our containers subnet to the internet. Cloud servers and Ubuntu do not save iptables rules by default on reboot.
-    echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
-    echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
-    sudo apt install -y iptables-persistent
-    sudo netfilter-persistent save
-    sudo iptables -A FORWARD -i lxdbr0 -j ACCEPT
-    sudo iptables -A FORWARD -o lxdbr0 -j ACCEPT
-    sudo sysctl -w net.ipv4.ip_forward=1
-    sudo netfilter-persistent save
+
 
 
     # ensure that the system fish config has 'lxc' aliased to 'sudo lxc' and the same for 'sudo docker
