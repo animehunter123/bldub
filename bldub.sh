@@ -755,6 +755,7 @@ cargo install cargo-watch # Can't live without this "watchexec" alternative!
 cargo install bacon
 cargo install rustlings
 cargo install clippy
+cargo install just
 echo "Ok Done! Open a fresh new terminal and it should be in fish or bash!"
 
 
