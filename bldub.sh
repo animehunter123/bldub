@@ -68,6 +68,42 @@ run_build_development_environment() {
     echo "SNAP: Installing vscode via snap/snapd!!!"
     snap install code --classic
 
+    echo "SNAP: Installing zed via curl (and disabling signin, ai, autoupdate, cursorblink,trustworkspaces)!!!"
+    apt install -y curl ; dnf install -y curl ; 
+    curl -f https://zed.dev/install.sh | sh
+    fish_add_path -U $HOME/.local/bin
+    mkdir -p $HOME/.config/zed/
+    touch $HOME/.config/zed/settings.json
+echo '
+// Zed settings
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+{
+  "title_bar": {
+    "show_sign_in": false
+  },
+  "auto_update": false,
+  "disable_ai": true,
+  "cursor_blink": false,
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  },
+  "session": {
+    "trust_all_worktrees": true
+  },
+  "vim_mode": true,
+  "ui_font_size": 16,
+  "buffer_font_size": 15,
+  "theme": {
+    "mode": "system",
+    "light": "Ayu Light",
+    "dark": "Ayu Dark",
+  },
+}
+' > $HOME/.config/zed/settings.json
+
+
     snap install brave #Webdev most def.
 
     #Just in case mlocate3/locate is still trying to index your MOUNTPOINTS
@@ -124,6 +160,9 @@ run_build_development_environment() {
         yes | NEEDRESTART_MODE=a sudo yum install -y 2>/dev/null || echo "Dnf Failed to install $package"
     done
 
+# Enable my git
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
 
 # THIS SECTION IS FOR ENABLING MODPROBE DUMMY mode so that kubespray will properly install kubernetes on LXD CONTAINERS!!!!!!!!!!!!
     echo "For Kubernetes k8s with kubespray'ing the innards of lxds, its important to sudo modprobe dummy... enabling this permanently..."
