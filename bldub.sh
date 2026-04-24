@@ -477,7 +477,7 @@ EOF
 ################################################################ 
 ################################################################ 
 ################################################################ 
-########## Beginning of the lazyvim install section!!! ######### 
+########## Beginning of the lazyvim+rustEnvironment install section!!! ######### 
 ################################################################ 
 ################################################################ 
 ################################################################ 
@@ -485,50 +485,95 @@ EOF
 
 
 
+#!/usr/bin/env bash
+# Description:
+# This script is for installing Rust on Linux USING BASH + sudo(lmadm)
+# It can also be used AFTER LAZYVIM to make a new portable 
+# rust environment (i.e. fresh lxc with lazyvim THEN install 
+# rust, then copy the new bigger .cargo/.rustup folder
 
+echo "
+***********************************************************
+THIS WILL INSTALL RUST ENVIRONMENT FIRST, AND THEN LAZYVIM!
+***********************************************************
 
+NOTE:
+...THIS IS BECAUSE LAZYVIM USES "cc" + ~/.cargo+ ~/.rustup
+...that way the telescope fzf .so files are working first 
+...BEFORE doing a cargo for this stuff, Thus please always
+"
 
+# Note: cc is required, this is because...I learned that telescope 
+# compiles ".so" files into ~/.local/share/nvim/site/parser
+# Thus, in order to have nvim+treesitte YOU MUST INSTALL RUST and
+# have the .cargo/.rustup dirs in theory for rust-analyzer.
 
-
-
-
-
-# 20250818 @@@@@@@@@@@@@@@@@@@@@@@@
-# 20250818 @@@@@@@@@@@@@@@@@@@@@@@@
-# 20250818 @@@@@@@@@@@@@@@@@@@@@@@@
-# NOW LETS GET NVIM WITH LAZYVIM AND RUST IN HERE!!!!!!
-echo -e "\e[32mInstalling pre-reqs...\e[0m"
+# @@ Install pre-requiresite apps from internet repos
+echo "@@ Installing Development Tools / build-essential from os repos ..."
+echo -e "\e[32mUSING INTERNET pre-reqs from REPOs (apt/dnf)... (not centos7)\e[0m"
 sudo apt-get update
-sudo apt-get install -y build-essential fzf fd-find bat ripgrep zoxide git curl unzip jq
-sudo apt install -y luajit libluajit-5.1-dev # THIS IS FOR MY CargoRun plugin, THERE MIGHT BE A NEWER VERSION IN THE FUTURE
-# For Rocky:
 sudo dnf -y update
 sudo dnf -y install epel-release
 sudo dnf -y update
 sudo dnf -y groupinstall "Development Tools"
-sudo dnf -y install \
-  fzf \
-  fd-find \
-  bat \
-  ripgrep \
-  zoxide \
-  git \
-  curl \
-  unzip \
-  jq \
-  luajit \
-  luajit-devel
+packages=(
+        build-essential fzf fd-find bat ripgrep zoxide git curl unzip jq
+        luajit libluajit-5.1-dev fd-find luajit-devel
+        pkg-config libssl-dev python3-pip nfs-utils libnfs-utils
+)
+for package in "${packages[@]}"; do
+        echo "Installing $package..."
+		apt install -y $package
+		dnf install -y $package
+done
 
-echo "INSTALLING RUSTUP!!!!!!!!!!"
+# @@ Install fzf isnt in the repo (i.e. rocky96)...
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+# @@ Install Rustup
+echo "@@ Installing Rustup..."
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 . "$HOME/.cargo/env"            # For sh/bash/zsh/ash/dash/pdksh
 source "$HOME/.cargo/env.fish"  # For fish
+source $HOME/.cargo/env 2>/dev/null 1>/dev/null
+
+echo "@@ Updating Rustup to latest..."
+rustup update # To Update Rustup Compiler to latest version
+
 rustup component add rust-analyzer rustfmt clippy rust-src
+
 # Optional, I disabled to speed up this installer
 # cargo install rust-analyzer
 # cargo install cargo-edit
 # cargo install cargo-watch
-echo -e "\e[32mInstalling Neovim (LazyVim base)...\e[0m"
+
+echo "@@ Installing Cargo Crates (justfile, eza)..."
+for i in `echo just bacon cargo-edit cargo-tree cargo-audit cargo-machete cargo-update cargo-make cargo-geiger ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch` ; do echo installing cargo crate $i... ;  cargo install $i 2>/dev/null ; done
+
+# echo "Ok Done! Open a fresh new terminal and it should be in fish or bash!"
+# echo "ALSO: USE bash to source ~/.cargo/env FIRST, then fish will automatically get it!!!"
+# echo "ALSO: P.S., You should cd into the rust project with a Cargo.toml, and do cargo build, so you get those deps into your ~/.cargo and ~/.rustup folder to portabilize the environment if you need to compile somewhere else!"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+echo -e "\e[32mRUST INSTALL COMPLETE!!! NOW... Installing Neovim (LazyVim base)...\e[0m"
+echo -e "\e[32mRUST INSTALL COMPLETE!!! NOW... Installing Neovim (LazyVim base)...\e[0m"
+echo -e "\e[32mRUST INSTALL COMPLETE!!! NOW... Installing Neovim (LazyVim base)...\e[0m"
 timestamp=$(date +"%Y%m%d%H%M%S")
 rm -f nvim.appimage
 curl -LO  https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
@@ -541,6 +586,7 @@ sudo cp nvim-linux-x86_64.appimage /bin/ 2>/dev/null
 sudo mv /bin/nvim-linux-x86_64.appimage /bin/nvim
 sudo chmod 777 /bin/nvim
 sudo ln -s /bin/nvim /bin/n
+
 echo -e "\e[32mClearing old LazyVim config...\e[0m"
 if [ -d "$HOME/.config/nvim" ]; then
   mv "$HOME/.config/nvim" "$HOME/.config/nvim.$timestamp"
@@ -548,11 +594,14 @@ fi
 if [ -d "$HOME/.local/share/nvim" ]; then
   mv "$HOME/.local/share/nvim" "$HOME/.local/share/nvim.$timestamp"
 fi
+
 echo -e "\e[32mInstalling LazyVim starter config...\e[0m"
 git clone https://github.com/LazyVim/starter "$HOME/.config/nvim"
 rm -rf "$HOME/.config/nvim/.git"
+
 echo RUNNING MASON INSTALLER PER THEIR GUIDE...
 echo "
+
 -- This is so that we can get MasonInstall instead of just Mason
 require(\"mason\").setup()
 " >> "$HOME/.config/nvim/init.lua"
@@ -605,6 +654,9 @@ pushd .
 cd ~/.local/share/nvim/lazy/cargo.nvim
 cargo build --release
 popd
+
+
+
 echo "INSTALL MY NORMAL PLUGINS I WANTED VIA MASONINSTALL CLI..."
 nvim --headless -c "MasonInstall rust-analyzer" -c "qall"
 nvim --headless -c "MasonInstall rustfmt" -c "qall"
@@ -612,6 +664,7 @@ nvim --headless -c "MasonInstall codelldb" -c "qall"
 # nvim --headless -c "MasonInstall cpptools" -c "qall"
 nvim --headless -c "MasonInstall crates.nvim" -c "qall"
 nvim --headless -c "MasonInstall rustaceanvim" -c "qall"
+
 echo "INSTALL MY EXTRA PLUGINS I WANTED VIA MASONINSTALL CLI... (launch nvim once, sed the setup() into the plugins, and the next time you launch AFTER this script it installs rust extras)"
 awk '
 /{[ ]*import[ ]*=[ ]*"plugins"[ ]*}/ {
@@ -620,6 +673,7 @@ awk '
 }
 { print }
 ' ~/.config/nvim/lua/config/lazy.lua > /tmp/lazy.lua && mv /tmp/lazy.lua ~/.config/nvim/lua/config/lazy.lua
+
 pushd .
 cd /tmp
 cargo new nvim-test01
@@ -628,9 +682,11 @@ nvim src/main.rs # dummy filename to ensure any downloads are needed?
 cd ..
 rm -rf nvim-test01
 popd
+
 jq '.extras += ["lazyvim.plugins.extras.lang.rust", "lazyvim.plugins.extras.editor.telescope"]' \
   ~/.config/nvim/lazyvim.json > /tmp/lazyvim.json \
   && mv /tmp/lazyvim.json ~/.config/nvim/lazyvim.json
+
 echo 'OK INSTALL COMPLETE
 To Debug Rust, Be sure to install or confirm: 
 (Normal Plugins) i >>
@@ -641,8 +697,10 @@ lang.rust  <-- for rust basic
 test.core  <-- for debug
 OK PRESS ANY BUTTON TO CONTINUE!!
 '
+
 # Autosave : This is my Auto-save Automatically every 1 second!!! I PUT THIS IN DISABLED B/C IT AUTOFORMATS ON SAVE WHICH IS ANNOYING
 cat >> "$HOME/.config/nvim/init.lua_DISABLEDTHIS" << 'EOF'
+
 -- Auto-save all modified buffers every 1 second
 local timer = vim.loop.new_timer()
 timer:start(
@@ -662,8 +720,43 @@ timer:start(
   end)
 )
 EOF
-echo "Script complete! No need to relaunch nvim!"
 
+echo "LAZYVIM INSTALL COMPLETE: No need to relaunch nvim!"
+echo "RUST INSTALL COMPLETE: Open a fresh new terminal and it should be in fish or bash!"
+echo "ALSO: USE bash to source ~/.cargo/env FIRST, then fish will automatically get it!!!"
+echo "ALSO: P.S., You should cd into the rust project with a Cargo.toml, and do cargo build, so you get those deps into your ~/.cargo and ~/.rustup folder to portabilize the environment if you need to compile somewhere else!"
+
+echo "
+...
+...
+...
+
+OK: Lazyvim is done, we are good!
+
+- You should now have a appimage and 3 folders ./local/state/nvim ./local/share/nvim ./config/nvim
+
+- You also have a 'rust baseline' which is without the namar cargo toml or serde/dioxus/actix blah blah. So scp the tar to those and re-tar if you need to also get those deps now too.
+
+- You no need tar twice as root, then again as lmadmin. I fixed the script, root is enough.
+
+- IMPORTANT:
+fzf spacebar/spacebar REQUIRES:
+1. Launch nvim . >> spacebar+spacebar >> it will show blank no files >> now quit NVIM
+2. NOW YOU MUST COMPLETELY LOGGING OUT OF THE SSH SESSION (ctrl+d many times).
+3. Open nvim again >> spacebar+spacebar >> it will work!!!
+
+######################################################
+NOW: To backup NVIM+RUST (SAME FILE FOR LMADMIN/ROOT), use: 
+cd ~
+tar cvfpz lazyvim_v0.12.1_ROOT+LMADMIN_with_rust_baseline.tar.gz ./nvim-linux-x86_64.appimage ./.config/nvim/ ./.local/share/nvim ./.local/state/nvim ./.cache/nvim/ ./.fzf/ ./.fzf.bash/ ./.fzf.fish/ ./.cargo/ ./.rustup/ 
+
+Then to your nas, I guess (WITH THE APPIMAGE) with 2 SCPs:
+scp lazyvim_v0.12.1_ROOT+LMADMIN_with_rust_baseline.tar.gz  root@lm-docker01.lm.local:/mnt/OrioleNAS-Data/software/Nvim/lazyvim_0.12.1_rocky9/
+scp nvim-linux-x86_64.appimage root@lm-docker01.lm.local:/mnt/OrioleNAS-Data/software/Nvim/lazyvim_0.12.1_rocky9/
+######################################################
+
+Script complete.
+"
 
 
 
@@ -676,7 +769,7 @@ echo "Script complete! No need to relaunch nvim!"
 ################################################################ 
 ################################################################ 
 ################################################################ 
-###############End of the lazyvim section!!!#################### 
+###############End of the lazyvim+RUSTENVIRONMENT section!!!#################### 
 ################################################################ 
 ################################################################ 
 ################################################################ 
@@ -825,16 +918,16 @@ echo "Fish configuration update complete with random colors for each user."
 
 # INSTALL RUST!!!!!!!!!!!!!!
 # First Install Rust!!!
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-source $HOME/.cargo/env 2>/dev/null 1>/dev/null
+# curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+# source $HOME/.cargo/env 2>/dev/null 1>/dev/null
 # Next Update and pre-reqs!!!
-rustup update # To Update Rustup Compiler to latest version
-cargo install cargo-watch # Can't live without this "watchexec" alternative!
-cargo install bacon
-cargo install rustlings
-cargo install clippy
-cargo install just
-echo "Ok Done! Open a fresh new terminal and it should be in fish or bash!"
+# rustup update # To Update Rustup Compiler to latest version
+# cargo install cargo-watch # Can't live without this "watchexec" alternative!
+# cargo install bacon
+# cargo install rustlings
+# cargo install clippy
+# cargo install just
+# echo "Ok Done! Open a fresh new terminal and it should be in fish or bash!"
 
 
 
