@@ -474,13 +474,16 @@ EOF
 
 
 
-################################################################ 
-################################################################ 
-################################################################ 
+################################################################################ 
+################################################################################ 
+################################################################################ 
 ########## Beginning of the lazyvim+rustEnvironment install section!!! ######### 
-################################################################ 
-################################################################ 
-################################################################ 
+################################################################################ 
+################################################################################ 
+################################################################################ 
+
+
+
 
 
 
@@ -534,27 +537,21 @@ git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 
 # @@ Install Rustup
 echo "@@ Installing Rustup..."
+rm -f ./sh.rustup.rs_install.sh
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > sh.rustup.rs_install.sh
+sleep 2; # To be nice to the CDN
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 . "$HOME/.cargo/env"            # For sh/bash/zsh/ash/dash/pdksh
 source "$HOME/.cargo/env.fish"  # For fish
 source $HOME/.cargo/env 2>/dev/null 1>/dev/null
 
-echo "@@ Updating Rustup to latest..."
+echo "@@ Updating Rustup to latest, adding components..."
 rustup update # To Update Rustup Compiler to latest version
-
 rustup component add rust-analyzer rustfmt clippy rust-src
 
-# Optional, I disabled to speed up this installer
-# cargo install rust-analyzer
-# cargo install cargo-edit
-# cargo install cargo-watch
-
 echo "@@ Installing Cargo Crates (justfile, eza)..."
-for i in `echo just bacon cargo-edit cargo-tree cargo-audit cargo-machete cargo-update cargo-make cargo-geiger ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch` ; do echo installing cargo crate $i... ;  cargo install $i 2>/dev/null ; done
+for i in `echo just bacon cargo-edit cargo-tree cargo-audit cargo-machete cargo-update cargo-make cargo-geiger ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall` ; do echo installing cargo crate $i... ;  cargo install $i 2>/dev/null ; done
 
-# echo "Ok Done! Open a fresh new terminal and it should be in fish or bash!"
-# echo "ALSO: USE bash to source ~/.cargo/env FIRST, then fish will automatically get it!!!"
-# echo "ALSO: P.S., You should cd into the rust project with a Cargo.toml, and do cargo build, so you get those deps into your ~/.cargo and ~/.rustup folder to portabilize the environment if you need to compile somewhere else!"
 
 
 
@@ -721,6 +718,14 @@ timer:start(
 )
 EOF
 
+echo -e "\x1b[34mMaking spacebar+r do ((SAVE&&CargoRun)) !!!!!!!!!!!!!!\x1b[0m]"
+#printf '%s\n' 'vim.keymap.set("n", "<leader>r", function() Snacks.terminal({"cargo", "run"}, { cwd = vim.fn.getcwd(), auto_close = false }) end, { desc = "cargo run" })' >> ~/.config/nvim/lua/config/keymaps.lua  # <---- this is WITHOUT SAVING
+
+#THIS IS WITH SAVING THEN "CargoRun" AND WRITE ALL :wa
+# PS: If you only want the current file saved instead of every buffer, replace vim.cmd("wa") with vim.cmd("update"), which writes only when the buffer has changes.
+printf '%s\n' 'vim.keymap.set("n", "<leader>r", function() vim.cmd("wa") Snacks.terminal({"cargo", "run"}, { cwd = vim.fn.getcwd(), auto_close = false }) end, { desc = "@@@ save all and cargo run" })' >> ~/.config/nvim/lua/config/keymaps.lua  
+
+
 echo "LAZYVIM INSTALL COMPLETE: No need to relaunch nvim!"
 echo "RUST INSTALL COMPLETE: Open a fresh new terminal and it should be in fish or bash!"
 echo "ALSO: USE bash to source ~/.cargo/env FIRST, then fish will automatically get it!!!"
@@ -757,6 +762,13 @@ scp nvim-linux-x86_64.appimage root@lm-docker01.lm.local:/mnt/OrioleNAS-Data/sof
 
 Script complete.
 "
+
+
+
+
+
+
+
 
 
 
