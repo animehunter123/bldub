@@ -485,11 +485,6 @@ EOF
 ################################################################################ 
 
 
-
-
-
-
-
 #!/usr/bin/env bash
 # Description:
 # This script is for installing Rust on Linux USING BASH + sudo(lmadm)
@@ -720,6 +715,55 @@ timer:start(
 )
 EOF
 
+# Tabout.nvim --- MINE, THIS lets you press <TAB> inside of a double quote in rust, and it will get out of the "); <--- to go here!! FREAKING COOL
+cat > "$HOME/.config/nvim/lua/plugins/taboutMINE.lua" << 'EOF'
+-- Tabout.nvim: MINE --- Lua code SO THAT I CAN JUST PRESS TAB TO AUTO GO TO THE END OF THE LINE
+return {
+  {
+    'abecodes/tabout.nvim',
+    lazy = false,
+    config = function()
+      require('tabout').setup {
+        tabkey = '<Tab>', -- key to trigger tabout, set to an empty string to disable
+        backwards_tabkey = '<S-Tab>', -- key to trigger backwards tabout, set to an empty string to disable
+        act_as_tab = true, -- shift content if tab out is not possible
+        act_as_shift_tab = false, -- reverse shift content if tab out is not possible (if your keyboard/terminal supports <S-Tab>)
+        default_tab = '<C-t>', -- shift default action (only at the beginning of a line, otherwise <TAB> is used)
+        default_shift_tab = '<C-d>', -- reverse shift default action,
+        enable_backwards = true, -- well ...
+        completion = false, -- if the tabkey is used in a completion pum
+        tabouts = {
+          { open = "'", close = "'" },
+          { open = '"', close = '"' },
+          { open = '`', close = '`' },
+          { open = '(', close = ')' },
+          { open = '[', close = ']' },
+          { open = '{', close = '}' }
+        },
+        ignore_beginning = true, --[[ if the cursor is at the beginning of a filled element it will rather tab out than shift the content ]]
+        exclude = {} -- tabout will ignore these filetypes
+      }
+    end,
+    dependencies = { -- These are optional
+      "nvim-treesitter/nvim-treesitter",
+      "L3MON4D3/LuaSnip",
+      "hrsh7th/nvim-cmp"
+    },
+    opt = true,  -- Set this to true if the plugin is optional
+    event = 'InsertCharPre', -- Set the event to 'InsertCharPre' for better compatibility
+    priority = 1000,
+  },
+  {
+    "L3MON4D3/LuaSnip",
+    keys = function()
+      -- Disable default tab keybinding in LuaSnip
+      return {}
+    end,
+  },
+}
+EOF
+
+
 echo -e "\x1b[34mMaking spacebar+r do ((SAVE&&CargoRun)) !!!!!!!!!!!!!!\x1b[0m]"
 #printf '%s\n' 'vim.keymap.set("n", "<leader>r", function() Snacks.terminal({"cargo", "run"}, { cwd = vim.fn.getcwd(), auto_close = false }) end, { desc = "cargo run" })' >> ~/.config/nvim/lua/config/keymaps.lua  # <---- this is WITHOUT SAVING
 
@@ -764,13 +808,6 @@ scp nvim-linux-x86_64.appimage root@lm-docker01.lm.local:/mnt/OrioleNAS-Data/sof
 
 Script complete.
 "
-
-
-
-
-
-
-
 
 
 
