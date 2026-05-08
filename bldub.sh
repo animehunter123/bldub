@@ -111,6 +111,8 @@ echo '
     dpkg --configure -a
 
     echo "SNAP: Installing lxd because it just rocks (without running 'lxd init')"
+    sudo dnf install -y snapd
+    sudo dnf install -y snap
     snap install lxd
 
     # export DEBIAN_FRONTEND=noninteractive # I DISABLED THIS TO ENSURE THAT YOU FOLLOW THE PROMPTS!!!!!!!!!!!
