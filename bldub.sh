@@ -167,8 +167,10 @@ git config --global user.email "you@example.com"
 git config --global user.name "Your Name"
 
 # THIS SECTION IS FOR ENABLING MODPROBE DUMMY mode so that kubespray will properly install kubernetes on LXD CONTAINERS!!!!!!!!!!!!
-    echo "For Kubernetes k8s with kubespray'ing the innards of lxds, its important to sudo modprobe dummy... enabling this permanently..."
-    sudo modprobe dummy
+echo "For Kubernetes k8s with kubespray'ing the innards of lxds, its important to sudo modprobe dummy... enabling this permanently..."
+sudo modprobe dummy
+snap install lxd # Running it again
+
 # Function to add module to modules-load.d
 add_to_modules_load() {
   echo "Adding dummy module to /etc/modules-load.d/dummy.conf"
