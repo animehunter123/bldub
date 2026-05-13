@@ -53,13 +53,14 @@ run_build_development_environment() {
 
     read -p "READ THE FOLLOWING CAREFULLY
     * This will update and install YOUR HOST 
+    * This script currently will create a ~/.ssh/id_rsa if it doesnt exist...
     * You may need to answer prompts, or ctrl+C and restart this script as needed. 
     * VERY IMPORTANT ====> Make sure you DO NOT HAVE /mnt/hgfs VMWARE SHARED DATA ===> WE WILL FORCE UNMOUNT IT NOW JUST IN CASE SO REBOOT AFTER THIS COMMAND!!!!!!!!!!!
     mounted for step1 (OS Prep) !!!!!!!!!!!!!!!!
 
     PRESS ENTER TO CONTINUE or CTRL C TO QUIT"
 
-    # Begin of Setup for docker host, ansible, and terminator/vscode/byobu.
+    # Begin of Setup for docker host, ansible, an/sshd terminator/vscode/byobu.
     echo "OK: Starting to prepare the DEVELOPMENT ENVIRONMENT CONFIGURATION for this HOST..."
 
     # VERBOS INSTALLS: Install a package but with normal prompt wizards. (So that I can get this prompt over with faster)
@@ -315,6 +316,29 @@ apt install -y fish
     printf '\n\nset fish_greeting ""' >>/etc/fish/config.fish
     chsh -s /usr/bin/fish
     echo "Step: run_build_development_environment completed successfully!"
+
+
+# SSH CLIENT: Ensure that RSA and ED25519 KEYS are existing FIRST
+gen_key_if_missing() {
+    local key_path="$1"
+    local key_type="$2"
+    local extra_args="$3"
+    if [ ! -f "$key_path" ] || [ ! -f "$key_path.pub" ]; then
+        echo "[$key_type] keypair missing — generating..."
+        mkdir -p "$HOME/.ssh"
+        chmod 700 "$HOME/.ssh"
+        ssh-keygen -t "$key_type" $extra_args -f "$key_path" -N "" <<< y >/dev/null 2>&1
+        echo "Created:"
+        echo "  $key_path"
+        echo "  $key_path.pub"
+    else
+        echo "[$key_type] keypair already exists — skipping."
+    fi
+}
+# RSA (4096-bit)
+gen_key_if_missing "$HOME/.ssh/id_rsa" "rsa" "-b 4096"
+# ED25519
+gen_key_if_missing "$HOME/.ssh/id_ed25519" "ed25519" ""
 
     # Setup SSHD PERFECTLY
 cat <<EOF >> /etc/ssh/sshd_config
@@ -1521,12 +1545,17 @@ launch_lxd_init() {
 } # END OF launch_lxd_init
 
 
-launch_ubuntu_1_lxc_container() { #STILL NEED TO FIX SSH KEY
+launch_ubuntu_1_lxc_container() { 
+    
     local default_name="ub01"
     # local container_name=${1:-$default_name}
     local image="ubuntu:24.04"
     local root_password="P@ssw0rd"
-    local public_key=$(cat ~/.ssh/id_rsa.pub)
+
+    # @@@@@@@@@ THIS USES RSA NOT ED25519 for NOW, MAYBE UBUNTU 28.04 REQUIRES IT FOR LXC STUFFFFFFFFFFFFFF
+    # @@@@@@@@@ THIS USES RSA NOT ED25519 for NOW, MAYBE UBUNTU 28.04 REQUIRES IT FOR LXC STUFFFFFFFFFFFFFF
+    # @@@@@@@@@ THIS USES RSA NOT ED25519 for NOW, MAYBE UBUNTU 28.04 REQUIRES IT FOR LXC STUFFFFFFFFFFFFFF
+    local public_key=$(cat ~/.ssh/id_rsa.pub) 
 
     # read -p "Enter a name for the $image container (default: $default_name): " container_name
     # container_name=${container_name:-$default_name}
