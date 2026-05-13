@@ -340,6 +340,60 @@ gen_key_if_missing "$HOME/.ssh/id_rsa" "rsa" "-b 4096"
 # ED25519
 gen_key_if_missing "$HOME/.ssh/id_ed25519" "ed25519" ""
 
+
+# NOW SET UP THE SSH CLIENT CONFIG FOR * to always ACCEPT EVERYTHING
+SSH_DIR="$HOME/.ssh"
+CONFIG_FILE="$SSH_DIR/config"
+
+mkdir -p "$SSH_DIR"
+chmod 700 "$SSH_DIR"
+
+# The desired block
+read -r -d '' NEW_BLOCK <<'EOF'
+Host *
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+EOF
+
+# Make config if missing
+if [[ ! -f "$CONFIG_FILE" ]]; then
+    echo "$NEW_BLOCK" > "$CONFIG_FILE"
+    chmod 600 "$CONFIG_FILE"
+    echo "Created new ~/.ssh/config with the required settings."
+    exit 0
+fi
+
+# If a Host * block already exists, remove it safely
+if grep -qE '^[Hh]ost \*' "$CONFIG_FILE"; then
+    # Remove any existing `Host *` block(s)
+    # A block starts at "Host *" and ends before the next "Host " line or EOF
+    awk -v repl="$NEW_BLOCK" '
+        BEGIN {printed=0}
+        /^[Hh]ost \*/ {
+            if (!printed) {
+                print repl
+                printed=1
+            }
+            skip=1
+            next
+        }
+        /^Host / { skip=0 }
+        skip==0 { print }
+    ' "$CONFIG_FILE" > "$CONFIG_FILE.tmp"
+
+    mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
+    chmod 600 "$CONFIG_FILE"
+    echo "Replaced existing Host * block."
+else
+    # Append if no Host * block exists
+    printf "\n%s\n" "$NEW_BLOCK" >> "$CONFIG_FILE"
+    chmod 600 "$CONFIG_FILE"
+    echo "Added Host * block."
+fi
+
+
+
+
     # Setup SSHD PERFECTLY
 cat <<EOF >> /etc/ssh/sshd_config
 # @@ baselineUbContainer DOCKER SPECIFIC SECTION @@
