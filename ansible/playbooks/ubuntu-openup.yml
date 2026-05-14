@@ -1,0 +1,7 @@
+---
+- name: Make Ubuntu servers fully open for homelab use
+  hosts: ubuntu_servers
+  become: yes
+
+  roles:
+    - open

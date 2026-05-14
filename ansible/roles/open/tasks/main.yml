@@ -1,0 +1,83 @@
+---
+- name: Disable UFW
+  ansible.builtin.service:
+    name: ufw
+    state: stopped
+    enabled: no
+
+
+
+
+
+
+
+
+- name: Allow SSH password authentication
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication'
+    line: 'PasswordAuthentication yes'
+  notify: Restart sshd
+
+- name: Allow SSH root login
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin yes'
+  notify: Restart sshd
+
+
+- name: Ensure SSHD settings are applied
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^{{ item.key }} "
+    line: "{{ item.key }} {{ item.value }}"
+    state: present
+  loop:
+    - { key: "PermitRootLogin", value: "yes" }
+    - { key: "GSSAPIAuthentication", value: "no" }
+    - { key: "UsePAM", value: "no" }
+    - { key: "UseDNS", value: "no" }
+
+- name: Restart sshd
+  ansible.builtin.service:
+    name: ssh
+    state: restarted
+
+
+
+- name: Install common tools
+  ansible.builtin.apt:
+    name:
+      - htop
+      - curl
+      - wget
+      - git
+      - vim
+      - net-tools
+      - iputils-ping
+    state: present
+    update_cache: yes
+
+- name: Enable IP forwarding
+  ansible.builtin.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+    reload: yes
+
+- name: Raise system open file limits
+  ansible.builtin.copy:
+    dest: /etc/security/limits.d/99-open.conf
+    content: |
+      * soft nofile 65535
+      * hard nofile 65535
+      * soft nproc  65535
+      * hard nproc  65535
+
+# I DISABLED THIS
+#- name: Make sure systemd-timesyncd is enabled
+#  ansible.builtin.service:
+#    name: systemd-timesyncd
+#    enabled: yes
+#    state: started
