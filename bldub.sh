@@ -843,6 +843,22 @@ return {
 }
 EOF
 
+# ORGMODE FOR NVIM 
+cat > "$HOME/.config/nvim/lua/plugins/nvimorgmodeMINE.lua" << 'EOF'
+-- This is the .org PLUGIN to emulate EMACS NVIM
+return {
+  "nvim-orgmode/orgmode",
+  event = "VeryLazy",
+  config = function()
+    require("orgmode").setup({
+      org_agenda_files = "~/orgfiles/**/*",
+      org_default_notes_file = "~/orgfiles/refile.org",
+    })
+    -- Experimental LSP support
+    vim.lsp.enable("org")
+  end,
+}
+EOF
 
 echo -e "\x1b[34mMaking spacebar+r do ((SAVE&&CargoRun)) !!!!!!!!!!!!!!\x1b[0m]"
 #printf '%s\n' 'vim.keymap.set("n", "<leader>r", function() Snacks.terminal({"cargo", "run"}, { cwd = vim.fn.getcwd(), auto_close = false }) end, { desc = "cargo run" })' >> ~/.config/nvim/lua/config/keymaps.lua  # <---- this is WITHOUT SAVING
