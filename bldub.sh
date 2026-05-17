@@ -748,6 +748,13 @@ awk '
 { print }
 ' ~/.config/nvim/lua/config/lazy.lua > /tmp/lazy.lua && mv /tmp/lazy.lua ~/.config/nvim/lua/config/lazy.lua
 
+# Now enable set wrap by default for me...
+echo "
+-- Default set wrap to ON FOR MEEEEEEEEEEE
+vim.opt.wrap = true
+-- Disabled this, as i dont need it: vim.opt.linebreak = true
+" >> /Users/kenshin/.config/nvim/lua/config/options.lua
+
 pushd .
 cd /tmp
 cargo new nvim-test01
