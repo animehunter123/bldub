@@ -751,7 +751,7 @@ awk '
 # Now enable set wrap by default for me...
 echo "
 -- Default set wrap to ON FOR MEEEEEEEEEEE
-vim.opt.wrap = true
+-- IT WORKS but i disabled because CODE DOESNT LOOK GOOD.... vim.opt.wrap = true
 -- Disabled this, as i dont need it: vim.opt.linebreak = true
 " >> /Users/kenshin/.config/nvim/lua/config/options.lua
 
