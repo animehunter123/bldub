@@ -1,0 +1,12 @@
+---
+- name: Install NFS and CIFS utilities
+  hosts: all
+  become: true
+  tasks:
+    - name: Install packages on RedHat-like systems
+      ansible.builtin.dnf:
+        name:
+          - nfs-utils
+          - cifs-utils
+        state: present
+      when: ansible_os_family == "RedHat"

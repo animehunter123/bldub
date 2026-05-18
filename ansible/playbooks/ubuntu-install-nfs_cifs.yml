@@ -1,0 +1,13 @@
+---
+- name: Install NFS and CIFS utilities
+  hosts: all
+  become: true
+  tasks:
+    - name: Install packages on Debian-like systems
+      ansible.builtin.apt:
+        name:
+          - nfs-common
+          - cifs-utils
+        state: present
+        update_cache: true
+      when: ansible_os_family == "Debian"
