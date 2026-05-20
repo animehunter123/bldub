@@ -360,7 +360,7 @@ if [[ ! -f "$CONFIG_FILE" ]]; then
     echo "$NEW_BLOCK" > "$CONFIG_FILE"
     chmod 600 "$CONFIG_FILE"
     echo "Created new ~/.ssh/config with the required settings."
-    exit 0
+#    exit 0
 fi
 
 # If a Host * block already exists, remove it safely
