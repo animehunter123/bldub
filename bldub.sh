@@ -565,12 +565,17 @@ EOF
 ################################################################################ 
 
 
+
+
+
+
+
 #!/usr/bin/env bash
 # Description:
 # This script is for installing Rust on Linux USING BASH + sudo(lmadm)
 # It can also be used AFTER LAZYVIM to make a new portable 
 # rust environment (i.e. fresh lxc with lazyvim THEN install 
-# rust, then copy the new bigger .cargo/.rustup folder
+# rus (BY DELETING YOUR OLD .cargo and .rustup FOLDERS).
 
 echo "
 ***********************************************************
@@ -613,6 +618,8 @@ git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 # @@ Install Rustup
+echo "@@ BLOWING AWAY YOUR OLD Rustup (.cargo and .rustup)..."
+cd ~ ; rm -rf .cargo/ .rustup/
 echo "@@ Installing Rustup..."
 rm -f ./sh.rustup.rs_install.sh
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > sh.rustup.rs_install.sh
@@ -627,7 +634,11 @@ rustup update # To Update Rustup Compiler to latest version
 rustup component add rust-analyzer rustfmt clippy rust-src
 
 echo "@@ Installing Cargo Crates (justfile, eza)..."
-for i in `echo just bacon cargo-edit cargo-tree cargo-audit cargo-machete cargo-update cargo-make cargo-geiger ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall` ; do echo installing cargo crate $i... ;  cargo install $i 2>/dev/null ; done
+# for i in `echo just bacon cargo-edit cargo-tree cargo-audit cargo-machete cargo-update cargo-make cargo-geiger ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall` ; 
+for i in `echo just bacon ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall trunk` ; do 
+  echo installing cargo crate $i... ;  
+  cargo install $i 2>/dev/null ; 
+done
 
 
 
@@ -731,13 +742,10 @@ popd
 
 
 
-echo "INSTALL MY NORMAL PLUGINS I WANTED VIA MASONINSTALL CLI..."
-nvim --headless -c "MasonInstall rust-analyzer" -c "qall"
-nvim --headless -c "MasonInstall rustfmt" -c "qall"
-nvim --headless -c "MasonInstall codelldb" -c "qall"
-# nvim --headless -c "MasonInstall cpptools" -c "qall"
-nvim --headless -c "MasonInstall crates.nvim" -c "qall"
-nvim --headless -c "MasonInstall rustaceanvim" -c "qall"
+
+
+
+
 
 echo "INSTALL MY EXTRA PLUGINS I WANTED VIA MASONINSTALL CLI... (launch nvim once, sed the setup() into the plugins, and the next time you launch AFTER this script it installs rust extras)"
 awk '
@@ -747,22 +755,6 @@ awk '
 }
 { print }
 ' ~/.config/nvim/lua/config/lazy.lua > /tmp/lazy.lua && mv /tmp/lazy.lua ~/.config/nvim/lua/config/lazy.lua
-
-# Now enable set wrap by default for me...
-echo "
--- Default set wrap to ON FOR MEEEEEEEEEEE
--- IT WORKS but i disabled because CODE DOESNT LOOK GOOD.... vim.opt.wrap = true
--- Disabled this, as i dont need it: vim.opt.linebreak = true
-" >> /Users/kenshin/.config/nvim/lua/config/options.lua
-
-pushd .
-cd /tmp
-cargo new nvim-test01
-cd nvim-test01
-nvim src/main.rs # dummy filename to ensure any downloads are needed?
-cd ..
-rm -rf nvim-test01
-popd
 
 jq '.extras += ["lazyvim.plugins.extras.lang.rust", "lazyvim.plugins.extras.editor.telescope"]' \
   ~/.config/nvim/lazyvim.json > /tmp/lazyvim.json \
@@ -850,22 +842,6 @@ return {
 }
 EOF
 
-# ORGMODE FOR NVIM 
-cat > "$HOME/.config/nvim/lua/plugins/nvimorgmodeMINE.lua" << 'EOF'
--- This is the .org PLUGIN to emulate EMACS NVIM
-return {
-  "nvim-orgmode/orgmode",
-  event = "VeryLazy",
-  config = function()
-    require("orgmode").setup({
-      org_agenda_files = "~/orgfiles/**/*",
-      org_default_notes_file = "~/orgfiles/refile.org",
-    })
-    -- Experimental LSP support
-    vim.lsp.enable("org")
-  end,
-}
-EOF
 
 echo -e "\x1b[34mMaking spacebar+r do ((SAVE&&CargoRun)) !!!!!!!!!!!!!!\x1b[0m]"
 #printf '%s\n' 'vim.keymap.set("n", "<leader>r", function() Snacks.terminal({"cargo", "run"}, { cwd = vim.fn.getcwd(), auto_close = false }) end, { desc = "cargo run" })' >> ~/.config/nvim/lua/config/keymaps.lua  # <---- this is WITHOUT SAVING
@@ -873,6 +849,31 @@ echo -e "\x1b[34mMaking spacebar+r do ((SAVE&&CargoRun)) !!!!!!!!!!!!!!\x1b[0m]"
 #THIS IS WITH SAVING THEN "CargoRun" AND WRITE ALL :wa
 # PS: If you only want the current file saved instead of every buffer, replace vim.cmd("wa") with vim.cmd("update"), which writes only when the buffer has changes.
 printf '%s\n' 'vim.keymap.set("n", "<leader>r", function() vim.cmd("wa") Snacks.terminal({"cargo", "run"}, { cwd = vim.fn.getcwd(), auto_close = false }) end, { desc = "@@@ save all and cargo run" })' >> ~/.config/nvim/lua/config/keymaps.lua  
+
+
+
+
+
+
+
+echo "INSTALL MY NORMAL PLUGINS I WANTED VIA MASONINSTALL CLI..."
+nvim --headless -c "MasonInstall rust-analyzer" -c "qall"
+nvim --headless -c "MasonInstall rustfmt" -c "qall"
+nvim --headless -c "MasonInstall codelldb" -c "qall"
+# nvim --headless -c "MasonInstall cpptools" -c "qall"
+nvim --headless -c "MasonInstall crates.nvim" -c "qall"
+nvim --headless -c "MasonInstall rustaceanvim" -c "qall"
+
+sleep 2
+pushd .
+cd /tmp
+cargo new nvim-test01
+cd nvim-test01
+nvim src/main.rs # dummy filename to ensure any downloads are needed?
+cd ..
+rm -rf nvim-test01
+popd
+
 
 
 echo "LAZYVIM INSTALL COMPLETE: No need to relaunch nvim!"
@@ -885,32 +886,34 @@ echo "
 ...
 ...
 
-OK: Lazyvim is done, we are good!
-
-- You should now have a appimage and 3 folders ./local/state/nvim ./local/share/nvim ./config/nvim
-
-- You also have a 'rust baseline' which is without the namar cargo toml or serde/dioxus/actix blah blah. So scp the tar to those and re-tar if you need to also get those deps now too.
-
-- You no need tar twice as root, then again as lmadmin. I fixed the script, root is enough.
-
-- IMPORTANT:
-fzf spacebar/spacebar REQUIRES:
-1. Launch nvim . >> spacebar+spacebar >> it will show blank no files >> now quit NVIM
-2. NOW YOU MUST COMPLETELY LOGGING OUT OF THE SSH SESSION (ctrl+d many times).
-3. Open nvim again >> spacebar+spacebar >> it will work!!!
+OK: Lazyvim is done, we are good! - Thus... You should now have a appimage and 3 folders ./local/state/nvim ./local/share/nvim ./config/nvim
 
 ######################################################
-NOW: To backup NVIM+RUST (SAME FILE FOR LMADMIN/ROOT), use: 
-cd ~
-tar cvfpz lazyvim_v0.12.1_ROOT+LMADMIN_with_rust_baseline.tar.gz ./nvim-linux-x86_64.appimage ./.config/nvim/ ./.local/share/nvim ./.local/state/nvim ./.cache/nvim/ ./.fzf/ ./.fzf.bash/ ./.fzf.fish/ ./.cargo/ ./.rustup/ 
 
-Then to your nas, I guess (WITH THE APPIMAGE) with 2 SCPs:
-scp lazyvim_v0.12.1_ROOT+LMADMIN_with_rust_baseline.tar.gz  root@lm-docker01.lm.local:/mnt/OrioleNAS-Data/software/Nvim/lazyvim_0.12.1_rocky9/
+AT THIS POINT YOU RAN the INSTALLSCRIPT as root FIRST AND THEN: cp -rpv /root/.cargo /root/.rustup /root/.config /root/.fzf /root/.fzf.bash /root/.local     /home/lmadmin ; chown -R lmadmin:lmadmin /home/lmadmin ; THEN ADD CARGO TO ENV!!! #or /home/whoever
+AT THIS POINT YOU RAN the INSTALLSCRIPT as root FIRST AND THEN: cp -rpv /root/.cargo /root/.rustup /root/.config /root/.fzf /root/.fzf.bash /root/.local     /home/lmadmin ; chown -R lmadmin:lmadmin /home/lmadmin ; THEN ADD CARGO TO ENV!!! #or /home/whoever
+AT THIS POINT YOU RAN the INSTALLSCRIPT as root FIRST AND THEN: cp -rpv /root/.cargo /root/.rustup /root/.config /root/.fzf /root/.fzf.bash /root/.local     /home/lmadmin ; chown -R lmadmin:lmadmin /home/lmadmin ; THEN ADD CARGO TO ENV!!! #or /home/whoever
+
+NOW#0: IMPORTANT CHECK FOR NVIM:
+1. Launch nvim . >> spacebar+spacebar >> it will show blank no files >> now quit NVIM
+2. NOW YOU MUST COMPLETELY LOGGING OUT OF THE SSH SESSION (ctrl+d many times).
+3. Open nvim again >> spacebar+spacebar >> it will work with fzf!!!
+
+NOW#1: To get additional modules from Cargo.toml in namar/souj cd into those dirs, and YOU MUST DO ----> cargo build <----- THIS WAY IT GETS ALL HIS FEATURES/DERIVES
+
+NOW#2: To backup NVIM+RUST (SAME FILE FOR LMADMIN/ROOT **no need to RUN TWICE, just cp to lmadmin and chown!), use: 
+cd ~
+tar cvfpz lazyvim_v0.12.X_ROOT_with_rust_baseline.tar.gz ./nvim-linux-x86_64.appimage ./.config/nvim/ ./.local/share/nvim ./.local/state/nvim ./.cache/nvim/ ./.fzf/ ./.fzf.bash/ ./.fzf.fish/ ./.cargo/ ./.rustup/ 
+
+NOW#3: Then backup to your nas, I guess (WITH THE APPIMAGE) with 2 SCPs:
+scp lazyvim_v0.12.X_YOURUSERNAME_with_rust_baseline.tar.gz  root@lm-docker01.lm.local:/mnt/OrioleNAS-Data/software/Nvim/lazyvim_0.12.1_rocky9/
 scp nvim-linux-x86_64.appimage root@lm-docker01.lm.local:/mnt/OrioleNAS-Data/software/Nvim/lazyvim_0.12.1_rocky9/
 ######################################################
 
 Script complete.
 "
+
+
 
 
 
