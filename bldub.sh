@@ -514,8 +514,14 @@ EOF
     sudo sysctl -w net.ipv4.ip_forward=1
     sudo netfilter-persistent save
 
+    # Add all the alias'es I like to use
+    printf 'alias r "cargo run"\n' >> /etc/fish/config.fish
+    printf 'alias gs "git status"\n' >> /etc/fish/config.fish
+    printf 'alias gl "git log"\n' >> /etc/fish/config.fish
 
-
+    printf 'alias r="cargo run"\n' >> /etc/bash.bashrc
+    printf 'alias gs="git status"\n' >> /etc/bash.bashrc
+    printf 'alias gl="git log"\n' >> /etc/bash.bashrc
 
 
 
