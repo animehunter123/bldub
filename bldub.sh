@@ -575,25 +575,20 @@ EOF
 
 
 
-
 #!/usr/bin/env bash
 # Description:
 # This script is for installing Rust on Linux USING BASH + sudo(lmadm)
-# It can also be used AFTER LAZYVIM to make a new portable 
-# rust environment (i.e. fresh lxc with lazyvim THEN install 
-# rus (BY DELETING YOUR OLD .cargo and .rustup FOLDERS).
-
+# RUN IT ONCE AS root, and it will auto copy RUST + NVIM 
+# BUT... (without the sourcing .cargo/env.fish part)
 echo "
 ***********************************************************
 THIS WILL INSTALL RUST ENVIRONMENT FIRST, AND THEN LAZYVIM!
 ***********************************************************
-
 NOTE:
-...THIS IS BECAUSE LAZYVIM USES "cc" + ~/.cargo+ ~/.rustup
+...THIS IS BECAUSE LAZYVIM USES cc + ~/.cargo+ ~/.rustup
 ...that way the telescope fzf .so files are working first 
 ...BEFORE doing a cargo for this stuff, Thus please always
 "
-
 # Note: cc is required, this is because...I learned that telescope 
 # compiles ".so" files into ~/.local/share/nvim/site/parser
 # Thus, in order to have nvim+treesitte YOU MUST INSTALL RUST and
@@ -645,22 +640,6 @@ for i in `echo just bacon ripgrep fd-find eza zoxide starship delta tokei dust b
   echo installing cargo crate $i... ;  
   cargo install $i 2>/dev/null ; 
 done
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 echo -e "\e[32mRUST INSTALL COMPLETE!!! NOW... Installing Neovim (LazyVim base)...\e[0m"
 echo -e "\e[32mRUST INSTALL COMPLETE!!! NOW... Installing Neovim (LazyVim base)...\e[0m"
@@ -745,13 +724,6 @@ pushd .
 cd ~/.local/share/nvim/lazy/cargo.nvim
 cargo build --release
 popd
-
-
-
-
-
-
-
 
 echo "INSTALL MY EXTRA PLUGINS I WANTED VIA MASONINSTALL CLI... (launch nvim once, sed the setup() into the plugins, and the next time you launch AFTER this script it installs rust extras)"
 awk '
@@ -848,19 +820,12 @@ return {
 }
 EOF
 
-
 echo -e "\x1b[34mMaking spacebar+r do ((SAVE&&CargoRun)) !!!!!!!!!!!!!!\x1b[0m]"
 #printf '%s\n' 'vim.keymap.set("n", "<leader>r", function() Snacks.terminal({"cargo", "run"}, { cwd = vim.fn.getcwd(), auto_close = false }) end, { desc = "cargo run" })' >> ~/.config/nvim/lua/config/keymaps.lua  # <---- this is WITHOUT SAVING
 
 #THIS IS WITH SAVING THEN "CargoRun" AND WRITE ALL :wa
 # PS: If you only want the current file saved instead of every buffer, replace vim.cmd("wa") with vim.cmd("update"), which writes only when the buffer has changes.
 printf '%s\n' 'vim.keymap.set("n", "<leader>r", function() vim.cmd("wa") Snacks.terminal({"cargo", "run"}, { cwd = vim.fn.getcwd(), auto_close = false }) end, { desc = "@@@ save all and cargo run" })' >> ~/.config/nvim/lua/config/keymaps.lua  
-
-
-
-
-
-
 
 echo "INSTALL MY NORMAL PLUGINS I WANTED VIA MASONINSTALL CLI..."
 nvim --headless -c "MasonInstall rust-analyzer" -c "qall"
@@ -880,7 +845,8 @@ cd ..
 rm -rf nvim-test01
 popd
 
-
+echo "COPY ROOT's rustup + lazyvim to /home/* every user!!!!!!!!!!!!!!!!!!!!!!!!!!!! + CHOWN"
+for i in `ls /home/` ; do echo $i ; cp -rpv ~/.cache/ ~/.cargo/ ~/.config/ ~/.fzf ~/.fzf.bash ~/.local/ ~/.rustup /home/$i ; chown -R $i:$i /home/$i ; done
 
 echo "LAZYVIM INSTALL COMPLETE: No need to relaunch nvim!"
 echo "RUST INSTALL COMPLETE: Open a fresh new terminal and it should be in fish or bash!"
@@ -891,8 +857,6 @@ echo "
 ...
 ...
 ...
-
-OK: Lazyvim is done, we are good! - Thus... You should now have a appimage and 3 folders ./local/state/nvim ./local/share/nvim ./config/nvim
 
 ######################################################
 
@@ -912,12 +876,15 @@ cd ~
 tar cvfpz lazyvim_v0.12.X_ROOT_with_rust_baseline.tar.gz ./nvim-linux-x86_64.appimage ./.config/nvim/ ./.local/share/nvim ./.local/state/nvim ./.cache/nvim/ ./.fzf/ ./.fzf.bash/ ./.fzf.fish/ ./.cargo/ ./.rustup/ 
 
 NOW#3: Then backup to your nas, I guess (WITH THE APPIMAGE) with 2 SCPs:
-scp lazyvim_v0.12.X_YOURUSERNAME_with_rust_baseline.tar.gz  root@lm-docker01.lm.local:/mnt/OrioleNAS-Data/software/Nvim/lazyvim_0.12.1_rocky9/
+scp lazyvim_v0.12.X_ROOTPROFILE_with_rust_baseline.tar.gz  root@lm-docker01.lm.local:/mnt/OrioleNAS-Data/software/Nvim/lazyvim_0.12.1_rocky9/
 scp nvim-linux-x86_64.appimage root@lm-docker01.lm.local:/mnt/OrioleNAS-Data/software/Nvim/lazyvim_0.12.1_rocky9/
 ######################################################
 
 Script complete.
 "
+
+
+
 
 
 
