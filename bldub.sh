@@ -515,11 +515,11 @@ EOF
     sudo netfilter-persistent save
 
     # Add all the alias'es I like to use
-    printf 'alias r "cargo run"\n' >> /etc/fish/config.fish
+    printf '\n# My cargo and git aliases... \nalias r "cargo run"\n' >> /etc/fish/config.fish
     printf 'alias gs "git status"\n' >> /etc/fish/config.fish
     printf 'alias gl "git log"\n' >> /etc/fish/config.fish
 
-    printf 'alias r="cargo run"\n' >> /etc/bash.bashrc
+    printf '\n# My cargo and git aliases... \nalias r="cargo run"\n' >> /etc/bash.bashrc
     printf 'alias gs="git status"\n' >> /etc/bash.bashrc
     printf 'alias gl="git log"\n' >> /etc/bash.bashrc
 
@@ -1115,6 +1115,7 @@ echo "Fish configuration update complete with random colors for each user."
         fi
     done
     sed -i 's/set fish_greeting ""alias lxc "sudo lxc"/set fish_greeting ""/' /etc/fish/config.fish
+    echo "" >> /etc/fish/config.fish
 
     updatedb &
 } # END OF run_build_development_environment
