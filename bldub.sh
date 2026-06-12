@@ -518,10 +518,12 @@ EOF
     printf '\n# My cargo and git aliases... \nalias r "cargo run"\n' >> /etc/fish/config.fish
     printf 'alias gs "git status"\n' >> /etc/fish/config.fish
     printf 'alias gl "git log"\n' >> /etc/fish/config.fish
+    printf 'alias gd "git diff"\n' >> /etc/fish/config.fish
 
     printf '\n# My cargo and git aliases... \nalias r="cargo run"\n' >> /etc/bash.bashrc
     printf 'alias gs="git status"\n' >> /etc/bash.bashrc
     printf 'alias gl="git log"\n' >> /etc/bash.bashrc
+    printf 'alias gd="git diff"\n' >> /etc/bash.bashrc
 
 
 
