@@ -576,8 +576,6 @@ EOF
 
 
 
-
-#!/usr/bin/env bash
 # Description:
 # This script is for installing Rust on Linux USING BASH + sudo(lmadm)
 # RUN IT ONCE AS root, and it will auto copy RUST + NVIM 
@@ -822,6 +820,43 @@ return {
 }
 EOF
 
+
+
+
+
+
+# orgmodeMINE --- MINE, Colorizes the orgmode, and autoexpands it by default!
+cat > "$HOME/.config/nvim/lua/plugins/orgmodeMINE.lua" << 'EOF'
+-- orgmodeMINE: This will colorize the org files, and also auto-expand all bullets by default!!!
+return {
+  {
+    "nvim-orgmode/orgmode",
+    ft = { "org" },
+    config = function()
+      require("orgmode").setup({
+        org_startup_folded = false,
+      })
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "org",
+        callback = function()
+          vim.cmd("normal! zR")
+        end,
+      })
+    end,
+  },
+  {
+    "nvim-treesitter/nvim-treesitter",
+    opts = function(_, opts)
+      opts.ensure_installed = opts.ensure_installed or {}
+      vim.list_extend(opts.ensure_installed, { "org" })
+      opts.highlight = opts.highlight or {}
+      opts.highlight.additional_vim_regex_highlighting = opts.highlight.additional_vim_regex_highlighting or {}
+      opts.highlight.additional_vim_regex_highlighting.org = true
+    end,
+  },
+}
+EOF
+
 echo -e "\x1b[34mMaking spacebar+r do ((SAVE&&CargoRun)) !!!!!!!!!!!!!!\x1b[0m]"
 #printf '%s\n' 'vim.keymap.set("n", "<leader>r", function() Snacks.terminal({"cargo", "run"}, { cwd = vim.fn.getcwd(), auto_close = false }) end, { desc = "cargo run" })' >> ~/.config/nvim/lua/config/keymaps.lua  # <---- this is WITHOUT SAVING
 
@@ -884,7 +919,6 @@ scp nvim-linux-x86_64.appimage root@lm-docker01.lm.local:/mnt/OrioleNAS-Data/sof
 
 Script complete.
 "
-
 
 
 
