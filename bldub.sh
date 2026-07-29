@@ -266,6 +266,8 @@ dnf install -y cockpit-machines
 # NOW THAT FNM/NPX/NODEJS AND METEOR FINISHED INSTALLING, ITS SAFE TO INSTALL FISH!!
 apt install -y fish
 
+# Install herdr (tmux on crack! with ctrl+b, and leader G has fuzzy finder)
+curl -fsSL https://herdr.dev/install.sh | sh
 
     # Allow VMWARE TOOLS to work with KUBUNTU 2404 and onwards to show /mnt/hgfs correctly
     mkdir /mnt/hgfs
