@@ -9,13 +9,13 @@
 # LXC PUBLISH COMMAND (ONLY IF YOU WANT IT LISTED AS A IMAGE): lxc publish ub01/phoronix --alias phoronix01
 
 # TODO: FEDORA (This worked in Ubuntu, but I need a way to make fedora's, since I already apt installed lxc-templates!), I.E THIS COMMAND >>> sudo lxc-create -t download -n my_fedora_container -- -d fedora -r 41 -a amd64
-# TODO: DOCKER01 - I want a lxc build docker01, with dockerce ready to go... 
+# TODO: DOCKER01 - I want a lxc build docker01, with dockerce ready to go...
 
 # TODO: Make a GuiDevApps Menu for VSCode and Meteor + Lazyvim, @@AND@@ prompt which USER to run these installs as, and that way they arent root!!
 # TODO: I need to make PORTABLE VSCODE HERE, then chmod and allow ANYONE TO USE IT!!! <---------------- - -- -this is cool idea
 # TODO: Curl docker01:5000 as user lmadmin NOT WORKING B/c ETC HOSTS, but IT WORKS AS ROOT WHY!?!?!?
 # TODO: Sometimes ub01/ub02 changes ip addresses after reboot, how do i cronjob or fix this?
-# TODO: I NEED TO MAKE SUDO PASSWORDLESS 
+# TODO: I NEED TO MAKE SUDO PASSWORDLESS
 # TODO: Need Neovim + Lazyvim
 # TODO: Need to pin Brave/VSCode/Terminator/Kate to your KDE panel at the bottom of the screen, desktop shortcut atm is OK
 # TODO: allow running the script multiple times without breaking .bashrc and fishrc
@@ -23,8 +23,8 @@
 
 # Exit if not root
 if [ "$(id -u)" -ne 0 ]; then
-    echo "This script must be run as root" >&2
-    exit 1
+  echo "This script must be run as root" >&2
+  exit 1
 fi
 
 echo "
@@ -49,9 +49,9 @@ $(tput setaf 3)- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 "
 
 run_build_development_environment() {
-    echo "Building the Host OS Dev Environment with Docker CE and Ansible..."
+  echo "Building the Host OS Dev Environment with Docker CE and Ansible..."
 
-    read -p "READ THE FOLLOWING CAREFULLY
+  read -p "READ THE FOLLOWING CAREFULLY
     * This will update and install YOUR HOST 
     * This script currently will create a ~/.ssh/id_rsa if it doesnt exist...
     * You may need to answer prompts, or ctrl+C and restart this script as needed. 
@@ -60,22 +60,23 @@ run_build_development_environment() {
 
     PRESS ENTER TO CONTINUE or CTRL C TO QUIT"
 
-    # Begin of Setup for docker host, ansible, an/sshd terminator/vscode/byobu.
-    echo "OK: Starting to prepare the DEVELOPMENT ENVIRONMENT CONFIGURATION for this HOST..."
+  # Begin of Setup for docker host, ansible, an/sshd terminator/vscode/byobu.
+  echo "OK: Starting to prepare the DEVELOPMENT ENVIRONMENT CONFIGURATION for this HOST..."
 
-    # VERBOS INSTALLS: Install a package but with normal prompt wizards. (So that I can get this prompt over with faster)
-    sudo DEBIAN_FRONTEND=noninteractive apt install -y iperf3
+  # VERBOS INSTALLS: Install a package but with normal prompt wizards. (So that I can get this prompt over with faster)
+  sudo DEBIAN_FRONTEND=noninteractive apt install -y iperf3
 
-    echo "SNAP: Installing vscode via snap/snapd!!!"
-    snap install code --classic
+  echo "SNAP: Installing vscode via snap/snapd!!!"
+  snap install code --classic
 
-    echo "SNAP: Installing zed via curl (and disabling signin, ai, autoupdate, cursorblink,trustworkspaces)!!!"
-    apt install -y curl ; dnf install -y curl ; 
-    curl -f https://zed.dev/install.sh | sh
-    fish_add_path -U $HOME/.local/bin
-    mkdir -p $HOME/.config/zed/
-    touch $HOME/.config/zed/settings.json
-echo '
+  echo "SNAP: Installing zed via curl (and disabling signin, ai, autoupdate, cursorblink,trustworkspaces)!!!"
+  apt install -y curl
+  dnf install -y curl
+  curl -f https://zed.dev/install.sh | sh
+  fish_add_path -U $HOME/.local/bin
+  mkdir -p $HOME/.config/zed/
+  touch $HOME/.config/zed/settings.json
+  echo '
 // Zed settings
 // For information on how to configure Zed, see the Zed
 // documentation: https://zed.dev/docs/configuring-zed
@@ -102,271 +103,268 @@ echo '
     "dark": "Ayu Dark",
   },
 }
-' > $HOME/.config/zed/settings.json
+' >$HOME/.config/zed/settings.json
 
+  snap install brave #Webdev most def.
 
-    snap install brave #Webdev most def.
+  #Just in case mlocate3/locate is still trying to index your MOUNTPOINTS
+  umount /mnt/hgfs 2>/dev/null 1>/dev/null
+  dpkg --configure -a
 
-    #Just in case mlocate3/locate is still trying to index your MOUNTPOINTS
-    umount /mnt/hgfs 2>/dev/null 1>/dev/null
-    dpkg --configure -a
+  echo "SNAP: Installing lxd because it just rocks (without running 'lxd init')"
+  sudo dnf install -y snapd
+  sudo dnf install -y snap
+  snap install lxd
 
-    echo "SNAP: Installing lxd because it just rocks (without running 'lxd init')"
-    sudo dnf install -y snapd
-    sudo dnf install -y snap
-    snap install lxd
+  # export DEBIAN_FRONTEND=noninteractive # I DISABLED THIS TO ENSURE THAT YOU FOLLOW THE PROMPTS!!!!!!!!!!!
+  export ACCEPT_EULA=Y
 
-    # export DEBIAN_FRONTEND=noninteractive # I DISABLED THIS TO ENSURE THAT YOU FOLLOW THE PROMPTS!!!!!!!!!!!
-    export ACCEPT_EULA=Y
+  # yes | NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive apt remove -y needrestart
+  yes | NEEDRESTART_MODE=a apt remove -y needrestart
 
-    # yes | NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive apt remove -y needrestart
-    yes | NEEDRESTART_MODE=a apt remove -y needrestart
+  # Pre-seed Postfix configuration (To prevent Kub2404 from prompting for the Postfix options during upgrade)
+  echo "postfix postfix/main_mailer_type select No configuration" | debconf-set-selections
+  echo "postfix postfix/mailname string $(hostname -f)" | debconf-set-selections
+  # DEBIAN_FRONTEND=noninteractive apt-get remove -y needrestart
+  apt-get remove -y needrestart
+  apt-get update -y
+  apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 
-    # Pre-seed Postfix configuration (To prevent Kub2404 from prompting for the Postfix options during upgrade)
-    echo "postfix postfix/main_mailer_type select No configuration" | debconf-set-selections
-    echo "postfix postfix/mailname string $(hostname -f)" | debconf-set-selections
-    # DEBIAN_FRONTEND=noninteractive apt-get remove -y needrestart
-    apt-get remove -y needrestart
-    apt-get update -y
-    apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+  # yes | DEBIAN_FRONTEND=noninteractive apt-get update -y --fix-missing
+  yes | apt-get update -y --fix-missing
+  # yes | DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+  yes | apt-get upgrade -y
 
-    # yes | DEBIAN_FRONTEND=noninteractive apt-get update -y --fix-missing
-    yes | apt-get update -y --fix-missing
-    # yes | DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
-    yes | apt-get upgrade -y
+  # Disable unattended upgrades and prevent automatic updates in Ubuntu 24.04
+  sudo systemctl disable --now unattended-upgrades &
 
-    # Disable unattended upgrades and prevent automatic updates in Ubuntu 24.04
-    sudo systemctl disable --now unattended-upgrades &
+  # Wireshark ignoring the prompt, workaround
+  sudo echo wireshark-common wireshark-common/install-setuid boolean true | sudo debconf-set-selections
+  # sudo DEBIAN_FRONTEND=noninteractive apt-get install --force-confold -y wireshark-common
+  sudo apt-get install --force-confold -y wireshark-common
 
-    # Wireshark ignoring the prompt, workaround
-    sudo echo wireshark-common wireshark-common/install-setuid boolean true | sudo debconf-set-selections
-    # sudo DEBIAN_FRONTEND=noninteractive apt-get install --force-confold -y wireshark-common
-    sudo apt-get install --force-confold -y wireshark-common
+  # SILENT INSTALLS: Create the list of packages
+  packages=(
+    vim vim-gtk3 python3-pip p7zip-full ansible apt-utils arping baobab build-essential byobu bzip2
+    cifs-utils cmake cockpit curl dos2unix emacs expect ffmpeg findutils firefox ftp g++ gcc git
+    glances gparted gzip gpg htop iotop k3b krdc less logrotate lshw lsof make meld
+    mlocate mtr mysql-client nano ncdu neofetch net-tools nethogs nfs-common nfs-kernel-server nginx
+    nmap open-vm-tools open-vm-tools-desktop openssh-server partitionmanager pssh python-is-python3 python3-pip python3-venv qdirstat kate
+    remmina rsync sed ssh sshfs sudo tcpdump telnet terminator timeshift tshark tcpdump usb-creator-gtk
+    wget whois wireshark xclip xz-utils rofi locate docker-compose chromium-browser htop btop fish lxc lxc-templates lxcfs cmake
+    guake
+  )
 
-    # SILENT INSTALLS: Create the list of packages
-    packages=(
-        vim vim-gtk3 python3-pip p7zip-full ansible apt-utils arping baobab build-essential byobu bzip2
-        cifs-utils cmake cockpit curl dos2unix emacs expect ffmpeg findutils firefox ftp g++ gcc git
-        glances gparted gzip gpg htop iotop k3b krdc less logrotate lshw lsof make meld
-        mlocate mtr mysql-client nano ncdu neofetch net-tools nethogs nfs-common nfs-kernel-server nginx
-        nmap open-vm-tools open-vm-tools-desktop openssh-server partitionmanager pssh python-is-python3 python3-pip python3-venv qdirstat kate
-        remmina rsync sed ssh sshfs sudo tcpdump telnet terminator timeshift tshark tcpdump usb-creator-gtk
-        wget whois wireshark xclip xz-utils rofi locate docker-compose chromium-browser htop btop fish lxc lxc-templates lxcfs cmake
-        guake
-    )
+  # Iterate through the list and install each package (Future proofing this script in case pknames chnge)
+  for package in "${packages[@]}"; do
+    echo "Installing $package..."
+    # yes | NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive sudo apt install -y --fix-missing "$package" || echo "Failed to install $package"
+    NEEDRESTART_MODE=a sudo apt install -y --fix-missing "$package" || echo "Apt Failed to install $package"
+    yes | NEEDRESTART_MODE=a sudo yum install -y 2>/dev/null || echo "Dnf Failed to install $package"
+  done
 
-    # Iterate through the list and install each package (Future proofing this script in case pknames chnge)
-    for package in "${packages[@]}"; do
-        echo "Installing $package..."
-        # yes | NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive sudo apt install -y --fix-missing "$package" || echo "Failed to install $package"
-        NEEDRESTART_MODE=a sudo apt install -y --fix-missing "$package" || echo "Apt Failed to install $package"
-        yes | NEEDRESTART_MODE=a sudo yum install -y 2>/dev/null || echo "Dnf Failed to install $package"
-    done
+  # Enable my git
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
 
-# Enable my git
-git config --global user.email "you@example.com"
-git config --global user.name "Your Name"
+  # THIS SECTION IS FOR ENABLING MODPROBE DUMMY mode so that kubespray will properly install kubernetes on LXD CONTAINERS!!!!!!!!!!!!
+  echo "For Kubernetes k8s with kubespray'ing the innards of lxds, its important to sudo modprobe dummy... enabling this permanently..."
+  sudo modprobe dummy
+  snap install lxd # Running it again
 
-# THIS SECTION IS FOR ENABLING MODPROBE DUMMY mode so that kubespray will properly install kubernetes on LXD CONTAINERS!!!!!!!!!!!!
-echo "For Kubernetes k8s with kubespray'ing the innards of lxds, its important to sudo modprobe dummy... enabling this permanently..."
-sudo modprobe dummy
-snap install lxd # Running it again
-
-# Function to add module to modules-load.d
-add_to_modules_load() {
-  echo "Adding dummy module to /etc/modules-load.d/dummy.conf"
-  echo "dummy" > /etc/modules-load.d/dummy.conf
-  echo "Module added successfully."
-}
-# Function to add module to /etc/modules
-add_to_etc_modules() {
-  echo "Adding dummy module to /etc/modules"
-  if grep -q "^dummy$" /etc/modules; then
-    echo "Module already exists in /etc/modules."
-  else
-    echo "dummy" >> /etc/modules
+  # Function to add module to modules-load.d
+  add_to_modules_load() {
+    echo "Adding dummy module to /etc/modules-load.d/dummy.conf"
+    echo "dummy" >/etc/modules-load.d/dummy.conf
     echo "Module added successfully."
-  fi
-}
-# Main execution
-echo "Adding dummy module for automatic loading at boot"
-# Try modules-load.d method first
-if [ -d "/etc/modules-load.d" ]; then
-  add_to_modules_load
-else
-  echo "/etc/modules-load.d directory not found. Falling back to /etc/modules method."
-  add_to_etc_modules
-fi
-# Load the module immediately
-echo "Loading dummy module now"
-modprobe dummy
-echo "OK DONE, remember after a reboot to check if dummy module is loaded, via: lsmod|grep -i dummy  "
-
-# THE LATEST NODE, New cool way I found... (I think... this will work with.... Fedora/RHEL/ROCKY too?)
-curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-new_password="P@ssw0rd"
-set new_password P@ssw0rd
-echo Launching... "$user:$new_password" 
-echo "$user:$new_password" | chpasswd
-echo "Finished running commands for user: $user"
-echo "----------------------------------------"
-
-for user_home in /home/*; do
-    if [ -d "$user_home" ]; then
-        user=$(basename "$user_home")
-        run_commands_for_user $user $user_home
-        echo OK RUNNING chown -R $user:$user /home/$user 
-        chown -R $user:$user /home/$user 2>/dev/null
+  }
+  # Function to add module to /etc/modules
+  add_to_etc_modules() {
+    echo "Adding dummy module to /etc/modules"
+    if grep -q "^dummy$" /etc/modules; then
+      echo "Module already exists in /etc/modules."
+    else
+      echo "dummy" >>/etc/modules
+      echo "Module added successfully."
     fi
-done
+  }
+  # Main execution
+  echo "Adding dummy module for automatic loading at boot"
+  # Try modules-load.d method first
+  if [ -d "/etc/modules-load.d" ]; then
+    add_to_modules_load
+  else
+    echo "/etc/modules-load.d directory not found. Falling back to /etc/modules method."
+    add_to_etc_modules
+  fi
+  # Load the module immediately
+  echo "Loading dummy module now"
+  modprobe dummy
+  echo "OK DONE, remember after a reboot to check if dummy module is loaded, via: lsmod|grep -i dummy  "
 
-# NOW LETS GET MINICONDA IN HERE!!!
-apt install -y wget
-dnf install -y wget
-dnf install -y conda 2>/dev/null
-echo "Ubuntu environment detected. Proceeding with Conda installation."
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-bash miniconda.sh -b -p $HOME/miniconda
-$HOME/miniconda/bin/conda init bash
-$HOME/miniconda/bin/conda init fish
-source ~/.bashrc
-conda config --set auto_activate_base false
-conda --version
-echo "Conda installation complete. Please restart your terminal or run 'source ~/.bashrc' to use conda."
+  # THE LATEST NODE, New cool way I found... (I think... this will work with.... Fedora/RHEL/ROCKY too?)
+  curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
+  sudo apt-get install -y nodejs
 
-echo ok.... yum groupinstall Development Tools
-yes | yum groupinstall -y "Development Tools"
-yes | dnf groupinstall -y "Development Tools"
-yes | dnf install -y util-linux-user
+  new_password="P@ssw0rd"
+  set new_password P@ssw0rd
+  echo Launching... "$user:$new_password"
+  echo "$user:$new_password" | chpasswd
+  echo "Finished running commands for user: $user"
+  echo "----------------------------------------"
 
-echo ok... Ubuntu Installing LIBVIRT/KVM/VIRSH
-sudo apt install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virtinst libvirt-clients virt-manager;
-sudo systemctl enable --now libvirtd ;
-sudo adduser $USER libvirt ;
-sudo adduser $USER kvm ;
-sudo apt install -y cockpit-packagekit cockpit-storaged cockpit-networkmanager cockpit-sosreport -y ; sudo ufw allow 9090/tcp ; sudo systemctl enable --now cockpit.socket
-for i in `apt list | grep '^cockpit' | sed 's/\/.*//' ` ; do echo $i ; apt-get install -y $i ; done
+  for user_home in /home/*; do
+    if [ -d "$user_home" ]; then
+      user=$(basename "$user_home")
+      run_commands_for_user $user $user_home
+      echo OK RUNNING chown -R $user:$user /home/$user
+      chown -R $user:$user /home/$user 2>/dev/null
+    fi
+  done
 
-echo ok... Rocky Installing LIBVIRT/KVM/VIRSH
-yes | dnf install -y util-linux-user qemu-kvm libvirt virt-install libvirt-client virt-manager cockpit
-systemctl enable --now libvirtd
-systemctl enable --now cockpit.socket
-usermod -aG libvirt root
-usermod -aG libvirt lmadmin
-virsh net-start default
-virsh net-autostart default
-dnf install -y cockpit-machines 
+  # NOW LETS GET MINICONDA IN HERE!!!
+  apt install -y wget
+  dnf install -y wget
+  dnf install -y conda 2>/dev/null
+  echo "Ubuntu environment detected. Proceeding with Conda installation."
+  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  bash miniconda.sh -b -p $HOME/miniconda
+  $HOME/miniconda/bin/conda init bash
+  $HOME/miniconda/bin/conda init fish
+  source ~/.bashrc
+  conda config --set auto_activate_base false
+  conda --version
+  echo "Conda installation complete. Please restart your terminal or run 'source ~/.bashrc' to use conda."
 
+  echo ok.... yum groupinstall Development Tools
+  yes | yum groupinstall -y "Development Tools"
+  yes | dnf groupinstall -y "Development Tools"
+  yes | dnf install -y util-linux-user
 
+  echo ok... Ubuntu Installing LIBVIRT/KVM/VIRSH
+  sudo apt install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virtinst libvirt-clients virt-manager
+  sudo systemctl enable --now libvirtd
+  sudo adduser $USER libvirt
+  sudo adduser $USER kvm
+  sudo apt install -y cockpit-packagekit cockpit-storaged cockpit-networkmanager cockpit-sosreport -y
+  sudo ufw allow 9090/tcp
+  sudo systemctl enable --now cockpit.socket
+  for i in $(apt list | grep '^cockpit' | sed 's/\/.*//'); do
+    echo $i
+    apt-get install -y $i
+  done
 
+  echo ok... Rocky Installing LIBVIRT/KVM/VIRSH
+  yes | dnf install -y util-linux-user qemu-kvm libvirt virt-install libvirt-client virt-manager cockpit
+  systemctl enable --now libvirtd
+  systemctl enable --now cockpit.socket
+  usermod -aG libvirt root
+  usermod -aG libvirt lmadmin
+  virsh net-start default
+  virsh net-autostart default
+  dnf install -y cockpit-machines
 
+  # NOW THAT FNM/NPX/NODEJS AND METEOR FINISHED INSTALLING, ITS SAFE TO INSTALL FISH!!
+  apt install -y fish
 
-# NOW THAT FNM/NPX/NODEJS AND METEOR FINISHED INSTALLING, ITS SAFE TO INSTALL FISH!!
-apt install -y fish
+  # Install herdr (tmux on crack! with ctrl+b, and leader G has fuzzy finder)
+  curl -fsSL https://herdr.dev/install.sh | sh
 
-# Install herdr (tmux on crack! with ctrl+b, and leader G has fuzzy finder)
-curl -fsSL https://herdr.dev/install.sh | sh
+  # Allow VMWARE TOOLS to work with KUBUNTU 2404 and onwards to show /mnt/hgfs correctly
+  mkdir /mnt/hgfs
+  # sudo vmhgfs-fuse .host:/ /mnt/hgfs/ -o allow_other -o uid=1000
 
-    # Allow VMWARE TOOLS to work with KUBUNTU 2404 and onwards to show /mnt/hgfs correctly
-    mkdir /mnt/hgfs
-    # sudo vmhgfs-fuse .host:/ /mnt/hgfs/ -o allow_other -o uid=1000
+  # Now, lets install DOCKER CE (USING OFFICIAL DOCS)
+  for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove -y $pkg; done
 
-    # Now, lets install DOCKER CE (USING OFFICIAL DOCS)
-    for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove -y $pkg; done
-
-    sudo apt-get -y install ca-certificates curl
-    sudo install -y -m 0755 -d /etc/apt/keyrings
-    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-    sudo chmod a+r /etc/apt/keyrings/docker.asc
-    # Add the repository to Apt sources:
-    echo \
-        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  sudo apt-get -y install ca-certificates curl
+  sudo install -y -m 0755 -d /etc/apt/keyrings
+  sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  sudo chmod a+r /etc/apt/keyrings/docker.asc
+  # Add the repository to Apt sources:
+  echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" |
-        sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
-    sudo apt-get update
-    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-    sudo systemctl enable --now docker
+    sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+  sudo apt-get update
+  sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  sudo systemctl enable --now docker
 
-    # Pip Installs for Flask Coding Projects
-    yes | sudo apt install -y sqlite3
-    pip3 install requests autopep8 flask flask_sqlalchemy flask_admin flask_cors wtforms flask_migrate flask_wtf flask_socketio flask_login virtualenv email_validator --break-system-packages
+  # Pip Installs for Flask Coding Projects
+  yes | sudo apt install -y sqlite3
+  pip3 install requests autopep8 flask flask_sqlalchemy flask_admin flask_cors wtforms flask_migrate flask_wtf flask_socketio flask_login virtualenv email_validator --break-system-packages
 
-    #Install my plotly/dash stuff
-    pip3 install plotly numpy pandas dash --break-system-packages
+  #Install my plotly/dash stuff
+  pip3 install plotly numpy pandas dash --break-system-packages
 
-    #Install the best python3 repl command line i think. Latest python no worky on: setuptools-rust docker-compose
-    pip3 install ipython --break-system-packages
+  #Install the best python3 repl command line i think. Latest python no worky on: setuptools-rust docker-compose
+  pip3 install ipython --break-system-packages
 
-    # The next thing is very common if you ANSIBLE from UB2204 to CONTROL a UB2404! The error
-    # will be like: ModuleNotFoundError: No module named 'ansible.module_utils.six.moves', So we...:
-    pip install --upgrade ansible
+  # The next thing is very common if you ANSIBLE from UB2204 to CONTROL a UB2404! The error
+  # will be like: ModuleNotFoundError: No module named 'ansible.module_utils.six.moves', So we...:
+  pip install --upgrade ansible
 
-    # UB2404 KICKSTART NEEDS THIS TO ALLOW UNPRIV VSCODE TO WORK:
-    sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
-    sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-    (
+  # UB2404 KICKSTART NEEDS THIS TO ALLOW UNPRIV VSCODE TO WORK:
+  sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
+  sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+  (
     crontab -l 2>/dev/null
     echo "# ALLOW UNPRIV VSCODE TO WORK:"
     echo "@reboot sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0"
     echo "@reboot sysctl -w kernel.apparmor_restrict_unprivileged_userns=0"
-    ) | crontab -
+  ) | crontab -
 
+  # Fish Shell Disable Greeting
+  printf '\n\nset fish_greeting ""' >>/etc/fish/config.fish
+  chsh -s /usr/bin/fish
+  echo "Step: run_build_development_environment completed successfully!"
 
-    # Fish Shell Disable Greeting
-    printf '\n\nset fish_greeting ""' >>/etc/fish/config.fish
-    chsh -s /usr/bin/fish
-    echo "Step: run_build_development_environment completed successfully!"
-
-
-# SSH CLIENT: Ensure that RSA and ED25519 KEYS are existing FIRST
-gen_key_if_missing() {
+  # SSH CLIENT: Ensure that RSA and ED25519 KEYS are existing FIRST
+  gen_key_if_missing() {
     local key_path="$1"
     local key_type="$2"
     local extra_args="$3"
     if [ ! -f "$key_path" ] || [ ! -f "$key_path.pub" ]; then
-        echo "[$key_type] keypair missing — generating..."
-        mkdir -p "$HOME/.ssh"
-        chmod 700 "$HOME/.ssh"
-        ssh-keygen -t "$key_type" $extra_args -f "$key_path" -N "" <<< y >/dev/null 2>&1
-        echo "Created:"
-        echo "  $key_path"
-        echo "  $key_path.pub"
+      echo "[$key_type] keypair missing — generating..."
+      mkdir -p "$HOME/.ssh"
+      chmod 700 "$HOME/.ssh"
+      ssh-keygen -t "$key_type" $extra_args -f "$key_path" -N "" <<<y >/dev/null 2>&1
+      echo "Created:"
+      echo "  $key_path"
+      echo "  $key_path.pub"
     else
-        echo "[$key_type] keypair already exists — skipping."
+      echo "[$key_type] keypair already exists — skipping."
     fi
-}
-# RSA (4096-bit)
-gen_key_if_missing "$HOME/.ssh/id_rsa" "rsa" "-b 4096"
-# ED25519
-gen_key_if_missing "$HOME/.ssh/id_ed25519" "ed25519" ""
+  }
+  # RSA (4096-bit)
+  gen_key_if_missing "$HOME/.ssh/id_rsa" "rsa" "-b 4096"
+  # ED25519
+  gen_key_if_missing "$HOME/.ssh/id_ed25519" "ed25519" ""
 
+  # NOW SET UP THE SSH CLIENT CONFIG FOR * to always ACCEPT EVERYTHING
+  SSH_DIR="$HOME/.ssh"
+  CONFIG_FILE="$SSH_DIR/config"
 
-# NOW SET UP THE SSH CLIENT CONFIG FOR * to always ACCEPT EVERYTHING
-SSH_DIR="$HOME/.ssh"
-CONFIG_FILE="$SSH_DIR/config"
+  mkdir -p "$SSH_DIR"
+  chmod 700 "$SSH_DIR"
 
-mkdir -p "$SSH_DIR"
-chmod 700 "$SSH_DIR"
-
-# The desired block
-read -r -d '' NEW_BLOCK <<'EOF'
+  # The desired block
+  read -r -d '' NEW_BLOCK <<'EOF'
 Host *
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
 EOF
 
-# Make config if missing
-if [[ ! -f "$CONFIG_FILE" ]]; then
-    echo "$NEW_BLOCK" > "$CONFIG_FILE"
+  # Make config if missing
+  if [[ ! -f "$CONFIG_FILE" ]]; then
+    echo "$NEW_BLOCK" >"$CONFIG_FILE"
     chmod 600 "$CONFIG_FILE"
     echo "Created new ~/.ssh/config with the required settings."
-#    exit 0
-fi
+  #    exit 0
+  fi
 
-# If a Host * block already exists, remove it safely
-if grep -qE '^[Hh]ost \*' "$CONFIG_FILE"; then
+  # If a Host * block already exists, remove it safely
+  if grep -qE '^[Hh]ost \*' "$CONFIG_FILE"; then
     # Remove any existing `Host *` block(s)
     # A block starts at "Host *" and ends before the next "Host " line or EOF
     awk -v repl="$NEW_BLOCK" '
@@ -381,23 +379,20 @@ if grep -qE '^[Hh]ost \*' "$CONFIG_FILE"; then
         }
         /^Host / { skip=0 }
         skip==0 { print }
-    ' "$CONFIG_FILE" > "$CONFIG_FILE.tmp"
+    ' "$CONFIG_FILE" >"$CONFIG_FILE.tmp"
 
     mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
     chmod 600 "$CONFIG_FILE"
     echo "Replaced existing Host * block."
-else
+  else
     # Append if no Host * block exists
-    printf "\n%s\n" "$NEW_BLOCK" >> "$CONFIG_FILE"
+    printf "\n%s\n" "$NEW_BLOCK" >>"$CONFIG_FILE"
     chmod 600 "$CONFIG_FILE"
     echo "Added Host * block."
-fi
+  fi
 
-
-
-
-    # Setup SSHD PERFECTLY
-cat <<EOF >> /etc/ssh/sshd_config
+  # Setup SSHD PERFECTLY
+  cat <<EOF >>/etc/ssh/sshd_config
 # @@ baselineUbContainer DOCKER SPECIFIC SECTION @@
 PasswordAuthentication yes
 PermitRootLogin yes
@@ -407,184 +402,153 @@ UseDNS no
 #Subsystem sftp internal-sftp
 # @@ END baselineUbContainer DOCKER SPECIFIC SECTION @@
 EOF
-systemctl restart ssh
-new_password="P@ssw0rd"
-echo "root:$new_password" | chpasswd
+  systemctl restart ssh
+  new_password="P@ssw0rd"
+  echo "root:$new_password" | chpasswd
 
-
-    # DISABLE SSH WARNING FOR "THIS HOST CHANGED" and "THiS IS THE FIRST TIME TO CONNECT"
-    SSH_CONFIG="$HOME/.ssh/config"
-    # Create the .ssh directory if it doesn't exist
-    mkdir -p "$HOME/.ssh" 2>/dev/null 1>/dev/null
-    # Check if the config file exists, create it if not
-    touch "$SSH_CONFIG"
-    # Add the configuration if it doesn't already exist
-    # if ! grep -q "Host 10.199.179.*" "$SSH_CONFIG"; then
-    cat <<EOF >>"$SSH_CONFIG"
+  # DISABLE SSH WARNING FOR "THIS HOST CHANGED" and "THiS IS THE FIRST TIME TO CONNECT"
+  SSH_CONFIG="$HOME/.ssh/config"
+  # Create the .ssh directory if it doesn't exist
+  mkdir -p "$HOME/.ssh" 2>/dev/null 1>/dev/null
+  # Check if the config file exists, create it if not
+  touch "$SSH_CONFIG"
+  # Add the configuration if it doesn't already exist
+  # if ! grep -q "Host 10.199.179.*" "$SSH_CONFIG"; then
+  cat <<EOF >>"$SSH_CONFIG"
 Host *
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
 EOF
-    echo "Configuration added to $SSH_CONFIG"
-    # Set appropriate permissions
-    chmod 600 "$SSH_CONFIG"
+  echo "Configuration added to $SSH_CONFIG"
+  # Set appropriate permissions
+  chmod 600 "$SSH_CONFIG"
 
-    echo "Generating/SSH KEY..."
-    # SSH key path
-    ssh_key_path="$HOME/.ssh/id_rsa"
-    # Generate SSH key if it doesn't exist
-    if [ ! -f "$ssh_key_path" ]; then
-        echo "Generating new SSH key..."
-        ssh-keygen -t rsa -b 4096 -f "$ssh_key_path" -N ""
+  echo "Generating/SSH KEY..."
+  # SSH key path
+  ssh_key_path="$HOME/.ssh/id_rsa"
+  # Generate SSH key if it doesn't exist
+  if [ ! -f "$ssh_key_path" ]; then
+    echo "Generating new SSH key..."
+    ssh-keygen -t rsa -b 4096 -f "$ssh_key_path" -N ""
+  else
+    echo "SSH key already exists."
+  fi
+
+  echo "Adding NOPASSWD: to everyone in sudoers/sudoers.d"
+  sed -i 's/ ALL$/ NOPASSWD: ALL/' /etc/sudoers
+  sed -i 's/ ALL$/ NOPASSWD: ALL/' /etc/sudoers.d/*
+
+  # To fix sudo -i from hanging on the host
+  printf '\n # To fix sudo -i from hanging on the host. ;\nDefaults !fqdn\n\n' >>/etc/sudoers
+
+  # Add VMware Wkstn Host of /mnt/hgfs (since open-vm-tools and open-vm-tools-desktop didnt have it)
+  # (crontab -l 2>/dev/null; echo "@reboot sudo vmhgfs-fuse .host:/ /mnt/hgfs/ -o allow_other -o uid=1000") | crontab -
+
+  # Ensure that /etc/hosts has localhost IN IT AT THE TOP OF THE FILE
+  HOSTS_FILE="/etc/hosts"
+  TEMP_FILE="/tmp/hosts_temp"
+  ESSENTIAL_ENTRIES=(
+    "127.0.0.1\tlocalhost"
+    "::1\tlocalhost ip6-localhost ip6-loopback"
+    "fe00::0\tip6-localnet"
+    "ff00::0\tip6-mcastprefix"
+    "ff02::1\tip6-allnodes"
+    "ff02::2\tip6-allrouters"
+  )
+  touch "$TEMP_FILE"
+  for entry in "${ESSENTIAL_ENTRIES[@]}"; do
+    echo -e "$entry" >>"$TEMP_FILE"
+  done
+  # Append existing entries from /etc/hosts, excluding the essential ones
+  grep -vE "^(127\.0\.0\.1|::1|fe00::0|ff00::0|ff02::1|ff02::2)" "$HOSTS_FILE" >>"$TEMP_FILE"
+  mv "$TEMP_FILE" "$HOSTS_FILE"
+  chmod 777 /etc/hosts
+
+  # bash script, for every username found in /home/*, chsh -s that user to fish as the default shell
+  # Get the path to fish shell
+  FISH_PATH=$(which fish)
+  # Check if fish is in /etc/shells
+  if ! grep -q "^$FISH_PATH$" /etc/shells; then
+    echo "Adding $FISH_PATH to /etc/shells"
+    echo "$FISH_PATH" >>/etc/shells
+  fi
+
+  # for every user in /home/* // Add them to the docker and lxd groups
+  add_user_to_group() {
+    local username="$1"
+    local groupname="$2"
+    if getent group "$groupname" >/dev/null; then
+      if ! groups "$username" | grep -q "\b$groupname\b"; then
+        usermod -aG "$groupname" "$username"
+        echo "Added $username to $groupname group"
+      else
+        echo "$username is already in $groupname group"
+      fi
     else
-        echo "SSH key already exists."
+      echo "Group $groupname does not exist"
     fi
-
-    echo "Adding NOPASSWD: to everyone in sudoers/sudoers.d"
-    sed -i 's/ ALL$/ NOPASSWD: ALL/' /etc/sudoers
-    sed -i 's/ ALL$/ NOPASSWD: ALL/' /etc/sudoers.d/*
-
-    # To fix sudo -i from hanging on the host
-    printf '\n # To fix sudo -i from hanging on the host. ;\nDefaults !fqdn\n\n' >> /etc/sudoers
-
-    # Add VMware Wkstn Host of /mnt/hgfs (since open-vm-tools and open-vm-tools-desktop didnt have it)
-    # (crontab -l 2>/dev/null; echo "@reboot sudo vmhgfs-fuse .host:/ /mnt/hgfs/ -o allow_other -o uid=1000") | crontab -    
-
-    # Ensure that /etc/hosts has localhost IN IT AT THE TOP OF THE FILE
-    HOSTS_FILE="/etc/hosts"
-    TEMP_FILE="/tmp/hosts_temp"
-    ESSENTIAL_ENTRIES=(
-        "127.0.0.1\tlocalhost"
-        "::1\tlocalhost ip6-localhost ip6-loopback"
-        "fe00::0\tip6-localnet"
-        "ff00::0\tip6-mcastprefix"
-        "ff02::1\tip6-allnodes"
-        "ff02::2\tip6-allrouters"
-    )
-    touch "$TEMP_FILE"
-    for entry in "${ESSENTIAL_ENTRIES[@]}"; do
-        echo -e "$entry" >> "$TEMP_FILE"
-    done
-    # Append existing entries from /etc/hosts, excluding the essential ones
-    grep -vE "^(127\.0\.0\.1|::1|fe00::0|ff00::0|ff02::1|ff02::2)" "$HOSTS_FILE" >> "$TEMP_FILE"
-    mv "$TEMP_FILE" "$HOSTS_FILE"
-    chmod 777 /etc/hosts
-
-    # bash script, for every username found in /home/*, chsh -s that user to fish as the default shell
-    # Get the path to fish shell
-    FISH_PATH=$(which fish)
-    # Check if fish is in /etc/shells
-    if ! grep -q "^$FISH_PATH$" /etc/shells; then
-        echo "Adding $FISH_PATH to /etc/shells"
-        echo "$FISH_PATH" >> /etc/shells
+  }
+  for USER_HOME in /home/*; do
+    USERNAME=$(basename "$USER_HOME")
+    if [ -d "$USER_HOME" ]; then
+      echo "Processing user: $USERNAME"
+      # Add user to docker group
+      add_user_to_group "$USERNAME" "docker"
+      # Add user to lxd group
+      add_user_to_group "$USERNAME" "lxd"
+      echo "-------------------"
     fi
+  done
 
-    # for every user in /home/* // Add them to the docker and lxd groups
-    add_user_to_group() {
-        local username="$1"
-        local groupname="$2"
-        if getent group "$groupname" > /dev/null; then
-            if ! groups "$username" | grep -q "\b$groupname\b"; then
-                usermod -aG "$groupname" "$username"
-                echo "Added $username to $groupname group"
-            else
-                echo "$username is already in $groupname group"
-            fi
-        else
-            echo "Group $groupname does not exist"
-        fi
-    }
-    for USER_HOME in /home/*; do
-        USERNAME=$(basename "$USER_HOME")
-        if [ -d "$USER_HOME" ]; then
-            echo "Processing user: $USERNAME"
-            # Add user to docker group
-            add_user_to_group "$USERNAME" "docker"
-            # Add user to lxd group
-            add_user_to_group "$USERNAME" "lxd"
-            echo "-------------------"
-        fi
-    done
+  # Add rules to iptables (ubuntu) to accept forwarding traffic for our containers subnet to the internet. Cloud servers and Ubuntu do not save iptables rules by default on reboot.
+  echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
+  echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
+  sudo apt install -y iptables-persistent
+  sudo netfilter-persistent save
+  sudo iptables -A FORWARD -i lxdbr0 -j ACCEPT
+  sudo iptables -A FORWARD -o lxdbr0 -j ACCEPT
+  sudo sysctl -w net.ipv4.ip_forward=1
+  sudo netfilter-persistent save
 
-    # Add rules to iptables (ubuntu) to accept forwarding traffic for our containers subnet to the internet. Cloud servers and Ubuntu do not save iptables rules by default on reboot.
-    echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
-    echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
-    sudo apt install -y iptables-persistent
-    sudo netfilter-persistent save
-    sudo iptables -A FORWARD -i lxdbr0 -j ACCEPT
-    sudo iptables -A FORWARD -o lxdbr0 -j ACCEPT
-    sudo sysctl -w net.ipv4.ip_forward=1
-    sudo netfilter-persistent save
+  # Add all the alias'es I like to use
+  printf '\n# My cargo and git aliases... \nalias r "cargo run"\n' >>/etc/fish/config.fish
+  printf 'alias gs "git status"\n' >>/etc/fish/config.fish
+  printf 'alias gl "git log"\n' >>/etc/fish/config.fish
+  printf 'alias gd "git diff"\n' >>/etc/fish/config.fish
+  printf 'alias gb "git branch -a"\n' >>/etc/fish/config.fish
 
-    # Add all the alias'es I like to use
-    printf '\n# My cargo and git aliases... \nalias r "cargo run"\n' >> /etc/fish/config.fish
-    printf 'alias gs "git status"\n' >> /etc/fish/config.fish
-    printf 'alias gl "git log"\n' >> /etc/fish/config.fish
-    printf 'alias gd "git diff"\n' >> /etc/fish/config.fish
-    printf 'alias gb "git branch -a"\n' >> /etc/fish/config.fish
+  printf '\n# My cargo and git aliases... \nalias r="cargo run"\n' >>/etc/bash.bashrc
+  printf 'alias gs="git status"\n' >>/etc/bash.bashrc
+  printf 'alias gl="git log"\n' >>/etc/bash.bashrc
+  printf 'alias gd="git diff"\n' >>/etc/bash.bashrc
+  printf 'alias gb="git branch -a"\n' >>/etc/bash.bashrc
 
-    printf '\n# My cargo and git aliases... \nalias r="cargo run"\n' >> /etc/bash.bashrc
-    printf 'alias gs="git status"\n' >> /etc/bash.bashrc
-    printf 'alias gl="git log"\n' >> /etc/bash.bashrc
-    printf 'alias gd="git diff"\n' >> /etc/bash.bashrc
-    printf 'alias gb="git branch -a"\n' >> /etc/bash.bashrc
+  # Cool ansi colors trick to see readme.md
+  cat >>/etc/bash.bashrc <<'EOF'
+lessmd() {
+    pandoc -f markdown -t ansi "$1" | less -R
+}
+EOF
 
+  cat >>/etc/fish/config.fish <<'EOF'
+function lessmd
+    pandoc -f markdown -t ansi $argv[1] | less -R
+end
+EOF
 
+  ################################################################################
+  ################################################################################
+  ################################################################################
+  ########## Beginning of the lazyvim+rustEnvironment install section!!! #########
+  ################################################################################
+  ################################################################################
+  ################################################################################
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-################################################################################ 
-################################################################################ 
-################################################################################ 
-########## Beginning of the lazyvim+rustEnvironment install section!!! ######### 
-################################################################################ 
-################################################################################ 
-################################################################################ 
-
-
-
-
-
-# Description:
-# This script is for installing Rust on Linux USING BASH + sudo(lmadm)
-# RUN IT ONCE AS root, and it will auto copy RUST + NVIM 
-# BUT... (without the sourcing .cargo/env.fish part)
-echo "
+  # Description:
+  # This script is for installing Rust on Linux USING BASH + sudo(lmadm)
+  # RUN IT ONCE AS root, and it will auto copy RUST + NVIM
+  # BUT... (without the sourcing .cargo/env.fish part)
+  echo "
 ***********************************************************
 THIS WILL INSTALL RUST ENVIRONMENT FIRST, AND THEN LAZYVIM!
 ***********************************************************
@@ -593,98 +557,99 @@ NOTE:
 ...that way the telescope fzf .so files are working first 
 ...BEFORE doing a cargo for this stuff, Thus please always
 "
-# Note: cc is required, this is because...I learned that telescope 
-# compiles ".so" files into ~/.local/share/nvim/site/parser
-# Thus, in order to have nvim+treesitte YOU MUST INSTALL RUST and
-# have the .cargo/.rustup dirs in theory for rust-analyzer.
+  # Note: cc is required, this is because...I learned that telescope
+  # compiles ".so" files into ~/.local/share/nvim/site/parser
+  # Thus, in order to have nvim+treesitte YOU MUST INSTALL RUST and
+  # have the .cargo/.rustup dirs in theory for rust-analyzer.
 
-# @@ Install pre-requiresite apps from internet repos
-echo "@@ Installing Development Tools / build-essential from os repos ..."
-echo -e "\e[32mUSING INTERNET pre-reqs from REPOs (apt/dnf)... (not centos7)\e[0m"
-sudo apt-get update
-sudo dnf -y update
-sudo dnf -y install epel-release
-sudo dnf -y update
-sudo dnf -y groupinstall "Development Tools"
-packages=(
-        build-essential fzf fd-find bat ripgrep zoxide git curl unzip jq
-        luajit libluajit-5.1-dev fd-find luajit-devel
-        pkg-config libssl-dev python3-pip nfs-utils libnfs-utils
-)
-for package in "${packages[@]}"; do
-        echo "Installing $package..."
-		apt install -y $package
-		dnf install -y $package
-done
+  # @@ Install pre-requiresite apps from internet repos
+  echo "@@ Installing Development Tools / build-essential from os repos ..."
+  echo -e "\e[32mUSING INTERNET pre-reqs from REPOs (apt/dnf)... (not centos7)\e[0m"
+  sudo apt-get update
+  sudo dnf -y update
+  sudo dnf -y install epel-release
+  sudo dnf -y update
+  sudo dnf -y groupinstall "Development Tools"
+  packages=(
+    build-essential fzf fd-find bat ripgrep zoxide git curl unzip jq
+    luajit libluajit-5.1-dev fd-find luajit-devel
+    pkg-config libssl-dev python3-pip nfs-utils libnfs-utils
+  )
+  for package in "${packages[@]}"; do
+    echo "Installing $package..."
+    apt install -y $package
+    dnf install -y $package
+  done
 
-# @@ Install fzf isnt in the repo (i.e. rocky96)...
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-~/.fzf/install
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+  # @@ Install fzf isnt in the repo (i.e. rocky96)...
+  git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+  ~/.fzf/install
+  [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-# @@ Install Rustup
-echo "@@ BLOWING AWAY YOUR OLD Rustup (.cargo and .rustup)..."
-cd ~ ; rm -rf .cargo/ .rustup/
-echo "@@ Installing Rustup..."
-rm -f ./sh.rustup.rs_install.sh
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > sh.rustup.rs_install.sh
-sleep 2; # To be nice to the CDN
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-. "$HOME/.cargo/env"            # For sh/bash/zsh/ash/dash/pdksh
-source "$HOME/.cargo/env.fish"  # For fish
-source $HOME/.cargo/env 2>/dev/null 1>/dev/null
+  # @@ Install Rustup
+  echo "@@ BLOWING AWAY YOUR OLD Rustup (.cargo and .rustup)..."
+  cd ~
+  rm -rf .cargo/ .rustup/
+  echo "@@ Installing Rustup..."
+  rm -f ./sh.rustup.rs_install.sh
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs >sh.rustup.rs_install.sh
+  sleep 2 # To be nice to the CDN
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+  . "$HOME/.cargo/env"           # For sh/bash/zsh/ash/dash/pdksh
+  source "$HOME/.cargo/env.fish" # For fish
+  source $HOME/.cargo/env 2>/dev/null 1>/dev/null
 
-echo "@@ Updating Rustup to latest, adding components..."
-rustup update # To Update Rustup Compiler to latest version
-rustup component add rust-analyzer rustfmt clippy rust-src
+  echo "@@ Updating Rustup to latest, adding components..."
+  rustup update # To Update Rustup Compiler to latest version
+  rustup component add rust-analyzer rustfmt clippy rust-src
 
-echo "@@ Installing Cargo Crates (justfile, eza)..."
-# for i in `echo just bacon cargo-edit cargo-tree cargo-audit cargo-machete cargo-update cargo-make cargo-geiger ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall` ; 
-for i in `echo just bacon ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall trunk` ; do 
-  echo installing cargo crate $i... ;  
-  cargo install $i 2>/dev/null ; 
-done
+  echo "@@ Installing Cargo Crates (justfile, eza)..."
+  # for i in `echo just bacon cargo-edit cargo-tree cargo-audit cargo-machete cargo-update cargo-make cargo-geiger ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall` ;
+  for i in $(echo just bacon ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall trunk); do
+    echo installing cargo crate $i...
+    cargo install $i 2>/dev/null
+  done
 
-echo -e "\e[32mRUST INSTALL COMPLETE!!! NOW... Installing Neovim (LazyVim base)...\e[0m"
-echo -e "\e[32mRUST INSTALL COMPLETE!!! NOW... Installing Neovim (LazyVim base)...\e[0m"
-echo -e "\e[32mRUST INSTALL COMPLETE!!! NOW... Installing Neovim (LazyVim base)...\e[0m"
-timestamp=$(date +"%Y%m%d%H%M%S")
-rm -f nvim.appimage
-curl -LO  https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
-chmod 777 nvim-linux-x86_64.appimage
-OLDNVIM=`which nvim`
-sudo mv "$OLDNVIM" "$OLDNVIM"_"$timestamp" 2>/dev/null
-sudo mv /usr/bin/nvim /usr/bin/nvim_"$timestamp" 2>/dev/null
-sudo mv /bin/nvim /bin/nvim_"$timestamp" 2>/dev/null
-sudo cp nvim-linux-x86_64.appimage /bin/ 2>/dev/null
-sudo mv /bin/nvim-linux-x86_64.appimage /bin/nvim
-sudo chmod 777 /bin/nvim
-sudo ln -s /bin/nvim /bin/n
+  echo -e "\e[32mRUST INSTALL COMPLETE!!! NOW... Installing Neovim (LazyVim base)...\e[0m"
+  echo -e "\e[32mRUST INSTALL COMPLETE!!! NOW... Installing Neovim (LazyVim base)...\e[0m"
+  echo -e "\e[32mRUST INSTALL COMPLETE!!! NOW... Installing Neovim (LazyVim base)...\e[0m"
+  timestamp=$(date +"%Y%m%d%H%M%S")
+  rm -f nvim.appimage
+  curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
+  chmod 777 nvim-linux-x86_64.appimage
+  OLDNVIM=$(which nvim)
+  sudo mv "$OLDNVIM" "$OLDNVIM"_"$timestamp" 2>/dev/null
+  sudo mv /usr/bin/nvim /usr/bin/nvim_"$timestamp" 2>/dev/null
+  sudo mv /bin/nvim /bin/nvim_"$timestamp" 2>/dev/null
+  sudo cp nvim-linux-x86_64.appimage /bin/ 2>/dev/null
+  sudo mv /bin/nvim-linux-x86_64.appimage /bin/nvim
+  sudo chmod 777 /bin/nvim
+  sudo ln -s /bin/nvim /bin/n
 
-echo -e "\e[32mClearing old LazyVim config...\e[0m"
-if [ -d "$HOME/.config/nvim" ]; then
-  mv "$HOME/.config/nvim" "$HOME/.config/nvim.$timestamp"
-fi
-if [ -d "$HOME/.local/share/nvim" ]; then
-  mv "$HOME/.local/share/nvim" "$HOME/.local/share/nvim.$timestamp"
-fi
+  echo -e "\e[32mClearing old LazyVim config...\e[0m"
+  if [ -d "$HOME/.config/nvim" ]; then
+    mv "$HOME/.config/nvim" "$HOME/.config/nvim.$timestamp"
+  fi
+  if [ -d "$HOME/.local/share/nvim" ]; then
+    mv "$HOME/.local/share/nvim" "$HOME/.local/share/nvim.$timestamp"
+  fi
 
-echo -e "\e[32mInstalling LazyVim starter config...\e[0m"
-git clone https://github.com/LazyVim/starter "$HOME/.config/nvim"
-rm -rf "$HOME/.config/nvim/.git"
+  echo -e "\e[32mInstalling LazyVim starter config...\e[0m"
+  git clone https://github.com/LazyVim/starter "$HOME/.config/nvim"
+  rm -rf "$HOME/.config/nvim/.git"
 
-echo RUNNING MASON INSTALLER PER THEIR GUIDE...
-echo "
+  echo RUNNING MASON INSTALLER PER THEIR GUIDE...
+  echo "
 
 -- This is so that we can get MasonInstall instead of just Mason
 require(\"mason\").setup()
-" >> "$HOME/.config/nvim/init.lua"
+" >>"$HOME/.config/nvim/init.lua"
 
-echo INSTALLING MY FAVORITE CargoRun Addon
-folder="$HOME/.config/nvim/lua/plugins"
-file="$folder/cargoMINE.lua"
-mkdir -p "$folder"
-cat > "$file" << 'EOF'
+  echo INSTALLING MY FAVORITE CargoRun Addon
+  folder="$HOME/.config/nvim/lua/plugins"
+  file="$folder/cargoMINE.lua"
+  mkdir -p "$folder"
+  cat >"$file" <<'EOF'
 -- I THINK THIS ADDED the :CargoRun which makes a popup in nvim
 -- THEN YOU JUST SAVE THIS AS A NEW FILE IN ~/.config/nvim/lua/plugins/cargoMINE.lua
 -- THEN YOU REOPEN NVIM, then just run :CargoRun on a main.rs file i guess
@@ -724,25 +689,25 @@ return {
     },
 }
 EOF
-pushd .
-cd ~/.local/share/nvim/lazy/cargo.nvim
-cargo build --release
-popd
+  pushd .
+  cd ~/.local/share/nvim/lazy/cargo.nvim
+  cargo build --release
+  popd
 
-echo "INSTALL MY EXTRA PLUGINS I WANTED VIA MASONINSTALL CLI... (launch nvim once, sed the setup() into the plugins, and the next time you launch AFTER this script it installs rust extras)"
-awk '
+  echo "INSTALL MY EXTRA PLUGINS I WANTED VIA MASONINSTALL CLI... (launch nvim once, sed the setup() into the plugins, and the next time you launch AFTER this script it installs rust extras)"
+  awk '
 /{[ ]*import[ ]*=[ ]*"plugins"[ ]*}/ {
   print "    { import = \"lazyvim.plugins.extras.lang.rust\" },"
   print "    { import = \"lazyvim.plugins.extras.editor.telescope\" },"
 }
 { print }
-' ~/.config/nvim/lua/config/lazy.lua > /tmp/lazy.lua && mv /tmp/lazy.lua ~/.config/nvim/lua/config/lazy.lua
+' ~/.config/nvim/lua/config/lazy.lua >/tmp/lazy.lua && mv /tmp/lazy.lua ~/.config/nvim/lua/config/lazy.lua
 
-jq '.extras += ["lazyvim.plugins.extras.lang.rust", "lazyvim.plugins.extras.editor.telescope"]' \
-  ~/.config/nvim/lazyvim.json > /tmp/lazyvim.json \
-  && mv /tmp/lazyvim.json ~/.config/nvim/lazyvim.json
+  jq '.extras += ["lazyvim.plugins.extras.lang.rust", "lazyvim.plugins.extras.editor.telescope"]' \
+    ~/.config/nvim/lazyvim.json >/tmp/lazyvim.json &&
+    mv /tmp/lazyvim.json ~/.config/nvim/lazyvim.json
 
-echo 'OK INSTALL COMPLETE
+  echo 'OK INSTALL COMPLETE
 To Debug Rust, Be sure to install or confirm: 
 (Normal Plugins) i >>
 rust-analyzer
@@ -753,8 +718,8 @@ test.core  <-- for debug
 OK PRESS ANY BUTTON TO CONTINUE!!
 '
 
-# Autosave : This is my Auto-save Automatically every 1 second!!! I PUT THIS IN DISABLED B/C IT AUTOFORMATS ON SAVE WHICH IS ANNOYING
-cat >> "$HOME/.config/nvim/init.lua_DISABLEDTHIS" << 'EOF'
+  # Autosave : This is my Auto-save Automatically every 1 second!!! I PUT THIS IN DISABLED B/C IT AUTOFORMATS ON SAVE WHICH IS ANNOYING
+  cat >>"$HOME/.config/nvim/init.lua_DISABLEDTHIS" <<'EOF'
 
 -- Auto-save all modified buffers every 1 second
 local timer = vim.loop.new_timer()
@@ -776,8 +741,8 @@ timer:start(
 )
 EOF
 
-# Tabout.nvim --- MINE, THIS lets you press <TAB> inside of a double quote in rust, and it will get out of the "); <--- to go here!! FREAKING COOL
-cat > "$HOME/.config/nvim/lua/plugins/taboutMINE.lua" << 'EOF'
+  # Tabout.nvim --- MINE, THIS lets you press <TAB> inside of a double quote in rust, and it will get out of the "); <--- to go here!! FREAKING COOL
+  cat >"$HOME/.config/nvim/lua/plugins/taboutMINE.lua" <<'EOF'
 -- Tabout.nvim: MINE --- Lua code SO THAT I CAN JUST PRESS TAB TO AUTO GO TO THE END OF THE LINE
 return {
   {
@@ -824,13 +789,8 @@ return {
 }
 EOF
 
-
-
-
-
-
-# orgmodeMINE --- MINE, Colorizes the orgmode, and autoexpands it by default!
-cat > "$HOME/.config/nvim/lua/plugins/orgmodeMINE.lua" << 'EOF'
+  # orgmodeMINE --- MINE, Colorizes the orgmode, and autoexpands it by default!
+  cat >"$HOME/.config/nvim/lua/plugins/orgmodeMINE.lua" <<'EOF'
 -- orgmodeMINE: This will colorize the org files, and also auto-expand all bullets by default!!!
 return {
   {
@@ -861,40 +821,44 @@ return {
 }
 EOF
 
-echo -e "\x1b[34mMaking spacebar+r do ((SAVE&&CargoRun)) !!!!!!!!!!!!!!\x1b[0m]"
-#printf '%s\n' 'vim.keymap.set("n", "<leader>r", function() Snacks.terminal({"cargo", "run"}, { cwd = vim.fn.getcwd(), auto_close = false }) end, { desc = "cargo run" })' >> ~/.config/nvim/lua/config/keymaps.lua  # <---- this is WITHOUT SAVING
+  echo -e "\x1b[34mMaking spacebar+r do ((SAVE&&CargoRun)) !!!!!!!!!!!!!!\x1b[0m]"
+  #printf '%s\n' 'vim.keymap.set("n", "<leader>r", function() Snacks.terminal({"cargo", "run"}, { cwd = vim.fn.getcwd(), auto_close = false }) end, { desc = "cargo run" })' >> ~/.config/nvim/lua/config/keymaps.lua  # <---- this is WITHOUT SAVING
 
-#THIS IS WITH SAVING THEN "CargoRun" AND WRITE ALL :wa
-# PS: If you only want the current file saved instead of every buffer, replace vim.cmd("wa") with vim.cmd("update"), which writes only when the buffer has changes.
-printf '%s\n' 'vim.keymap.set("n", "<leader>r", function() vim.cmd("wa") Snacks.terminal({"cargo", "run"}, { cwd = vim.fn.getcwd(), auto_close = false }) end, { desc = "@@@ save all and cargo run" })' >> ~/.config/nvim/lua/config/keymaps.lua  
+  #THIS IS WITH SAVING THEN "CargoRun" AND WRITE ALL :wa
+  # PS: If you only want the current file saved instead of every buffer, replace vim.cmd("wa") with vim.cmd("update"), which writes only when the buffer has changes.
+  printf '%s\n' 'vim.keymap.set("n", "<leader>r", function() vim.cmd("wa") Snacks.terminal({"cargo", "run"}, { cwd = vim.fn.getcwd(), auto_close = false }) end, { desc = "@@@ save all and cargo run" })' >>~/.config/nvim/lua/config/keymaps.lua
 
-echo "INSTALL MY NORMAL PLUGINS I WANTED VIA MASONINSTALL CLI..."
-nvim --headless -c "MasonInstall rust-analyzer" -c "qall"
-nvim --headless -c "MasonInstall rustfmt" -c "qall"
-nvim --headless -c "MasonInstall codelldb" -c "qall"
-# nvim --headless -c "MasonInstall cpptools" -c "qall"
-nvim --headless -c "MasonInstall crates.nvim" -c "qall"
-nvim --headless -c "MasonInstall rustaceanvim" -c "qall"
+  echo "INSTALL MY NORMAL PLUGINS I WANTED VIA MASONINSTALL CLI..."
+  nvim --headless -c "MasonInstall rust-analyzer" -c "qall"
+  nvim --headless -c "MasonInstall rustfmt" -c "qall"
+  nvim --headless -c "MasonInstall codelldb" -c "qall"
+  # nvim --headless -c "MasonInstall cpptools" -c "qall"
+  nvim --headless -c "MasonInstall crates.nvim" -c "qall"
+  nvim --headless -c "MasonInstall rustaceanvim" -c "qall"
 
-sleep 2
-pushd .
-cd /tmp
-cargo new nvim-test01
-cd nvim-test01
-nvim src/main.rs # dummy filename to ensure any downloads are needed?
-cd ..
-rm -rf nvim-test01
-popd
+  sleep 2
+  pushd .
+  cd /tmp
+  cargo new nvim-test01
+  cd nvim-test01
+  nvim src/main.rs # dummy filename to ensure any downloads are needed?
+  cd ..
+  rm -rf nvim-test01
+  popd
 
-echo "COPY ROOT's rustup + lazyvim to /home/* every user!!!!!!!!!!!!!!!!!!!!!!!!!!!! + CHOWN"
-for i in `ls /home/` ; do echo $i ; cp -rpv ~/.cache/ ~/.cargo/ ~/.config/ ~/.fzf ~/.fzf.bash ~/.local/ ~/.rustup /home/$i ; chown -R $i:$i /home/$i ; done
+  echo "COPY ROOT's rustup + lazyvim to /home/* every user!!!!!!!!!!!!!!!!!!!!!!!!!!!! + CHOWN"
+  for i in $(ls /home/); do
+    echo $i
+    cp -rpv ~/.cache/ ~/.cargo/ ~/.config/ ~/.fzf ~/.fzf.bash ~/.local/ ~/.rustup /home/$i
+    chown -R $i:$i /home/$i
+  done
 
-echo "LAZYVIM INSTALL COMPLETE: No need to relaunch nvim!"
-echo "RUST INSTALL COMPLETE: Open a fresh new terminal and it should be in fish or bash!"
-echo "ALSO: USE bash to source ~/.cargo/env FIRST, then fish will automatically get it!!!"
-echo "ALSO: P.S., You should cd into the rust project with a Cargo.toml, and do cargo build, so you get those deps into your ~/.cargo and ~/.rustup folder to portabilize the environment if you need to compile somewhere else!"
+  echo "LAZYVIM INSTALL COMPLETE: No need to relaunch nvim!"
+  echo "RUST INSTALL COMPLETE: Open a fresh new terminal and it should be in fish or bash!"
+  echo "ALSO: USE bash to source ~/.cargo/env FIRST, then fish will automatically get it!!!"
+  echo "ALSO: P.S., You should cd into the rust project with a Cargo.toml, and do cargo build, so you get those deps into your ~/.cargo and ~/.rustup folder to portabilize the environment if you need to compile somewhere else!"
 
-echo "
+  echo "
 ...
 ...
 ...
@@ -924,111 +888,41 @@ scp nvim-linux-x86_64.appimage root@lm-docker01.lm.local:/mnt/OrioleNAS-Data/sof
 Script complete.
 "
 
-
-
-
-
-
-
-
-
-
-
-
-
-################################################################ 
-################################################################ 
-################################################################ 
-###############End of the lazyvim+RUSTENVIRONMENT section!!!#################### 
-################################################################ 
-################################################################ 
-################################################################ 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # ensure that the system fish config has 'lxc' aliased to 'sudo lxc' and the same for 'sudo docker
-    printf 'alias lxc "sudo lxc"\n' >> /etc/fish/config.fish
-    printf 'alias lxcl "sudo lxc list -c nst4sS"\n' >> /etc/fish/config.fish  #This is a nice shorthand!
-    printf 'alias docker "sudo docker"\n' >> /etc/fish/config.fish
-    # printf 'echo PS Grepping for lxc running containers...\n' >> /etc/fish/config.fish
-    printf 'ps -efawww|grep -i "lxc mon" | sed "s/.*containers /FOUND container running: /" | grep -v " grep "\n' >> /etc/fish/config.fish
-    
-    # Add Shortcuts to desktop
-    for i in /home/*; do
-        echo $i
-        pushd .
-        cd $i/Desktop
-        for app in brave terminator kate code; do
-            locate -i $app | grep "${app}\.desktop$" | sort | tail -n 1 | xargs ln -s
-        done
-        popd
+  ################################################################
+  ################################################################
+  ################################################################
+  ###############End of the lazyvim+RUSTENVIRONMENT section!!!####################
+  ################################################################
+  ################################################################
+  ################################################################
+
+  # ensure that the system fish config has 'lxc' aliased to 'sudo lxc' and the same for 'sudo docker
+  printf 'alias lxc "sudo lxc"\n' >>/etc/fish/config.fish
+  printf 'alias lxcl "sudo lxc list -c nst4sS"\n' >>/etc/fish/config.fish #This is a nice shorthand!
+  printf 'alias docker "sudo docker"\n' >>/etc/fish/config.fish
+  # printf 'echo PS Grepping for lxc running containers...\n' >> /etc/fish/config.fish
+  printf 'ps -efawww|grep -i "lxc mon" | sed "s/.*containers /FOUND container running: /" | grep -v " grep "\n' >>/etc/fish/config.fish
+
+  # Add Shortcuts to desktop
+  for i in /home/*; do
+    echo $i
+    pushd .
+    cd $i/Desktop
+    for app in brave terminator kate code; do
+      locate -i $app | grep "${app}\.desktop$" | sort | tail -n 1 | xargs ln -s
     done
+    popd
+  done
 
-
-
-
-
-
-
-
-# SET THE FISH PROMPT TO A NONSTANDARD SO I KNOW IM SSHd into it, non default
-# Function to generate a random, readable color
-generate_readable_color() {
+  # SET THE FISH PROMPT TO A NONSTANDARD SO I KNOW IM SSHd into it, non default
+  # Function to generate a random, readable color
+  generate_readable_color() {
     local colors=("red" "green" "yellow" "blue" "magenta" "cyan" "white")
     echo "${colors[$RANDOM % ${#colors[@]}]}"
-}
+  }
 
-# Function to create or update Fish config with a random color
-update_fish_config() {
+  # Function to create or update Fish config with a random color
+  update_fish_config() {
     local config_dir="$1/.config/fish"
     local config_file="$config_dir/config.fish"
     # Generate random colors
@@ -1040,10 +934,10 @@ update_fish_config() {
     mkdir -p "$config_dir"
     # Backup existing config if it exists
     if [ -f "$config_file" ]; then
-        cp "$config_file" "${config_file}.backup"
+      cp "$config_file" "${config_file}.backup"
     fi
     # Write new Fish configuration
-    cat << EOF > "$config_file"
+    cat <<EOF >"$config_file"
 function fish_prompt
     set_color --bold $user_color
     echo -n (whoami)
@@ -1061,89 +955,60 @@ function fish_prompt
 end
 EOF
     echo "Updated Fish config for $(basename "$1") with random colors"
-}
+  }
 
-# Update root's Fish config
-update_fish_config "/root"
-# Update Fish config for all users with a home directory
-for user_home in /home/*; do
+  # Update root's Fish config
+  update_fish_config "/root"
+  # Update Fish config for all users with a home directory
+  for user_home in /home/*; do
     if [ -d "$user_home" ]; then
-        update_fish_config "$user_home"
+      update_fish_config "$user_home"
     fi
-done
-echo "Fish configuration update complete with random colors for each user."
+  done
+  echo "Fish configuration update complete with random colors for each user."
 
+  # INSTALL RUST!!!!!!!!!!!!!!
+  # First Install Rust!!!
+  # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+  # source $HOME/.cargo/env 2>/dev/null 1>/dev/null
+  # Next Update and pre-reqs!!!
+  # rustup update # To Update Rustup Compiler to latest version
+  # cargo install cargo-watch # Can't live without this "watchexec" alternative!
+  # cargo install bacon
+  # cargo install rustlings
+  # cargo install clippy
+  # cargo install just
+  # echo "Ok Done! Open a fresh new terminal and it should be in fish or bash!"
 
+  # FINALLY Loop through all directories in /home, set to FISH, AND CHOWN FIX ANY BUGS
+  FISH_PATH="$(which fish)"
+  for USER_HOME in /home/*; do
+    # Get the username from the directory name
+    USERNAME=$(basename "$USER_HOME")
+    # Check if it's a directory and not a file
+    if [ -d "$USER_HOME" ]; then
+      echo "Changing default shell to fish for user: $USERNAME"
+      chsh -s "$FISH_PATH" "$USERNAME"
+      chown -R $USERNAME:$USERNAME /home/$USERNAME
+    fi
+  done
+  sed -i 's/set fish_greeting ""alias lxc "sudo lxc"/set fish_greeting ""/' /etc/fish/config.fish
+  echo "" >>/etc/fish/config.fish
 
-
-
-
-
-
-
-
-
-
-
-
-# INSTALL RUST!!!!!!!!!!!!!!
-# First Install Rust!!!
-# curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-# source $HOME/.cargo/env 2>/dev/null 1>/dev/null
-# Next Update and pre-reqs!!!
-# rustup update # To Update Rustup Compiler to latest version
-# cargo install cargo-watch # Can't live without this "watchexec" alternative!
-# cargo install bacon
-# cargo install rustlings
-# cargo install clippy
-# cargo install just
-# echo "Ok Done! Open a fresh new terminal and it should be in fish or bash!"
-
-
-
-
-
-
-
-
-
-
-
-    # FINALLY Loop through all directories in /home, set to FISH, AND CHOWN FIX ANY BUGS
-    FISH_PATH="`which fish`"
-    for USER_HOME in /home/*; do
-        # Get the username from the directory name
-        USERNAME=$(basename "$USER_HOME")
-        # Check if it's a directory and not a file
-        if [ -d "$USER_HOME" ]; then
-            echo "Changing default shell to fish for user: $USERNAME"
-            chsh -s "$FISH_PATH" "$USERNAME"
-            chown -R $USERNAME:$USERNAME /home/$USERNAME
-        fi
-    done
-    sed -i 's/set fish_greeting ""alias lxc "sudo lxc"/set fish_greeting ""/' /etc/fish/config.fish
-    echo "" >> /etc/fish/config.fish
-
-    updatedb &
+  updatedb &
 } # END OF run_build_development_environment
 
-
-
-
-
-
-
 run_build_docker_ub2404_baseline() {
-    echo "Building the docker container for ub2404 VIA INTERNET and tagging it..."
+  echo "Building the docker container for ub2404 VIA INTERNET and tagging it..."
 
-    echo "Now lets build a docker ubuntu template to use for our testing..."
-    bash_command="echo hiiiiiiiiiiiii ; ls -l /"
-    docker rm -f baselineUbContainer
-    docker run --name baselineUbContainer -h baselineUbContainer -dit ubuntu:latest
-    docker exec -it baselineUbContainer bash -c "$bash_command"
+  echo "Now lets build a docker ubuntu template to use for our testing..."
+  bash_command="echo hiiiiiiiiiiiii ; ls -l /"
+  docker rm -f baselineUbContainer
+  docker run --name baselineUbContainer -h baselineUbContainer -dit ubuntu:latest
+  docker exec -it baselineUbContainer bash -c "$bash_command"
 
-    echo "At this point baselineUbContainer is running, can echo to the screen and ls -l /; worked ok! Lets now launch the master script."
-    baselineUbContainer_baseline_cmd='
+  echo "At this point baselineUbContainer is running, can echo to the screen and ls -l /; worked ok! Lets now launch the master script."
+  baselineUbContainer_baseline_cmd='
 #############################
 #Install all Baseline Apps
 #############################
@@ -1160,7 +1025,8 @@ packages=(
   iputils-tracepath locate net-tools nfs-common nmap man-db 
   openssh-client-ssh1 openssh-client openssh-server procps python3-pip 
   p7zip p7zip-full p7zip-rar python3-virtualenv samba smbclient tcpdump 
-  ufw vim wget unzip git ssh whois iotop nethogs python-is-python3 sudo
+  ufw vim wget unzip git ssh whois iotop nethogs python-is-python3 sudo 
+  pandoc
 )
 
 for package in "${packages[@]}"; do
@@ -1224,282 +1090,96 @@ mkdir /run/sshd &>/dev/null
 exit
 '
 
-    docker exec -it baselineUbContainer bash -c "$baselineUbContainer_baseline_cmd"
+  docker exec -it baselineUbContainer bash -c "$baselineUbContainer_baseline_cmd"
 
-    echo "OK so now we basically are going to...
+  echo "OK so now we basically are going to...
 docker commit ub01
 docker images (to get the new id, example is  eeb1301ee626)
 docker tag eeb1301ee626 ub2404  (to tag it)
 "
-    CONTAINER_NAME='baselineUbContainer'
-    NEW_IMAGE_NAME="ub2404"
+  CONTAINER_NAME='baselineUbContainer'
+  NEW_IMAGE_NAME="ub2404"
 
-    echo "Ensuring container $CONTAINER_NAME is running..."
-    docker start $CONTAINER_NAME
+  echo "Ensuring container $CONTAINER_NAME is running..."
+  docker start $CONTAINER_NAME
 
-    echo "Committing changes from $CONTAINER_NAME to new image $NEW_IMAGE_NAME:latest..."
-    docker commit $CONTAINER_NAME $NEW_IMAGE_NAME:latest
+  echo "Committing changes from $CONTAINER_NAME to new image $NEW_IMAGE_NAME:latest..."
+  docker commit $CONTAINER_NAME $NEW_IMAGE_NAME:latest
 
-    echo "Listing new image..."
-    docker images | grep $NEW_IMAGE_NAME
+  echo "Listing new image..."
+  docker images | grep $NEW_IMAGE_NAME
 
-    # I DECIDED TO LEAVE THIS SO THAT I CAN DEBUG THE BASELINE LATER
-    echo "Removing the original template... baselineUbContainer"
-    docker rm -f baselineUbContainer
+  # I DECIDED TO LEAVE THIS SO THAT I CAN DEBUG THE BASELINE LATER
+  echo "Removing the original template... baselineUbContainer"
+  docker rm -f baselineUbContainer
 
-    echo "FIXING DOCKER SO THAT IT DIDNT BREAK LXC!!!!!!!!!!!!!!!!"
-    # Add rules to iptables (ubuntu) to accept forwarding traffic for our containers subnet to the internet. Cloud servers and Ubuntu do not save iptables rules by default on reboot.
-    echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
-    echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
-    sudo apt install -y iptables-persistent
-    sudo netfilter-persistent save
-    sudo iptables -A FORWARD -i lxdbr0 -j ACCEPT
-    sudo iptables -A FORWARD -o lxdbr0 -j ACCEPT
-    sudo sysctl -w net.ipv4.ip_forward=1
-    sudo netfilter-persistent save
+  echo "FIXING DOCKER SO THAT IT DIDNT BREAK LXC!!!!!!!!!!!!!!!!"
+  # Add rules to iptables (ubuntu) to accept forwarding traffic for our containers subnet to the internet. Cloud servers and Ubuntu do not save iptables rules by default on reboot.
+  echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
+  echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
+  sudo apt install -y iptables-persistent
+  sudo netfilter-persistent save
+  sudo iptables -A FORWARD -i lxdbr0 -j ACCEPT
+  sudo iptables -A FORWARD -o lxdbr0 -j ACCEPT
+  sudo sysctl -w net.ipv4.ip_forward=1
+  sudo netfilter-persistent save
 
-
-    echo "Setup of baselineUbContainer BASELINE CONTAINER of root/P@ is... complete!"
-    echo "Step: run_build_docker_ub2404_baseline completed successfully!"
+  echo "Setup of baselineUbContainer BASELINE CONTAINER of root/P@ is... complete!"
+  echo "Step: run_build_docker_ub2404_baseline completed successfully!"
 
 } # END OF  run_build_docker_ub2404_baseline
 
 # #TODO need to have ability for 3 more etc read -p, and use num_ubuntu_containers everywhere
 run_launch_3_ubuntu_containers() {
-    echo "Removing ub01/ub02/ub03 and launching 3 new ones!"
+  echo "Removing ub01/ub02/ub03 and launching 3 new ones!"
 
-    echo "Ok starting ub01/ub02/ub03 from the new container image called $NEW_IMAGE_NAME..."
+  echo "Ok starting ub01/ub02/ub03 from the new container image called $NEW_IMAGE_NAME..."
 
-    # Number of containers to start
-    num_ubuntu_containers=3
-    # Image name to use
-    image_name="ub2404"
-    # Hostname prefix
-    hostname_prefix="ub"
+  # Number of containers to start
+  num_ubuntu_containers=3
+  # Image name to use
+  image_name="ub2404"
+  # Hostname prefix
+  hostname_prefix="ub"
 
-    # SETUP MYYYYYYY Make a dev_network
-    docker network create --subnet=172.16.99.0/24 dev_network 2>/dev/null
+  # SETUP MYYYYYYY Make a dev_network
+  docker network create --subnet=172.16.99.0/24 dev_network 2>/dev/null
 
-    # Ensure that live-restore to keep the same IP address is installed
-    DAEMON_JSON="/etc/docker/daemon.json"
-    # Function to check if jq is installed
-    check_jq() {
-        if ! command -v jq &>/dev/null; then
-            echo "jq is not installed. Installing..."
-            sudo apt-get update && sudo apt-get install -y jq
-        fi
-    }
-    check_jq
-    if [ ! -f "$DAEMON_JSON" ]; then
-        echo "Creating $DAEMON_JSON with live-restore enabled"
-        echo '{"live-restore": true}' | sudo tee "$DAEMON_JSON" >/dev/null
-    else
-        if jq -e '.["live-restore"]' "$DAEMON_JSON" >/dev/null 2>&1; then
-            echo "live-restore is already set in $DAEMON_JSON"
-            if [ "$(jq -r '.["live-restore"]' "$DAEMON_JSON")" != "true" ]; then
-                echo "Updating live-restore to true"
-                sudo jq '.["live-restore"] = true' "$DAEMON_JSON" >"$DAEMON_JSON.tmp" && sudo mv "$DAEMON_JSON.tmp" "$DAEMON_JSON"
-            fi
-        else
-            echo "Adding live-restore to $DAEMON_JSON"
-            sudo jq '. + {"live-restore": true}' "$DAEMON_JSON" >"$DAEMON_JSON.tmp" && sudo mv "$DAEMON_JSON.tmp" "$DAEMON_JSON"
-        fi
+  # Ensure that live-restore to keep the same IP address is installed
+  DAEMON_JSON="/etc/docker/daemon.json"
+  # Function to check if jq is installed
+  check_jq() {
+    if ! command -v jq &>/dev/null; then
+      echo "jq is not installed. Installing..."
+      sudo apt-get update && sudo apt-get install -y jq
     fi
-    sudo systemctl reload docker
-    echo "Docker daemon configuration updated successfully"
-
-    # Loop to start containers
-    for i in $(seq 1 $num_ubuntu_containers); do
-        # Create hostname (ub01, ub02, ub03)
-        hostname="${hostname_prefix}0${i}"
-        echo "Starting fresh new container... ${hostname}"
-        # Stop container if it exists
-        docker stop ${hostname} >/dev/null 2>&1
-        # Remove container if it exists
-        docker rm -f ${hostname} >/dev/null 2>&1
-        # Start new container
-        # docker run -d -t -h ${hostname} --name ${hostname} ${image_name} >/dev/null 2>&1
-        # docker run -dit --network my_network --ip 172.18.0.2 your_image
-        # docker run -d -t -h ${hostname} --name ${hostname} --restart=always ${image_name} >/dev/null 2>&1
-
-        echo launching.... docker run -d -t -h ${hostname} --name ${hostname} --network dev_network --ip 172.16.99.$(($i + 100)) --restart=always ${image_name}
-        docker run -d -t -h ${hostname} --name ${hostname} --network dev_network --ip 172.16.99.$(($i + 100)) --restart=always ${image_name} >/dev/null #2>&1
-        if [ $? -eq 0 ]; then
-            echo "Container ${hostname} started successfully."
-        else
-            echo "Failed to start container ${hostname}."
-        fi
-    done
-
-    echo "All ub01/ub02/ub03 containers with root/P@ started."
-    for i in $(seq 1 $num_ubuntu_containers); do
-        printf "ub0$i = $(docker inspect ub0$i | grep IPAddress | grep -v SecondaryIPAddresses | sed 's/.* //' | uniq | sed 's/,$//')\n"
-    done
-
-    echo "Adding the ub01/ub02/ub03 to /etc/hosts now..."
-
-    # Temporary file for hosts
-    temp_hosts="/tmp/hosts.new"
-    # Copy current hosts file to temp file
-    cp /etc/hosts $temp_hosts
-    # Function to update hosts file
-    update_hosts() {
-        local hostname=$1
-        local ip=$2
-        # Remove existing entry if it exists
-        sed -i "/ $hostname$/d" $temp_hosts
-        # Add new entry
-        echo "$ip $hostname" >>$temp_hosts
-    }
-    echo "Updating /etc/hosts with container IP addresses..."
-    for i in $(seq 1 $num_ubuntu_containers); do
-        hostname="ub0$i"
-        # Get container IP
-        ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $hostname)
-        if [ -n "$ip" ]; then
-            update_hosts $hostname $ip
-            echo "Updated $hostname with IP $ip"
-        else
-            echo "Failed to get IP for $hostname"
-        fi
-    done
-    # Replace /etc/hosts with our updated version
-    sudo mv $temp_hosts /etc/hosts
-    echo "Finished updating /etc/hosts"
-    # Display the updated entries
-    echo "Updated entries in /etc/hosts:"
-    grep "ub0" /etc/hosts
-    chmod 777 /etc/hosts
-
-
-    # Get the public key content
-    public_key=$(cat "${ssh_key_path}.pub")
-    # Function to add SSH key to a container
-    add_ssh_key_to_container() {
-        local container_name=$1
-        echo "Adding SSH key to $container_name..."
-        # Ensure .ssh directory exists and has correct permissions
-        docker exec $container_name mkdir -p /root/.ssh
-        docker exec $container_name chmod 700 /root/.ssh
-        # Add the public key to authorized_keys
-        echo "$public_key" | docker exec -i $container_name tee -a /root/.ssh/authorized_keys >/dev/null
-        # Set correct permissions for authorized_keys
-        docker exec $container_name chmod 600 /root/.ssh/authorized_keys
-        echo "SSH key added to $container_name"
-    }
-
-    # Add SSH key to each container
-    for i in $(seq 1 $num_ubuntu_containers); do
-        container_name="ub0$i"
-        add_ssh_key_to_container $container_name
-    done
-
-    echo "SSH key has been added to all containers."
-
-    echo "Next, this script.... removes existing fingerprints for ub01, ub02, and ub03 from ~/.ssh/known_hosts, and then adds them back to avoid future prompts"
-
-    # Function to remove existing fingerprints
-    remove_fingerprints() {
-        for i in {1..3}; do
-            ssh-keygen -R "ub0$i" 2>/dev/null
-            ssh-keygen -R "$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ub0$i)" 2>/dev/null
-        done
-        echo "Removed existing fingerprints for ub01, ub02, and ub03"
-    }
-    # Function to add new fingerprints
-    add_fingerprints() {
-        for i in {1..3}; do
-            container_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ub0$i)
-            ssh-keyscan -H "ub0$i" >>~/.ssh/known_hosts 2>/dev/null
-            ssh-keyscan -H "$container_ip" >>~/.ssh/known_hosts 2>/dev/null
-        done
-        echo "Added new fingerprints for ub01, ub02, and ub03"
-    }
-    # Main execution
-    echo "Removing existing fingerprints..."
-    remove_fingerprints
-    echo "Adding new fingerprints..."
-    add_fingerprints
-    echo "Fingerprint update complete. You should now be able to SSH without prompts."
-
-    echo "OK YOUR ENVIRONMENT IS NOW DONE! 
-    You can ssh root@ub01/ub02/ub03 and run anything you want via ansible from this host!!!
-    
-    Feel free to make a test ansible like: mkdir ansTest01; cd andTest01; touch hosts; touch ansible.cfg; ...
-    "
-    echo "Step: run_launch_3_ubuntu_containers completed successfully!"
-
-} # END OF run_launch_3_ubuntu_containers
-
-run_launch_1_ubuntu_container() {
-
-    CONTAINER_NAME="ub01"
-    NEW_IMAGE_NAME="ub2404"
-    # read -p "Enter the name of the $NEW_IMAGE_NAME you would like to create: " CONTAINER_NAME
-
-    while true; do
-        read -p "Enter the name of the $NEW_IMAGE_NAME you would like to create: " CONTAINER_NAME
-        docker rm -f $CONTAINER_NAME
-        if [[ "$CONTAINER_NAME" =~ ^[a-zA-Z0-9][a-zA-Z0-9_.-]+$ ]]; then
-            if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-                echo "Error: A container with the name '$CONTAINER_NAME' already exists. Please choose a different name."
-            else
-                break
-            fi
-        else
-            echo "Error: Invalid container name. Use only alphanumeric characters, underscores, dots, and hyphens. The name must start with an alphanumeric character."
-        fi
-    done
-    echo "Container name '$CONTAINER_NAME' is valid and available. Continuing..."
-
-    echo "Ok starting '$CONTAINER_NAME' from the new container image called $NEW_IMAGE_NAME..."
-
-    # Number of containers to start
-    num_ubuntu_containers=3
-    # Image name to use
-    image_name="ub2404"
-    # Hostname prefix
-    hostname_prefix="ub"
-
-    # SETUP MYYYYYYY Make a dev_network
-    docker network create --subnet=172.16.99.0/24 dev_network 2>/dev/null
-
-    # Ensure that live-restore to keep the same IP address is installed
-    DAEMON_JSON="/etc/docker/daemon.json"
-    # Function to check if jq is installed
-    check_jq() {
-        if ! command -v jq &>/dev/null; then
-            echo "jq is not installed. Installing..."
-            sudo apt-get update && sudo apt-get install -y jq
-        fi
-    }
-    check_jq
-    if [ ! -f "$DAEMON_JSON" ]; then
-        echo "Creating $DAEMON_JSON with live-restore enabled"
-        echo '{"live-restore": true}' | sudo tee "$DAEMON_JSON" >/dev/null
+  }
+  check_jq
+  if [ ! -f "$DAEMON_JSON" ]; then
+    echo "Creating $DAEMON_JSON with live-restore enabled"
+    echo '{"live-restore": true}' | sudo tee "$DAEMON_JSON" >/dev/null
+  else
+    if jq -e '.["live-restore"]' "$DAEMON_JSON" >/dev/null 2>&1; then
+      echo "live-restore is already set in $DAEMON_JSON"
+      if [ "$(jq -r '.["live-restore"]' "$DAEMON_JSON")" != "true" ]; then
+        echo "Updating live-restore to true"
+        sudo jq '.["live-restore"] = true' "$DAEMON_JSON" >"$DAEMON_JSON.tmp" && sudo mv "$DAEMON_JSON.tmp" "$DAEMON_JSON"
+      fi
     else
-        if jq -e '.["live-restore"]' "$DAEMON_JSON" >/dev/null 2>&1; then
-            echo "live-restore is already set in $DAEMON_JSON"
-            if [ "$(jq -r '.["live-restore"]' "$DAEMON_JSON")" != "true" ]; then
-                echo "Updating live-restore to true"
-                sudo jq '.["live-restore"] = true' "$DAEMON_JSON" >"$DAEMON_JSON.tmp" && sudo mv "$DAEMON_JSON.tmp" "$DAEMON_JSON"
-            fi
-        else
-            echo "Adding live-restore to $DAEMON_JSON"
-            sudo jq '. + {"live-restore": true}' "$DAEMON_JSON" >"$DAEMON_JSON.tmp" && sudo mv "$DAEMON_JSON.tmp" "$DAEMON_JSON"
-        fi
+      echo "Adding live-restore to $DAEMON_JSON"
+      sudo jq '. + {"live-restore": true}' "$DAEMON_JSON" >"$DAEMON_JSON.tmp" && sudo mv "$DAEMON_JSON.tmp" "$DAEMON_JSON"
     fi
-    sudo systemctl reload docker
-    echo "Docker daemon configuration updated successfully"
+  fi
+  sudo systemctl reload docker
+  echo "Docker daemon configuration updated successfully"
 
-    # Loop to start containers
-    # for i in $(seq 1 $num_ubuntu_containers); do
+  # Loop to start containers
+  for i in $(seq 1 $num_ubuntu_containers); do
     # Create hostname (ub01, ub02, ub03)
     hostname="${hostname_prefix}0${i}"
-    hostname=$CONTAINER_NAME
-    # echo "Starting fresh new container... ${hostname}"
+    echo "Starting fresh new container... ${hostname}"
     # Stop container if it exists
-    # docker stop ${hostname} >/dev/null 2>&1
+    docker stop ${hostname} >/dev/null 2>&1
     # Remove container if it exists
     docker rm -f ${hostname} >/dev/null 2>&1
     # Start new container
@@ -1507,264 +1187,438 @@ run_launch_1_ubuntu_container() {
     # docker run -dit --network my_network --ip 172.18.0.2 your_image
     # docker run -d -t -h ${hostname} --name ${hostname} --restart=always ${image_name} >/dev/null 2>&1
 
-    echo launching.... docker run -d -t -h ${hostname} --name ${hostname} --network dev_network --restart=always ${image_name}
-    docker run -d -t -h ${hostname} --name ${hostname} --network dev_network --restart=always ${image_name} >/dev/null #2>&1
+    echo launching.... docker run -d -t -h ${hostname} --name ${hostname} --network dev_network --ip 172.16.99.$(($i + 100)) --restart=always ${image_name}
+    docker run -d -t -h ${hostname} --name ${hostname} --network dev_network --ip 172.16.99.$(($i + 100)) --restart=always ${image_name} >/dev/null #2>&1
     if [ $? -eq 0 ]; then
-        echo "Container ${hostname} started successfully."
+      echo "Container ${hostname} started successfully."
     else
-        echo "Failed to start container ${hostname}."
+      echo "Failed to start container ${hostname}."
     fi
-    # done
+  done
 
-    echo "New: $hostname containers with root/P@ started."
-    # for i in $(seq 1 $num_ubuntu_containers); do
-    printf "$hostname = $(docker inspect $hostname | grep IPAddress | grep -v SecondaryIPAddresses | sed 's/.* //' | uniq | sed 's/,$//')\n"
-    # done
+  echo "All ub01/ub02/ub03 containers with root/P@ started."
+  for i in $(seq 1 $num_ubuntu_containers); do
+    printf "ub0$i = $(docker inspect ub0$i | grep IPAddress | grep -v SecondaryIPAddresses | sed 's/.* //' | uniq | sed 's/,$//')\n"
+  done
 
-    echo "Adding the $hostname to /etc/hosts now..."
+  echo "Adding the ub01/ub02/ub03 to /etc/hosts now..."
 
-    # Temporary file for hosts
-    temp_hosts="/tmp/hosts.new"
-    # Copy current hosts file to temp file
-    cp /etc/hosts $temp_hosts
-    # Function to update hosts file
-    update_hosts() {
-        local hostname=$1
-        local ip=$2
-        # Remove existing entry if it exists
-        sed -i "/ $hostname$/d" $temp_hosts
-        # Add new entry
-        echo "$ip $hostname" >>$temp_hosts
-    }
-    echo "Updating /etc/hosts with container IP addresses..."
-    # for i in $(seq 1 $num_ubuntu_containers); do
-    # hostname="ub0$i"
+  # Temporary file for hosts
+  temp_hosts="/tmp/hosts.new"
+  # Copy current hosts file to temp file
+  cp /etc/hosts $temp_hosts
+  # Function to update hosts file
+  update_hosts() {
+    local hostname=$1
+    local ip=$2
+    # Remove existing entry if it exists
+    sed -i "/ $hostname$/d" $temp_hosts
+    # Add new entry
+    echo "$ip $hostname" >>$temp_hosts
+  }
+  echo "Updating /etc/hosts with container IP addresses..."
+  for i in $(seq 1 $num_ubuntu_containers); do
+    hostname="ub0$i"
     # Get container IP
     ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $hostname)
     if [ -n "$ip" ]; then
-        update_hosts $hostname $ip
-        echo "Updated $hostname with IP $ip"
+      update_hosts $hostname $ip
+      echo "Updated $hostname with IP $ip"
     else
-        echo "Failed to get IP for $hostname"
+      echo "Failed to get IP for $hostname"
     fi
-    # done
-    # Replace /etc/hosts with our updated version
-    sudo mv $temp_hosts /etc/hosts
-    echo "Finished updating /etc/hosts"
-    # Display the updated entries
-    echo "Updated entries in /etc/hosts:"
-    grep "$hostname" /etc/hosts
-    chmod 777 /etc/hosts
+  done
+  # Replace /etc/hosts with our updated version
+  sudo mv $temp_hosts /etc/hosts
+  echo "Finished updating /etc/hosts"
+  # Display the updated entries
+  echo "Updated entries in /etc/hosts:"
+  grep "ub0" /etc/hosts
+  chmod 777 /etc/hosts
 
-    echo "Generating or re-using your SSH KEY and adding it to all the 3 ubuntu container targets..."
+  # Get the public key content
+  public_key=$(cat "${ssh_key_path}.pub")
+  # Function to add SSH key to a container
+  add_ssh_key_to_container() {
+    local container_name=$1
+    echo "Adding SSH key to $container_name..."
+    # Ensure .ssh directory exists and has correct permissions
+    docker exec $container_name mkdir -p /root/.ssh
+    docker exec $container_name chmod 700 /root/.ssh
+    # Add the public key to authorized_keys
+    echo "$public_key" | docker exec -i $container_name tee -a /root/.ssh/authorized_keys >/dev/null
+    # Set correct permissions for authorized_keys
+    docker exec $container_name chmod 600 /root/.ssh/authorized_keys
+    echo "SSH key added to $container_name"
+  }
 
-    # SSH key path
-    ssh_key_path="$HOME/.ssh/id_rsa"
-    # Generate SSH key if it doesn't exist
-    if [ ! -f "$ssh_key_path" ]; then
-        echo "Generating new SSH key..."
-        ssh-keygen -t rsa -b 4096 -f "$ssh_key_path" -N ""
-    else
-        echo "SSH key already exists."
-    fi
-    # Get the public key content
-    public_key=$(cat "${ssh_key_path}.pub")
-    # Function to add SSH key to a container
-    add_ssh_key_to_container() {
-        local container_name=$1
-        echo "Adding SSH key to $container_name..."
-        # Ensure .ssh directory exists and has correct permissions
-        docker exec $container_name mkdir -p /root/.ssh
-        docker exec $container_name chmod 700 /root/.ssh
-        # Add the public key to authorized_keys
-        echo "$public_key" | docker exec -i $container_name tee -a /root/.ssh/authorized_keys >/dev/null
-        # Set correct permissions for authorized_keys
-        docker exec $container_name chmod 600 /root/.ssh/authorized_keys
-        echo "SSH key added to $container_name"
-    }
-
-    # Add SSH key to each container
-    # for i in $(seq 1 $num_ubuntu_containers); do
-    container_name=$hostname
+  # Add SSH key to each container
+  for i in $(seq 1 $num_ubuntu_containers); do
+    container_name="ub0$i"
     add_ssh_key_to_container $container_name
+  done
+
+  echo "SSH key has been added to all containers."
+
+  echo "Next, this script.... removes existing fingerprints for ub01, ub02, and ub03 from ~/.ssh/known_hosts, and then adds them back to avoid future prompts"
+
+  # Function to remove existing fingerprints
+  remove_fingerprints() {
+    for i in {1..3}; do
+      ssh-keygen -R "ub0$i" 2>/dev/null
+      ssh-keygen -R "$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ub0$i)" 2>/dev/null
+    done
+    echo "Removed existing fingerprints for ub01, ub02, and ub03"
+  }
+  # Function to add new fingerprints
+  add_fingerprints() {
+    for i in {1..3}; do
+      container_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ub0$i)
+      ssh-keyscan -H "ub0$i" >>~/.ssh/known_hosts 2>/dev/null
+      ssh-keyscan -H "$container_ip" >>~/.ssh/known_hosts 2>/dev/null
+    done
+    echo "Added new fingerprints for ub01, ub02, and ub03"
+  }
+  # Main execution
+  echo "Removing existing fingerprints..."
+  remove_fingerprints
+  echo "Adding new fingerprints..."
+  add_fingerprints
+  echo "Fingerprint update complete. You should now be able to SSH without prompts."
+
+  echo "OK YOUR ENVIRONMENT IS NOW DONE! 
+    You can ssh root@ub01/ub02/ub03 and run anything you want via ansible from this host!!!
+    
+    Feel free to make a test ansible like: mkdir ansTest01; cd andTest01; touch hosts; touch ansible.cfg; ...
+    "
+  echo "Step: run_launch_3_ubuntu_containers completed successfully!"
+
+} # END OF run_launch_3_ubuntu_containers
+
+run_launch_1_ubuntu_container() {
+
+  CONTAINER_NAME="ub01"
+  NEW_IMAGE_NAME="ub2404"
+  # read -p "Enter the name of the $NEW_IMAGE_NAME you would like to create: " CONTAINER_NAME
+
+  while true; do
+    read -p "Enter the name of the $NEW_IMAGE_NAME you would like to create: " CONTAINER_NAME
+    docker rm -f $CONTAINER_NAME
+    if [[ "$CONTAINER_NAME" =~ ^[a-zA-Z0-9][a-zA-Z0-9_.-]+$ ]]; then
+      if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+        echo "Error: A container with the name '$CONTAINER_NAME' already exists. Please choose a different name."
+      else
+        break
+      fi
+    else
+      echo "Error: Invalid container name. Use only alphanumeric characters, underscores, dots, and hyphens. The name must start with an alphanumeric character."
+    fi
+  done
+  echo "Container name '$CONTAINER_NAME' is valid and available. Continuing..."
+
+  echo "Ok starting '$CONTAINER_NAME' from the new container image called $NEW_IMAGE_NAME..."
+
+  # Number of containers to start
+  num_ubuntu_containers=3
+  # Image name to use
+  image_name="ub2404"
+  # Hostname prefix
+  hostname_prefix="ub"
+
+  # SETUP MYYYYYYY Make a dev_network
+  docker network create --subnet=172.16.99.0/24 dev_network 2>/dev/null
+
+  # Ensure that live-restore to keep the same IP address is installed
+  DAEMON_JSON="/etc/docker/daemon.json"
+  # Function to check if jq is installed
+  check_jq() {
+    if ! command -v jq &>/dev/null; then
+      echo "jq is not installed. Installing..."
+      sudo apt-get update && sudo apt-get install -y jq
+    fi
+  }
+  check_jq
+  if [ ! -f "$DAEMON_JSON" ]; then
+    echo "Creating $DAEMON_JSON with live-restore enabled"
+    echo '{"live-restore": true}' | sudo tee "$DAEMON_JSON" >/dev/null
+  else
+    if jq -e '.["live-restore"]' "$DAEMON_JSON" >/dev/null 2>&1; then
+      echo "live-restore is already set in $DAEMON_JSON"
+      if [ "$(jq -r '.["live-restore"]' "$DAEMON_JSON")" != "true" ]; then
+        echo "Updating live-restore to true"
+        sudo jq '.["live-restore"] = true' "$DAEMON_JSON" >"$DAEMON_JSON.tmp" && sudo mv "$DAEMON_JSON.tmp" "$DAEMON_JSON"
+      fi
+    else
+      echo "Adding live-restore to $DAEMON_JSON"
+      sudo jq '. + {"live-restore": true}' "$DAEMON_JSON" >"$DAEMON_JSON.tmp" && sudo mv "$DAEMON_JSON.tmp" "$DAEMON_JSON"
+    fi
+  fi
+  sudo systemctl reload docker
+  echo "Docker daemon configuration updated successfully"
+
+  # Loop to start containers
+  # for i in $(seq 1 $num_ubuntu_containers); do
+  # Create hostname (ub01, ub02, ub03)
+  hostname="${hostname_prefix}0${i}"
+  hostname=$CONTAINER_NAME
+  # echo "Starting fresh new container... ${hostname}"
+  # Stop container if it exists
+  # docker stop ${hostname} >/dev/null 2>&1
+  # Remove container if it exists
+  docker rm -f ${hostname} >/dev/null 2>&1
+  # Start new container
+  # docker run -d -t -h ${hostname} --name ${hostname} ${image_name} >/dev/null 2>&1
+  # docker run -dit --network my_network --ip 172.18.0.2 your_image
+  # docker run -d -t -h ${hostname} --name ${hostname} --restart=always ${image_name} >/dev/null 2>&1
+
+  echo launching.... docker run -d -t -h ${hostname} --name ${hostname} --network dev_network --restart=always ${image_name}
+  docker run -d -t -h ${hostname} --name ${hostname} --network dev_network --restart=always ${image_name} >/dev/null #2>&1
+  if [ $? -eq 0 ]; then
+    echo "Container ${hostname} started successfully."
+  else
+    echo "Failed to start container ${hostname}."
+  fi
+  # done
+
+  echo "New: $hostname containers with root/P@ started."
+  # for i in $(seq 1 $num_ubuntu_containers); do
+  printf "$hostname = $(docker inspect $hostname | grep IPAddress | grep -v SecondaryIPAddresses | sed 's/.* //' | uniq | sed 's/,$//')\n"
+  # done
+
+  echo "Adding the $hostname to /etc/hosts now..."
+
+  # Temporary file for hosts
+  temp_hosts="/tmp/hosts.new"
+  # Copy current hosts file to temp file
+  cp /etc/hosts $temp_hosts
+  # Function to update hosts file
+  update_hosts() {
+    local hostname=$1
+    local ip=$2
+    # Remove existing entry if it exists
+    sed -i "/ $hostname$/d" $temp_hosts
+    # Add new entry
+    echo "$ip $hostname" >>$temp_hosts
+  }
+  echo "Updating /etc/hosts with container IP addresses..."
+  # for i in $(seq 1 $num_ubuntu_containers); do
+  # hostname="ub0$i"
+  # Get container IP
+  ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $hostname)
+  if [ -n "$ip" ]; then
+    update_hosts $hostname $ip
+    echo "Updated $hostname with IP $ip"
+  else
+    echo "Failed to get IP for $hostname"
+  fi
+  # done
+  # Replace /etc/hosts with our updated version
+  sudo mv $temp_hosts /etc/hosts
+  echo "Finished updating /etc/hosts"
+  # Display the updated entries
+  echo "Updated entries in /etc/hosts:"
+  grep "$hostname" /etc/hosts
+  chmod 777 /etc/hosts
+
+  echo "Generating or re-using your SSH KEY and adding it to all the 3 ubuntu container targets..."
+
+  # SSH key path
+  ssh_key_path="$HOME/.ssh/id_rsa"
+  # Generate SSH key if it doesn't exist
+  if [ ! -f "$ssh_key_path" ]; then
+    echo "Generating new SSH key..."
+    ssh-keygen -t rsa -b 4096 -f "$ssh_key_path" -N ""
+  else
+    echo "SSH key already exists."
+  fi
+  # Get the public key content
+  public_key=$(cat "${ssh_key_path}.pub")
+  # Function to add SSH key to a container
+  add_ssh_key_to_container() {
+    local container_name=$1
+    echo "Adding SSH key to $container_name..."
+    # Ensure .ssh directory exists and has correct permissions
+    docker exec $container_name mkdir -p /root/.ssh
+    docker exec $container_name chmod 700 /root/.ssh
+    # Add the public key to authorized_keys
+    echo "$public_key" | docker exec -i $container_name tee -a /root/.ssh/authorized_keys >/dev/null
+    # Set correct permissions for authorized_keys
+    docker exec $container_name chmod 600 /root/.ssh/authorized_keys
+    echo "SSH key added to $container_name"
+  }
+
+  # Add SSH key to each container
+  # for i in $(seq 1 $num_ubuntu_containers); do
+  container_name=$hostname
+  add_ssh_key_to_container $container_name
+  # done
+
+  echo "SSH key has been added to all containers."
+
+  echo "Next, this script.... removes existing fingerprints for $hostname from ~/.ssh/known_hosts, and then adds them back to avoid future prompts"
+
+  # Function to remove existing fingerprints
+  remove_fingerprints() {
+    # for i in {1..3}; do
+    ssh-keygen -R "$hostname" 2>/dev/null
+    ssh-keygen -R "$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $hostname)" 2>/dev/null
     # done
+    echo "Removed existing fingerprints for $hostname"
+  }
+  # Function to add new fingerprints
+  add_fingerprints() {
+    # for i in {1..3}; do
+    container_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $hostname)
+    ssh-keyscan -H "$hostname" >>~/.ssh/known_hosts 2>/dev/null
+    ssh-keyscan -H "$container_ip" >>~/.ssh/known_hosts 2>/dev/null
+    # done
+    echo "Added new fingerprints for $hostname"
+  }
+  # Main execution
+  echo "Removing existing fingerprints..."
+  remove_fingerprints
+  echo "Adding new fingerprints..."
+  add_fingerprints
+  echo "Fingerprint update complete. You should now be able to SSH without prompts."
 
-    echo "SSH key has been added to all containers."
-
-    echo "Next, this script.... removes existing fingerprints for $hostname from ~/.ssh/known_hosts, and then adds them back to avoid future prompts"
-
-    # Function to remove existing fingerprints
-    remove_fingerprints() {
-        # for i in {1..3}; do
-        ssh-keygen -R "$hostname" 2>/dev/null
-        ssh-keygen -R "$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $hostname)" 2>/dev/null
-        # done
-        echo "Removed existing fingerprints for $hostname"
-    }
-    # Function to add new fingerprints
-    add_fingerprints() {
-        # for i in {1..3}; do
-        container_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $hostname)
-        ssh-keyscan -H "$hostname" >>~/.ssh/known_hosts 2>/dev/null
-        ssh-keyscan -H "$container_ip" >>~/.ssh/known_hosts 2>/dev/null
-        # done
-        echo "Added new fingerprints for $hostname"
-    }
-    # Main execution
-    echo "Removing existing fingerprints..."
-    remove_fingerprints
-    echo "Adding new fingerprints..."
-    add_fingerprints
-    echo "Fingerprint update complete. You should now be able to SSH without prompts."
-
-    echo "OK YOUR ENVIRONMENT IS NOW DONE! 
+  echo "OK YOUR ENVIRONMENT IS NOW DONE! 
     You can ssh root@$hostname and run anything you want via ansible from this host!!!
     
     Feel free to make a test ansible like: mkdir ansTest01; cd andTest01; touch hosts; touch ansible.cfg; ...
     "
-    echo "Step: run_launch_1_ubuntu_container completed successfully!"
+  echo "Step: run_launch_1_ubuntu_container completed successfully!"
 
 } # END OF run_launch_1_ubuntu_container
 
-
 launch_lxd_init() {
-    echo "Cleaning /etc/hosts from any ub01/ub02/ub03 ..."
-    sed -i 's/.*ub0[123].*//' /etc/hosts
-    sed -i "s/.*$container_name.*//" /etc/hosts
-    chmod 777 /etc/hosts
-    echo "Launching: lxd init --minimal ..."
-    lxd init --minimal
-    echo "Exposing Lxd WebUI webpage, and starting it up as http://localhost:8443/ "
-    lxc config set core.https_address :8443
+  echo "Cleaning /etc/hosts from any ub01/ub02/ub03 ..."
+  sed -i 's/.*ub0[123].*//' /etc/hosts
+  sed -i "s/.*$container_name.*//" /etc/hosts
+  chmod 777 /etc/hosts
+  echo "Launching: lxd init --minimal ..."
+  lxd init --minimal
+  echo "Exposing Lxd WebUI webpage, and starting it up as http://localhost:8443/ "
+  lxc config set core.https_address :8443
 } # END OF launch_lxd_init
 
+launch_ubuntu_1_lxc_container() {
 
-launch_ubuntu_1_lxc_container() { 
-    
-    local default_name="ub01"
-    # local container_name=${1:-$default_name}
-    local image="ubuntu:24.04"
-    local root_password="P@ssw0rd"
+  local default_name="ub01"
+  # local container_name=${1:-$default_name}
+  local image="ubuntu:24.04"
+  local root_password="P@ssw0rd"
 
-    # @@@@@@@@@ THIS USES RSA NOT ED25519 for NOW, MAYBE UBUNTU 28.04 REQUIRES IT FOR LXC STUFFFFFFFFFFFFFF
-    # @@@@@@@@@ THIS USES RSA NOT ED25519 for NOW, MAYBE UBUNTU 28.04 REQUIRES IT FOR LXC STUFFFFFFFFFFFFFF
-    # @@@@@@@@@ THIS USES RSA NOT ED25519 for NOW, MAYBE UBUNTU 28.04 REQUIRES IT FOR LXC STUFFFFFFFFFFFFFF
-    local public_key=$(cat ~/.ssh/id_rsa.pub) 
+  # @@@@@@@@@ THIS USES RSA NOT ED25519 for NOW, MAYBE UBUNTU 28.04 REQUIRES IT FOR LXC STUFFFFFFFFFFFFFF
+  # @@@@@@@@@ THIS USES RSA NOT ED25519 for NOW, MAYBE UBUNTU 28.04 REQUIRES IT FOR LXC STUFFFFFFFFFFFFFF
+  # @@@@@@@@@ THIS USES RSA NOT ED25519 for NOW, MAYBE UBUNTU 28.04 REQUIRES IT FOR LXC STUFFFFFFFFFFFFFF
+  local public_key=$(cat ~/.ssh/id_rsa.pub)
 
-    # read -p "Enter a name for the $image container (default: $default_name): " container_name
-    # container_name=${container_name:-$default_name}
+  # read -p "Enter a name for the $image container (default: $default_name): " container_name
+  # container_name=${container_name:-$default_name}
 
-    if [ -z "$1" ]; then
-        read -p "Enter a name for the $image container (default: $default_name): " container_name
-        container_name=${container_name:-$default_name}
+  if [ -z "$1" ]; then
+    read -p "Enter a name for the $image container (default: $default_name): " container_name
+    container_name=${container_name:-$default_name}
+  else
+    container_name=$1
+  fi
+
+  lxc delete $container_name --force 2>/dev/null 1>/dev/null
+  sed -i "s/.*$container_name.*//" /etc/hosts
+
+  echo "Cleaning any ub01/ub02/ub03 and $container_name from /etc/hosts"
+  sed -i 's/.*ub0[123].*//' /etc/hosts
+  sed -i "s/.*$container_name.*//" /etc/hosts
+  chmod 777 /etc/hosts
+
+  echo "@@ Launching Ubuntu container named $container_name @@"
+
+  # SAFE WAY IS:
+  # lxc launch $image $container_name # Safe normal way!
+
+  # UNSAFE WAY IS:
+  lxc launch $image $container_name -c security.nesting=true -c security.privileged=true # UNSAFE WAY!
+  lxc config set $container_name raw.lxc "lxc.apparmor.profile=unconfined"               # UNSAFE WAY!
+  lxc stop $container_name
+  lxc start $container_name
+
+  echo "Setting root password..."
+  lxc exec $container_name -- bash -c "echo root:$root_password | chpasswd"
+
+  echo "Adding SSH key..."
+  lxc exec $container_name -- bash -c "mkdir -p /root/.ssh && chmod 700 /root/.ssh"
+  echo "$public_key" | lxc exec $container_name -- tee -a /root/.ssh/authorized_keys >/dev/null
+  lxc exec $container_name -- bash -c "chmod 600 /root/.ssh/authorized_keys"
+
+  echo "Enabling password and pubkey auth in sshd_config..."
+  lxc exec $container_name -- bash -c "echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config"
+  lxc exec $container_name -- bash -c "echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config ; systemctl restart ssh"
+
+  echo "Ensuring the DNS INSIDE THE CONTAINER is using the HOST (assuming 'lxdbr0' is ON THIS HOST, this is ubuntu2404 specific!!!), so they dig/nslookup each other!"
+  lxd_dns_server=$(ip a | grep -A99 lxdbr0 | grep -v '.*: ' | grep lxdbr0 | sed 's/.*inet //' | sed 's/\/.*//')
+  lxc exec $container_name -- bash -c "sed -i 's/^nameserver/#nameserver/' /etc/resolv.conf; printf '\n#ADDING THE BLDUB HOST AS A DNS SERVER TO THE CONTAINER\nnameserver $lxd_dns_server\n' >> /etc/resolv.conf"
+
+  echo "ADDING IT TO HOST's HOSTS FILE (lol), and ensuring ALL OTHER LXC's are in /etc/hosts... now..."
+  temp_hosts=$(mktemp)
+  cp /etc/hosts $temp_hosts
+
+  echo "Enabling the linux kernel modules for full network / nat / kubernetes capability..."
+  lxc config set $container_name linux.kernel_modules overlay,nf_nat,ip_tables,ip6_tables,netlink_diag,br_netfilter
+
+  echo "SLEEPING for 5... to ENSURE THE CONTAINER IS FULLY UP BEFORE ATTEMPTING TO ADD IP ADDRESS"
+  sleep 5
+  update_hosts() {
+    local hostname=$1
+    local ip=$2
+
+    sed -i "/$hostname/d" $temp_hosts
+    echo "$ip $hostname" >>$temp_hosts
+  }
+
+  echo "Updating /etc/hosts with LXC container IP addresses..."
+  for container in $(lxc list --format csv -c n); do
+    # Get container IP
+    # ip=$(lxc list $container -c 4 --format csv | cut -d' ' -f1)
+    ip=$(lxc list $container -c 4 --format csv | grep -v '(docker' | grep -v '(br-' | cut -d' ' -f1)
+    echo "For container $container, found ip address: $ip"
+    if [ -n "$ip" ]; then
+      update_hosts $container $ip
+      echo "Updated $container with IP $ip"
     else
-        container_name=$1
+      echo "Failed to get IP for $container"
     fi
+  done
 
-    lxc delete $container_name --force 2>/dev/null 1>/dev/null
-    sed -i "s/.*$container_name.*//" /etc/hosts
+  # Replace /etc/hosts with our updated version
+  sudo mv $temp_hosts /etc/hosts
 
-    echo "Cleaning any ub01/ub02/ub03 and $container_name from /etc/hosts"
-    sed -i 's/.*ub0[123].*//' /etc/hosts
-    sed -i "s/.*$container_name.*//" /etc/hosts
-    chmod 777 /etc/hosts
+  # Display the updated entries PRINT IT OUT FOR THEM
+  echo "Updated entries in /etc/hosts:"
+  grep -E "$(lxc list --format csv -c n | tr '\n' '|' | sed 's/|$//')" /etc/hosts
+  chmod 777 /etc/hosts
+  echo "Finished updating /etc/hosts"
 
-    echo "@@ Launching Ubuntu container named $container_name @@"
-    
-    # SAFE WAY IS:
-    # lxc launch $image $container_name # Safe normal way!
-
-    # UNSAFE WAY IS:
-    lxc launch $image $container_name  -c security.nesting=true -c security.privileged=true # UNSAFE WAY! 
-    lxc config set $container_name raw.lxc "lxc.apparmor.profile=unconfined" # UNSAFE WAY! 
-    lxc stop $container_name
-    lxc start $container_name
-
-    echo "Setting root password..."
-    lxc exec $container_name -- bash -c "echo root:$root_password | chpasswd"
-
-    echo "Adding SSH key..."
-    lxc exec $container_name -- bash -c "mkdir -p /root/.ssh && chmod 700 /root/.ssh"
-    echo "$public_key" | lxc exec $container_name -- tee -a /root/.ssh/authorized_keys >/dev/null
-    lxc exec $container_name -- bash -c "chmod 600 /root/.ssh/authorized_keys"
-
-    echo "Enabling password and pubkey auth in sshd_config..."
-    lxc exec $container_name -- bash -c "echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config"
-    lxc exec $container_name -- bash -c "echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config ; systemctl restart ssh"
-
-    echo "Ensuring the DNS INSIDE THE CONTAINER is using the HOST (assuming 'lxdbr0' is ON THIS HOST, this is ubuntu2404 specific!!!), so they dig/nslookup each other!"
-    lxd_dns_server=`ip a | grep -A99 lxdbr0 | grep -v '.*: ' | grep lxdbr0 | sed 's/.*inet //' | sed 's/\/.*//'`
-    lxc exec $container_name -- bash -c "sed -i 's/^nameserver/#nameserver/' /etc/resolv.conf; printf '\n#ADDING THE BLDUB HOST AS A DNS SERVER TO THE CONTAINER\nnameserver $lxd_dns_server\n' >> /etc/resolv.conf"
-
-    echo "ADDING IT TO HOST's HOSTS FILE (lol), and ensuring ALL OTHER LXC's are in /etc/hosts... now..."
-    temp_hosts=$(mktemp)
-    cp /etc/hosts $temp_hosts
-
-    echo "Enabling the linux kernel modules for full network / nat / kubernetes capability..."
-    lxc config set $container_name linux.kernel_modules overlay,nf_nat,ip_tables,ip6_tables,netlink_diag,br_netfilter
-
-
-
-
-
-
-
-
-
-    echo "SLEEPING for 5... to ENSURE THE CONTAINER IS FULLY UP BEFORE ATTEMPTING TO ADD IP ADDRESS"
-    sleep 5
-    update_hosts() {
-        local hostname=$1
-        local ip=$2
-
-        sed -i "/$hostname/d" $temp_hosts
-        echo "$ip $hostname" >>$temp_hosts
-    }
-
-    echo "Updating /etc/hosts with LXC container IP addresses..."
-    for container in $(lxc list --format csv -c n); do
-        # Get container IP
-        # ip=$(lxc list $container -c 4 --format csv | cut -d' ' -f1)
-        ip=$(lxc list $container -c 4 --format csv | grep -v '(docker' | grep -v '(br-' | cut -d' ' -f1)
-        echo "For container $container, found ip address: $ip"
-        if [ -n "$ip" ]; then
-            update_hosts $container $ip
-            echo "Updated $container with IP $ip"
-        else
-            echo "Failed to get IP for $container"
-        fi
-    done
-
-    # Replace /etc/hosts with our updated version
-    sudo mv $temp_hosts /etc/hosts
-
-    # Display the updated entries PRINT IT OUT FOR THEM
-    echo "Updated entries in /etc/hosts:"
-    grep -E "$(lxc list --format csv -c n | tr '\n' '|' | sed 's/|$//')" /etc/hosts
-    chmod 777 /etc/hosts
-    echo "Finished updating /etc/hosts"
-
-    echo "Container $container_name successfully launched and configured"
-    echo "Root password set to: $root_password"
-    echo "SSH key added to container"
-    echo "To enter the container, use: lxc exec $container_name bash"
+  echo "Container $container_name successfully launched and configured"
+  echo "Root password set to: $root_password"
+  echo "SSH key added to container"
+  echo "To enter the container, use: lxc exec $container_name bash"
 } # End of launch_ubuntu_1_lxc_container
 
 # Check args to see of "./bldub.sh l NEWCONTAINERNAME" was provided
 if [ "$1" = "l" ] && [ -n "$2" ]; then
-    echo "Container name $2 was provided, creating a lxd container for it..."
-    launch_ubuntu_1_lxc_container "$2"
-    echo "Finished launching: launch_ubuntu_1_lxc_container"
-    exit
+  echo "Container name $2 was provided, creating a lxd container for it..."
+  launch_ubuntu_1_lxc_container "$2"
+  echo "Finished launching: launch_ubuntu_1_lxc_container"
+  exit
 fi
 # Check args to see the user wanted to MASS DELETE ALL CONTAINERS (like good ol' docker purge...)
 if [ "$1" = "d" ]; then
-    echo "Lxd Delete all was requested... DELETING ALL LXD CONTAINERS!!! Say goodbye to these:"
-    sudo lxc list -c nst4sS
-    read -p "PRESS ENTER TO CONTINUE, OR Ctrl + C to QUIT!!! THIS IS YOUR LAST CHANCE."
-    lxc list -c n --format csv | xargs lxc delete --force
-    echo "Finished REMOVING ALL LXD CONTAINERS!!!!!!!!"
-    exit
+  echo "Lxd Delete all was requested... DELETING ALL LXD CONTAINERS!!! Say goodbye to these:"
+  sudo lxc list -c nst4sS
+  read -p "PRESS ENTER TO CONTINUE, OR Ctrl + C to QUIT!!! THIS IS YOUR LAST CHANCE."
+  lxc list -c n --format csv | xargs lxc delete --force
+  echo "Finished REMOVING ALL LXD CONTAINERS!!!!!!!!"
+  exit
 fi
 
 # ~~MAIN MENU~~
@@ -1781,46 +1635,45 @@ read -p "Enter your choice (1-5): " choice
 
 case $choice in
 1)
-    run_build_development_environment
-    echo "Finished launching: run_build_development_environment"
-    ;;
+  run_build_development_environment
+  echo "Finished launching: run_build_development_environment"
+  ;;
 2)
-    run_build_docker_ub2404_baseline
-    echo "Finished launching: run_build_docker_ub2404_baseline"
-    ;;
-3|d|D)
-    run_launch_1_ubuntu_container
-    echo "Finished launching: run_launch_1_ubuntu_container"
-    ;;
+  run_build_docker_ub2404_baseline
+  echo "Finished launching: run_build_docker_ub2404_baseline"
+  ;;
+3 | d | D)
+  run_launch_1_ubuntu_container
+  echo "Finished launching: run_launch_1_ubuntu_container"
+  ;;
 4)
-    run_launch_3_ubuntu_containers
-    echo "Finished launching: run_launch_3_ubuntu_containers"
-    ;;
+  run_launch_3_ubuntu_containers
+  echo "Finished launching: run_launch_3_ubuntu_containers"
+  ;;
 5)
-    launch_lxd_init
-    echo "Finished launching: launch_lxd_init, and exposing lxd webpage: http://localhost:8443"
-    ;;
-6|l|L)
-    echo "No container name was provided, defaulting to creating with name 'ub01'..."
-    launch_ubuntu_1_lxc_container
-    echo "Finished launching: launch_ubuntu_1_lxc_container"
-    ;;
-7|r|R)
-    echo "Deleting ALL LXC Containers!!!"
-    lxc list
-    read -p "PRESS ENTER TO DELETE THEM OR CTRL C TO EXIST" ;
-    lxc list -c n --format csv | xargs -I {} lxc delete {} --force
-    ;;
+  launch_lxd_init
+  echo "Finished launching: launch_lxd_init, and exposing lxd webpage: http://localhost:8443"
+  ;;
+6 | l | L)
+  echo "No container name was provided, defaulting to creating with name 'ub01'..."
+  launch_ubuntu_1_lxc_container
+  echo "Finished launching: launch_ubuntu_1_lxc_container"
+  ;;
+7 | r | R)
+  echo "Deleting ALL LXC Containers!!!"
+  lxc list
+  read -p "PRESS ENTER TO DELETE THEM OR CTRL C TO EXIST"
+  lxc list -c n --format csv | xargs -I {} lxc delete {} --force
+  ;;
 8)
-    echo "Exiting..."
-    exit 0
-    ;;
+  echo "Exiting..."
+  exit 0
+  ;;
 *)
-    echo "Invalid option. Please try again. Exiting"
-    exit 1
-    ;;
+  echo "Invalid option. Please try again. Exiting"
+  exit 1
+  ;;
 esac
-
 
 # Workaround I put at the end, so that nvim creates a lazyvim.json, then I can add telescope/rust in it.
 # nvim test.rs # dummy filename to ensure any downloads are needed? (Do this once at the end of the bldub)
