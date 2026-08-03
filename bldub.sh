@@ -74,6 +74,7 @@ run_build_development_environment() {
   dnf install -y curl
   curl -f https://zed.dev/install.sh | sh
   fish_add_path -U $HOME/.local/bin
+  printf "export ZED_ALLOW_EMULATED_GPU=1;\n" >> /etc/bash.bashrc
   mkdir -p $HOME/.config/zed/
   touch $HOME/.config/zed/settings.json
   echo '
