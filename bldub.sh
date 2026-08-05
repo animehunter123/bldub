@@ -517,12 +517,14 @@ EOF
   printf 'alias gl "git log"\n' >>/etc/fish/config.fish
   printf 'alias gd "git diff"\n' >>/etc/fish/config.fish
   printf 'alias gb "git branch -a"\n' >>/etc/fish/config.fish
+  printf 'alias r "cargo run"\n' >>/etc/fish/config.fish
 
   printf '\n# My cargo and git aliases... \nalias r="cargo run"\n' >>/etc/bash.bashrc
   printf 'alias gs="git status"\n' >>/etc/bash.bashrc
   printf 'alias gl="git log"\n' >>/etc/bash.bashrc
   printf 'alias gd="git diff"\n' >>/etc/bash.bashrc
   printf 'alias gb="git branch -a"\n' >>/etc/bash.bashrc
+  printf 'alias gb="cargo run"\n' >>/etc/bash.bashrc
 
   # Cool ansi colors trick to see readme.md
   cat >>/etc/bash.bashrc <<'EOF'
