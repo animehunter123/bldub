@@ -153,7 +153,7 @@ run_build_development_environment() {
     nmap open-vm-tools open-vm-tools-desktop openssh-server partitionmanager pssh python-is-python3 python3-pip python3-venv qdirstat kate
     remmina rsync sed ssh sshfs sudo tcpdump telnet terminator timeshift tshark tcpdump usb-creator-gtk
     wget whois wireshark xclip xz-utils rofi locate docker-compose chromium-browser htop btop fish lxc lxc-templates lxcfs cmake
-    guake
+    guake xclip
   )
 
   # Iterate through the list and install each package (Future proofing this script in case pknames chnge)
@@ -518,13 +518,15 @@ EOF
   printf 'alias gd "git diff"\n' >>/etc/fish/config.fish
   printf 'alias gb "git branch -a"\n' >>/etc/fish/config.fish
   printf 'alias r "cargo run"\n' >>/etc/fish/config.fish
+  printf 'alias xclip "xclip -selection clipboard"\n' >>/etc/fish/config.fish
 
   printf '\n# My cargo and git aliases... \nalias r="cargo run"\n' >>/etc/bash.bashrc
   printf 'alias gs="git status"\n' >>/etc/bash.bashrc
   printf 'alias gl="git log"\n' >>/etc/bash.bashrc
   printf 'alias gd="git diff"\n' >>/etc/bash.bashrc
   printf 'alias gb="git branch -a"\n' >>/etc/bash.bashrc
-  printf 'alias gb="cargo run"\n' >>/etc/bash.bashrc
+  printf 'alias r="cargo run"\n' >>/etc/bash.bashrc
+  printf 'alias xclip="xclip -selection clipboard"\n' >>/etc/bash.bashrc
 
   # Cool ansi colors trick to see readme.md
   cat >>/etc/bash.bashrc <<'EOF'
