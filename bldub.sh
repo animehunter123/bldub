@@ -74,7 +74,7 @@ run_build_development_environment() {
   dnf install -y curl
   curl -f https://zed.dev/install.sh | sh
   fish_add_path -U $HOME/.local/bin
-  printf "export ZED_ALLOW_EMULATED_GPU=1;\n" >> /etc/bash.bashrc
+  printf "export ZED_ALLOW_EMULATED_GPU=1;\n" >>/etc/bash.bashrc
   mkdir -p $HOME/.config/zed/
   touch $HOME/.config/zed/settings.json
   echo '
@@ -610,7 +610,7 @@ NOTE:
 
   echo "@@ Installing Cargo Crates (justfile, eza)..."
   # for i in `echo just bacon cargo-edit cargo-tree cargo-audit cargo-machete cargo-update cargo-make cargo-geiger ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall` ;
-  for i in $(echo just bacon ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall trunk); do
+  for i in $(echo just bacon ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall cargo-cache trunk); do
     echo installing cargo crate $i...
     cargo install $i 2>/dev/null
   done
