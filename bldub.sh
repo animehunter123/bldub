@@ -608,7 +608,7 @@ NOTE:
   rustup update # To Update Rustup Compiler to latest version
   rustup component add rust-analyzer rustfmt clippy rust-src
 
-  echo "@@ Installing Cargo Crates (justfile, eza)..."
+  echo "@@ Installing Cargo Crates (justfile, eza, cargo-cache -a will CLEAN UP A GIG OF CACHE)..."
   # for i in `echo just bacon cargo-edit cargo-tree cargo-audit cargo-machete cargo-update cargo-make cargo-geiger ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall` ;
   for i in $(echo just bacon ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall cargo-cache trunk); do
     echo installing cargo crate $i...
