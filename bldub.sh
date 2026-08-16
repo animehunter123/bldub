@@ -621,6 +621,7 @@ NOTE:
   timestamp=$(date +"%Y%m%d%H%M%S")
   rm -f nvim.appimage
   curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
+  curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-arm64.appimage
   chmod 777 nvim-linux-x86_64.appimage
   OLDNVIM=$(which nvim)
   sudo mv "$OLDNVIM" "$OLDNVIM"_"$timestamp" 2>/dev/null
