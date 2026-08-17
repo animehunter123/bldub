@@ -265,6 +265,10 @@ run_build_development_environment() {
   virsh net-autostart default
   dnf install -y cockpit-machines
 
+  # I DECIDED I WANT DIOXUS CLI...
+  echo "INSTALLING dioxus / dx cli..."
+  curl -sSL https://dioxus.dev/install.sh | bash
+
   # NOW THAT FNM/NPX/NODEJS AND METEOR FINISHED INSTALLING, ITS SAFE TO INSTALL FISH!!
   apt install -y fish
 
@@ -1118,6 +1122,9 @@ docker tag eeb1301ee626 ub2404  (to tag it)
   # I DECIDED TO LEAVE THIS SO THAT I CAN DEBUG THE BASELINE LATER
   echo "Removing the original template... baselineUbContainer"
   docker rm -f baselineUbContainer
+
+echo "FIXING NGINX TO MAKE SURE IT DOESNT START AND ANNOYINGLY USE PORT 80!!!"
+systemctl disable --now nginx 
 
   echo "FIXING DOCKER SO THAT IT DIDNT BREAK LXC!!!!!!!!!!!!!!!!"
   # Add rules to iptables (ubuntu) to accept forwarding traffic for our containers subnet to the internet. Cloud servers and Ubuntu do not save iptables rules by default on reboot.
