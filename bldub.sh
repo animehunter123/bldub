@@ -265,6 +265,10 @@ run_build_development_environment() {
   virsh net-autostart default
   dnf install -y cockpit-machines
 
+  # UBUNTU 2604 TAKES TO LONG TO GET TO LOGIN SCREEN, DISABLED THIS HORRID BEHAVIOUR.
+  sudo systemctl disable systemd-networkd-wait-online.service
+  sudo systemctl mask systemd-networkd-wait-online.service
+
   # I DECIDED I WANT DIOXUS CLI...
   echo "INSTALLING dioxus / dx cli..."
   curl -sSL https://dioxus.dev/install.sh | bash
