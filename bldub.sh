@@ -397,6 +397,7 @@ EOF
   fi
 
   # Setup SSHD PERFECTLY
+  sed -i 's/^Include \(.*\)/#Include \1   ### DISABLED BY BLDU/'  /etc/ssh/sshd_config
   cat <<EOF >>/etc/ssh/sshd_config
 # @@ baselineUbContainer DOCKER SPECIFIC SECTION @@
 PasswordAuthentication yes
