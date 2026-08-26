@@ -168,6 +168,9 @@ run_build_development_environment() {
   git config --global user.email "you@example.com"
   git config --global user.name "Your Name"
 
+  # Enable Fedora Dev Tools (Forcefully and dangerously!!!)
+  dnf groupinstall "Development Tools" -y --allowerasing  
+
   # THIS SECTION IS FOR ENABLING MODPROBE DUMMY mode so that kubespray will properly install kubernetes on LXD CONTAINERS!!!!!!!!!!!!
   echo "For Kubernetes k8s with kubespray'ing the innards of lxds, its important to sudo modprobe dummy... enabling this permanently..."
   sudo modprobe dummy
