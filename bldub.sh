@@ -272,10 +272,6 @@ run_build_development_environment() {
   sudo systemctl disable systemd-networkd-wait-online.service
   sudo systemctl mask systemd-networkd-wait-online.service
 
-  # I DECIDED I WANT DIOXUS CLI...
-  echo "INSTALLING dioxus / dx cli..."
-  curl -sSL https://dioxus.dev/install.sh | bash
-
   # NOW THAT FNM/NPX/NODEJS AND METEOR FINISHED INSTALLING, ITS SAFE TO INSTALL FISH!!
   apt install -y fish
 
@@ -597,6 +593,10 @@ NOTE:
     apt install -y $package
     dnf install -y $package
   done
+
+  # I DECIDED I WANT DIOXUS CLI...
+  echo "INSTALLING dioxus / dx cli..."
+  curl -sSL https://dioxus.dev/install.sh | bash
 
   # @@ Install fzf isnt in the repo (i.e. rocky96)...
   git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
