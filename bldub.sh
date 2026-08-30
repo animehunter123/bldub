@@ -169,7 +169,7 @@ run_build_development_environment() {
   git config --global user.name "Your Name"
 
   # Enable Fedora Dev Tools (Forcefully and dangerously!!!)
-  dnf groupinstall "Development Tools" -y --allowerasing  
+  dnf groupinstall "Development Tools" -y --allowerasing
 
   # THIS SECTION IS FOR ENABLING MODPROBE DUMMY mode so that kubespray will properly install kubernetes on LXD CONTAINERS!!!!!!!!!!!!
   echo "For Kubernetes k8s with kubespray'ing the innards of lxds, its important to sudo modprobe dummy... enabling this permanently..."
@@ -205,6 +205,9 @@ run_build_development_environment() {
   echo "Loading dummy module now"
   modprobe dummy
   echo "OK DONE, remember after a reboot to check if dummy module is loaded, via: lsmod|grep -i dummy  "
+
+  # Disable the Ub2604 oomd memory killer b/c it stops rust compiles on VMs...
+  sudo systemctl disable --now systemd-oomd
 
   # THE LATEST NODE, New cool way I found... (I think... this will work with.... Fedora/RHEL/ROCKY too?)
   curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
@@ -400,7 +403,7 @@ EOF
   fi
 
   # Setup SSHD PERFECTLY
-  sed -i 's/^Include \(.*\)/#Include \1   ### DISABLED BY BLDU/'  /etc/ssh/sshd_config
+  sed -i 's/^Include \(.*\)/#Include \1   ### DISABLED BY BLDU/' /etc/ssh/sshd_config
   cat <<EOF >>/etc/ssh/sshd_config
 # @@ baselineUbContainer DOCKER SPECIFIC SECTION @@
 PasswordAuthentication yes
@@ -1131,8 +1134,8 @@ docker tag eeb1301ee626 ub2404  (to tag it)
   echo "Removing the original template... baselineUbContainer"
   docker rm -f baselineUbContainer
 
-echo "FIXING NGINX TO MAKE SURE IT DOESNT START AND ANNOYINGLY USE PORT 80!!!"
-systemctl disable --now nginx 
+  echo "FIXING NGINX TO MAKE SURE IT DOESNT START AND ANNOYINGLY USE PORT 80!!!"
+  systemctl disable --now nginx
 
   echo "FIXING DOCKER SO THAT IT DIDNT BREAK LXC!!!!!!!!!!!!!!!!"
   # Add rules to iptables (ubuntu) to accept forwarding traffic for our containers subnet to the internet. Cloud servers and Ubuntu do not save iptables rules by default on reboot.
