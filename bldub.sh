@@ -206,9 +206,16 @@ run_build_development_environment() {
   modprobe dummy
   echo "OK DONE, remember after a reboot to check if dummy module is loaded, via: lsmod|grep -i dummy  "
 
+  # @@@@@@ OOM KILLER STUFF I DISABLED SOME STUFF BUT IT HELPED BUT BLACKBLUESCREENED A TEST ONCE
   # Disable the Ub2604 oomd memory killer b/c it stops rust compiles on VMs...
   sudo systemctl disable --now systemd-oomd
   sudo systemctl mask systemd-oomd
+  # Set Strict Overcommit AND allow 100% RAM allocation
+  #  sudo sysctl -w vm.overcommit_memory=2
+  # sudo sysctl -w vm.overcommit_ratio=100
+  # Make the changes persistent across reboots
+  #echo "vm.overcommit_memory=2" | sudo tee -a /etc/sysctl.conf
+  #echo "vm.overcommit_ratio=100" | sudo tee -a /etc/sysctl.conf
 
   # THE LATEST NODE, New cool way I found... (I think... this will work with.... Fedora/RHEL/ROCKY too?)
   curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
