@@ -208,6 +208,7 @@ run_build_development_environment() {
 
   # Disable the Ub2604 oomd memory killer b/c it stops rust compiles on VMs...
   sudo systemctl disable --now systemd-oomd
+  sudo systemctl mask systemd-oomd
 
   # THE LATEST NODE, New cool way I found... (I think... this will work with.... Fedora/RHEL/ROCKY too?)
   curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
