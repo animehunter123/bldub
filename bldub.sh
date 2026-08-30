@@ -598,10 +598,6 @@ NOTE:
     dnf install -y $package
   done
 
-  # I DECIDED I WANT DIOXUS CLI...
-  echo "INSTALLING dioxus / dx cli..."
-  curl -sSL https://dioxus.dev/install.sh | bash
-
   # @@ Install fzf isnt in the repo (i.e. rocky96)...
   git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
   ~/.fzf/install
@@ -623,6 +619,12 @@ NOTE:
   echo "@@ Updating Rustup to latest, adding components..."
   rustup update # To Update Rustup Compiler to latest version
   rustup component add rust-analyzer rustfmt clippy rust-src
+
+  echo "@@ Installing the DIOXUS CLI..."
+  echo "INSTALLING dioxus / dx cli..."
+  curl -sSL https://dioxus.dev/install.sh | bash
+  rustup toolchain install stable
+  rustup target add wasm32-unknown-unknown
 
   echo "@@ Installing Cargo Crates (justfile, eza, cargo-cache -a will CLEAN UP A GIG OF CACHE)..."
   # for i in `echo just bacon cargo-edit cargo-tree cargo-audit cargo-machete cargo-update cargo-make cargo-geiger ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall` ;
