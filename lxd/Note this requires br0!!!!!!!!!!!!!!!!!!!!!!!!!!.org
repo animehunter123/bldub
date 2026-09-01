@@ -1,0 +1,28 @@
+* Bridge Networking
+
+To uses bridged networking with qemu/kvm VMs we need to create a bridge and use the bridge for communication. we will also put eno1 (the main wired interface on the bridge too).
+Easiest is to use networkmanager and do everything via command line
+
+** Create the bridge interface. This example will name it br0
+
+#+begin_example bash
+sudo nmcli connection add type bridge con-name br0 ifname br0
+#+end_example
+
+** Assign the physical interface (eno1) to the bridge
+
+#+begin_example bash
+sudo nmcli connection add type bridge-slave con-name br0-slave ifname eno1 master br0
+#+end_example
+
+** Turn off your original standalone configuration for eno1 (replace eno1-profile-name with your actual connection name, which you can find by running nmcli con show):
+
+#+begin_example bash
+sudo nmcli connection down "Wired connection 1"
+#+end_example
+
+** Bring up the bridge
+
+#+begin_example bash
+sudo nmcli connection up br0
+#+end_example
