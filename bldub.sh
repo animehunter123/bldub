@@ -631,7 +631,9 @@ NOTE:
   echo "INSTALLING dioxus / dx cli..."
   curl -sSL https://dioxus.dev/install.sh | bash
   rustup toolchain install stable
-  rustup target add wasm32-unknown-unknown
+  rustup target add wasm32-unknown-unknown  
+  # Added these libraries to allow building dioxus gui apps (This worked to make a dx via WSL YEAHHH!!!)
+  apt install -y libgtk-3-dev libsoup2.4-dev build-essential pkg-config libwebkit2gtk-4.1-dev libxdo-dev
 
   echo "@@ Installing Cargo Crates (justfile, eza, cargo-cache -a will CLEAN UP A GIG OF CACHE)..."
   # for i in `echo just bacon cargo-edit cargo-tree cargo-audit cargo-machete cargo-update cargo-make cargo-geiger ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall` ;
