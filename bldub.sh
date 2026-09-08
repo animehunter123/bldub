@@ -1059,7 +1059,7 @@ packages=(
   openssh-client-ssh1 openssh-client openssh-server procps python3-pip 
   p7zip p7zip-full p7zip-rar python3-virtualenv samba smbclient tcpdump 
   ufw vim wget unzip git ssh whois iotop nethogs python-is-python3 sudo 
-  pandoc ghostty
+  pandoc ghostty clang
 )
 
 for package in "${packages[@]}"; do
