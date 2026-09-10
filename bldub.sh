@@ -1529,7 +1529,7 @@ run_launch_1_ubuntu_container() {
 launch_lxd_init() {
 #  echo "Disabling FIREWALL DANGEROUSLY!!!!!!!!!!!!!!!!!!!!"
 #  ufw disable
-  echo "PURGING AND REINSTALLING LXD SERVICE!!!"
+  echo "PURGING EVERYTHING+CONTAINERS AND REINSTALLING LXD SERVICE!!!"
   snap remove lxd --purge
   snap install lxd  
   echo "Cleaning /etc/hosts from any ub01/ub02/ub03 ..."
