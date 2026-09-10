@@ -1540,6 +1540,31 @@ launch_lxd_init() {
   lxd init --minimal
   echo "Exposing Lxd WebUI webpage, and starting it up as http://localhost:8443/ "
   lxc config set core.https_address :8443
+  echo "Here is your current lxd profile show default -- configuration:"
+  lxc profile show default
+echo "
+First make sure you have a br0, and ping -I br0 google.com is actually working. Its gonna be sumtin' like dis yo:
+sudo nmcli connection add type bridge con-name br0 ifname br0
+sudo nmcli connection add type bridge-slave con-name br0-slave ifname eno1 master br0
+#... set the static ip adress on br0 and remove from eth0 or eno1, Then
+sudo nmcli connection down "Wired connection 1"
+sudo nmcli connection up br0
+
+IF YOU ALREADY HAVE a br0 ready... THEN..
+
+YOU NEED TO CHANGE THE LXD TO USE br0. SO CHANGE IT FROM...
+  eth0:
+    name: eth0
+    network: lxdbr0
+    type: nic
+TO...
+  eth0:
+    name: eth0
+    nictype: bridged # <---- ADD THIS
+    parent: br0      # <---- ADD THIS
+    type: nic"
+  read -p "Press enter when you are ready to edit it!!!"         
+  lxc profile edit default  
   echo "Remember that UFW HAS TO BE OFF -- TO HAVE YOUR CONTAINERS GET IP ADDRESSES FROM DHCP OUTBOUND!!!"
 } # END OF launch_lxd_init
 
