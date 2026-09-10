@@ -1527,6 +1527,11 @@ run_launch_1_ubuntu_container() {
 } # END OF run_launch_1_ubuntu_container
 
 launch_lxd_init() {
+#  echo "Disabling FIREWALL DANGEROUSLY!!!!!!!!!!!!!!!!!!!!"
+#  ufw disable
+  echo "PURGING AND REINSTALLING LXD SERVICE!!!"
+  snap remove lxd --purge
+  snap install lxd  
   echo "Cleaning /etc/hosts from any ub01/ub02/ub03 ..."
   sed -i 's/.*ub0[123].*//' /etc/hosts
   sed -i "s/.*$container_name.*//" /etc/hosts
@@ -1535,6 +1540,7 @@ launch_lxd_init() {
   lxd init --minimal
   echo "Exposing Lxd WebUI webpage, and starting it up as http://localhost:8443/ "
   lxc config set core.https_address :8443
+  echo "Remember that UFW HAS TO BE OFF -- TO HAVE YOUR CONTAINERS GET IP ADDRESSES FROM DHCP OUTBOUND!!!"
 } # END OF launch_lxd_init
 
 launch_ubuntu_1_lxc_container() {
@@ -1663,7 +1669,7 @@ echo "[1]. Build Host OS with DockerCE/Ansible/Lxd/Libvirt"
 echo "[2]. Docker: Build ub2404 fresh container from internet (and fix lxdbr0 for lxc!!!)"
 echo "[3]--[d] Docker: CREATE 1 freshubXX (docker container, sshkeygen'ed, root/P@)"
 echo "[4]. Docker: CREATE 3 fresh ub0123  (docker container, sshkeygen'ed, root/P@)"
-echo "[5]. Lxd: Install 'lxd init --minimal', and Lxd WebUI: http://localhost:8443"
+echo "[5]. Lxd: Purge(Everything) & Reinstall, Initialize: 'lxd init --minimal', and Lxd WebUI: http://localhost:8443"
 echo "[6]--[l] Lxc: CREATE 1 fresh ubXX   (lxc **UNSAFE ROOTED** container, sshkeygen'ed, root/P@), use sudo -i... then everything is GOOD, plus the .ssh is ONLY FOR ROOT and autoignore warningified!!! /// ALSO YOU CAN DIRECTLY CREATE A LXC via cli ==>  @@ ./bldub.sh l myUb01 @@  "
 echo "[7]--[r] Lxc: REMOVE ALL LXC CONTAINERS"
 echo "8. EXIT SCRIPT! Try deploying admindash/copypasta/remoteshell-api!"
