@@ -6,7 +6,7 @@
 # !!!!!!!!! WAIT:
 # TODO: STILL REQUIRES RUNNING VIA CLI TO BYPASS THE GUI PROMPTS FOR SDDM and KDUMP!!!!!!!!!!!!
 
-CONTAINERNAME='ubuntu2604rdp01'
+CONTAINERNAME='ub2604rdp01'
 read -p "Press enter to continue to create $CONTAINERNAME which is connected to a [br0] WHICH YOU ALREADY HAVE UP RIGHT? (Ctrl+C to Cancel)"
 
 echo "Rebuilding a fresh Ubuntu2604 container..."
