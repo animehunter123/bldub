@@ -1543,13 +1543,15 @@ launch_lxd_init() {
   echo "Here is your current lxd profile show default -- configuration:"
   lxc profile show default
 echo "
+(1) FIRST... [SETUP br0]
 First make sure you have a br0, and ping -I br0 google.com is actually working. Its gonna be sumtin' like dis yo:
 sudo nmcli connection add type bridge con-name br0 ifname br0
 sudo nmcli connection add type bridge-slave con-name br0-slave ifname eno1 master br0
-#... set the static ip adress on br0 and remove from eth0 or eno1, Then
-sudo nmcli connection down "Wired connection 1"
+#... set the static ip adress on br0 and remove from eth0 or eno1!!! Then...
+sudo nmcli connection down WiredConnection1
 sudo nmcli connection up br0
 
+(2) SECOND... [SET DEFAULT TO br0]
 IF YOU ALREADY HAVE a br0 ready... THEN..
 
 YOU NEED TO CHANGE THE LXD TO USE br0. SO CHANGE IT FROM...
@@ -1560,7 +1562,8 @@ YOU NEED TO CHANGE THE LXD TO USE br0. SO CHANGE IT FROM...
 TO...
   eth0:
     name: eth0
-    nictype: bridged # <---- ADD THIS
+    network: lxdbr0  # <---- DELETE THIS LINE
+    nictype: bridged # <---- ADD THIS 
     parent: br0      # <---- ADD THIS
     type: nic"
   read -p "Press enter when you are ready to edit it!!!"         
