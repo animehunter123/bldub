@@ -560,6 +560,88 @@ function lessmd
 end
 EOF
 
+
+
+echo "@@ INSTALLING GHOSTTY WITH MY CONFIGSSSSSSSSSSSSSsssssssssssss..."
+apt install -y ghostty
+mkdir -p ~/.config/ghostty/
+echo "
+# MY GHOSTTY CONFIG FILE
+# WORKED FOR GHOSTTY (on MACOS + WSL2/Ub2604!)
+# On Linux save to your Ghostty config (~/.config/ghostty/config.ghostty)
+# SCROLLBAR ON Ub2604 RUN: gsettings set org.gnome.desktop.interface overlay-scrolling false
+
+
+#Mikes Favorite Font
+#font-family = Droid Sans Mono
+#MY Favorite Font!!! Supports the != instead of weird glyph version.
+font-family = Hack Nerd Font Mono
+font-size = 18
+
+# Make the icon a block (All 3 of these lines are necessary)!
+shell-integration-features = no-title,no-cursor
+cursor-style-blink = false
+cursor-style = block
+
+# Make it so that I can toggle ghostty
+# TODO: It works but not full screen to move the mac bar, iterm seems to do it.
+#keybind = global:cmd+;=toggle_quick_terminal
+keybind = global:cmd+:=toggle_quick_terminal
+quick-terminal-position = top
+quick-terminal-size = 100%
+background-opacity = 0.98
+window-padding-x = 6
+window-padding-y = 6
+
+# Idk what this is
+#macos-titlebar-style = hidden
+
+
+# Make it match terminator ctrl+shift+o / ctrl+shift+e
+keybind = ctrl+shift+o=new_split:down
+keybind = ctrl+shift+e=new_split:right
+
+# make alt up / alt down / alt left / alt right in ghostty be like terminator to move to top pane or right pane etc
+keybind = alt+up=goto_split:top
+keybind = alt+down=goto_split:bottom
+keybind = alt+left=goto_split:left
+keybind = alt+right=goto_split:right
+
+# ghostty always show right side scrollbar WORKS ON LINUX VIA:
+scrollbar = system
+
+# start ghostty always maximized
+maximize = true
+
+# make sure the annoying popup of 340x708 doesnt show up on WSL when you cat a main.rs
+resize-overlay = never
+" > ~/.config/ghostty/config.ghostty
+for i in `ls /home/` ; do mkdir -p /home/$i/.config/ghostty 2>/dev/null; cp -r  ~/.config/ghostty/ /home/$i/ ; chown -R $i:$i /home/$i/.config/ghostty ; done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   ################################################################################
   ################################################################################
   ################################################################################
