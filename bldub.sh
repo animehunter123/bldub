@@ -721,10 +721,16 @@ NOTE:
 
   echo "@@ Installing Cargo Crates (justfile, eza, cargo-cache -a will CLEAN UP A GIG OF CACHE)..."
   # for i in `echo just bacon cargo-edit cargo-tree cargo-audit cargo-machete cargo-update cargo-make cargo-geiger ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall` ;
-  for i in $(echo just bacon ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall cargo-cache trunk); do
-    echo installing cargo crate $i...
-    cargo install $i 2>/dev/null
+  # for i in $(echo just bacon ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-binstall cargo-cache trunk); do
+  #   echo installing cargo crate $i...
+  #   cargo install $i 2>/dev/null
+  # done
+  cargo install cargo-binstall
+  for i in just bacon ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-cache trunk; do
+      echo "Installing $i..."
+      cargo binstall -y "$i"
   done
+
 
   echo -e "\e[32mRUST INSTALL COMPLETE!!! NOW... Installing Neovim (LazyVim base)...\e[0m"
   echo -e "\e[32mRUST INSTALL COMPLETE!!! NOW... Installing Neovim (LazyVim base)...\e[0m"
