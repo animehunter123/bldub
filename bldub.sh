@@ -67,6 +67,7 @@ run_build_development_environment() {
   sudo DEBIAN_FRONTEND=noninteractive apt install -y iperf3
 
   echo "SNAP: Installing vscode via snap/snapd!!!"
+  sudo ln -s /var/lib/snapd/snap /snap # Workaround to make sure fedora44 also gets vscode
   snap install code --classic
 
   echo "SNAP: Installing zed via curl (and disabling signin, ai, autoupdate, cursorblink,trustworkspaces)!!!"
