@@ -70,6 +70,11 @@ run_build_development_environment() {
   sudo ln -s /var/lib/snapd/snap /snap # Workaround to make sure fedora44 also gets vscode
   snap install code --classic
 
+  echo "Installing Grub Customizer (life saver)..."
+  add-apt-repository -y ppa:trebelnik-stefina/grub-customizer
+  apt update -y 
+  apt install -y grub-customizer  
+
   echo "SNAP: Installing zed via curl (and disabling signin, ai, autoupdate, cursorblink,trustworkspaces)!!!"
   apt install -y curl
   dnf install -y curl
