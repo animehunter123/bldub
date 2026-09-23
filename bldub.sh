@@ -70,8 +70,8 @@ run_build_development_environment() {
   sudo ln -s /var/lib/snapd/snap /snap # Workaround to make sure fedora44 also gets vscode
   snap install code --classic
 
-  echo "Installing Grub Customizer (life saver)..."
-  add-apt-repository -y ppa:trebelnik-stefina/grub-customizer
+  echo "Installing Grub Customizer (life saver)... (NOT WORKING ATRM BUT LEF IT IN HEREEEEEEEEEEEE)"
+  # add-apt-repository -y ppa:trebelnik-stefina/grub-customizer
   apt update -y 
   apt install -y grub-customizer  
 
