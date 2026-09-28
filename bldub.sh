@@ -468,6 +468,9 @@ EOF
   # To fix sudo -i from hanging on the host
   printf '\n # To fix sudo -i from hanging on the host. ;\nDefaults !fqdn\n\n' >>/etc/sudoers
 
+  # open-vm tools for archlinux needs this..
+  systemctl enable --now vmtoolsd.service
+
   # Add VMware Wkstn Host of /mnt/hgfs (since open-vm-tools and open-vm-tools-desktop didnt have it)
   # (crontab -l 2>/dev/null; echo "@reboot sudo vmhgfs-fuse .host:/ /mnt/hgfs/ -o allow_other -o uid=1000") | crontab -
 
