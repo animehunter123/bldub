@@ -469,7 +469,7 @@ EOF
   # To fix sudo -i from hanging on the host
   printf '\n # To fix sudo -i from hanging on the host. ;\nDefaults !fqdn\n\n' >>/etc/sudoers
 
-  # open-vm tools for archlinux needs this..
+  # archlinux needs open-vm tools service running...
   systemctl enable --now vmtoolsd.service
 
   # Add VMware Wkstn Host of /mnt/hgfs (since open-vm-tools and open-vm-tools-desktop didnt have it)
@@ -1640,6 +1640,8 @@ launch_lxd_init() {
   sed -i "s/.*$container_name.*//" /etc/hosts
   chmod 777 /etc/hosts
   echo "Launching: lxd init --minimal ..."
+  # archlinux needs this for lxd later...
+  usermod -v 1000000-1000999999 -w 1000000-1000999999 root
   lxd init --minimal
   echo "Exposing Lxd WebUI webpage, and starting it up as http://localhost:8443/ "
   lxc config set core.https_address :8443
