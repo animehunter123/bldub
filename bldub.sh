@@ -167,7 +167,8 @@ run_build_development_environment() {
     echo "Installing $package..."
     # yes | NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive sudo apt install -y --fix-missing "$package" || echo "Failed to install $package"
     NEEDRESTART_MODE=a sudo apt install -y --fix-missing "$package" || echo "Apt Failed to install $package"
-    yes | NEEDRESTART_MODE=a sudo yum install -y 2>/dev/null || echo "Dnf Failed to install $package"
+    yes | NEEDRESTART_MODE=a sudo yum install -y "$package" 2>/dev/null || echo "Dnf Failed to install $package"
+    yes | pacman -Sy "$package" 2>/dev/null || echo "Archlinux pacman Failed to install $package"
   done
 
   # Enable my git
