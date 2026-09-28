@@ -141,6 +141,7 @@ run_build_development_environment() {
   yes | apt-get update -y --fix-missing
   # yes | DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
   yes | apt-get upgrade -y
+  yes | pacman -Syu --noconfirm # for archlinux version of "apt update AND apt UPGRADE RIGHT NOWWWWWWWWWW!!!!!!!!!!!!!!!!"
 
   # Disable unattended upgrades and prevent automatic updates in Ubuntu 24.04
   sudo systemctl disable --now unattended-upgrades &
@@ -168,7 +169,7 @@ run_build_development_environment() {
     # yes | NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive sudo apt install -y --fix-missing "$package" || echo "Failed to install $package"
     NEEDRESTART_MODE=a sudo apt install -y --fix-missing "$package" || echo "Apt Failed to install $package"
     yes | NEEDRESTART_MODE=a sudo yum install -y "$package" 2>/dev/null || echo "Dnf Failed to install $package"
-    yes | pacman -Sy "$package" 2>/dev/null || echo "Archlinux pacman Failed to install $package"
+    yes | pacman -S --noconfirm --needed "$package" 2>/dev/null || echo "Archlinux pacman Failed to install $package"
   done
 
   # Enable my git
