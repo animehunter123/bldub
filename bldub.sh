@@ -270,6 +270,7 @@ run_build_development_environment() {
   sudo adduser $USER libvirt
   sudo adduser $USER kvm
   sudo apt install -y cockpit-packagekit cockpit-storaged cockpit-networkmanager cockpit-sosreport -y
+  pacman -Syu --noconfirm $(pacman -Ssq '^cockpit') # archlinux equivelant of apt-get install cockpit*
   sudo ufw allow 9090/tcp
   sudo systemctl enable --now cockpit.socket
   for i in $(apt list | grep '^cockpit' | sed 's/\/.*//'); do
