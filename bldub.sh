@@ -1643,8 +1643,8 @@ launch_lxd_init() {
   chmod 777 /etc/hosts
   echo "Launching: lxd init --minimal ..."
   # archlinux needs this for lxd later...
-  usermod -v 1000000-1000999999 -w 1000000-1000999999 root
   lxd init --minimal
+  usermod -v 1000000-1000999999 -w 1000000-1000999999 root
   echo "Exposing Lxd WebUI webpage, and starting it up as http://localhost:8443/ "
   lxc config set core.https_address :8443
   echo "Here is your current lxd profile show default -- configuration:"
