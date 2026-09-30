@@ -70,11 +70,6 @@ run_build_development_environment() {
   sudo ln -s /var/lib/snapd/snap /snap # Workaround to make sure fedora44 also gets vscode
   snap install code --classic
 
-  echo "Installing Grub Customizer (life saver)... (NOT WORKING ATRM BUT LEF IT IN HEREEEEEEEEEEEE)"
-  # add-apt-repository -y ppa:trebelnik-stefina/grub-customizer
-  apt update -y 
-  apt install -y grub-customizer  
-
   echo "SNAP: Installing zed via curl (and disabling signin, ai, autoupdate, cursorblink,trustworkspaces)!!!"
   apt install -y curl
   dnf install -y curl
@@ -141,7 +136,6 @@ run_build_development_environment() {
   yes | apt-get update -y --fix-missing
   # yes | DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
   yes | apt-get upgrade -y
-  yes | pacman -Syu --noconfirm # for archlinux version of "apt update AND apt UPGRADE RIGHT NOWWWWWWWWWW!!!!!!!!!!!!!!!!"
 
   # Disable unattended upgrades and prevent automatic updates in Ubuntu 24.04
   sudo systemctl disable --now unattended-upgrades &
@@ -160,7 +154,7 @@ run_build_development_environment() {
     nmap open-vm-tools open-vm-tools-desktop openssh-server partitionmanager pssh python-is-python3 python3-pip python3-venv qdirstat kate
     remmina rsync sed ssh sshfs sudo tcpdump telnet terminator timeshift tshark tcpdump usb-creator-gtk
     wget whois wireshark xclip xz-utils rofi locate docker-compose chromium-browser htop btop fish lxc lxc-templates lxcfs cmake
-    guake xclip createrepo-c iftop nload gcc open-vm-tools gtkmm3 libxtst mesa
+    guake xclip createrepo-c iftop nload
   )
 
   # Iterate through the list and install each package (Future proofing this script in case pknames chnge)
@@ -168,8 +162,7 @@ run_build_development_environment() {
     echo "Installing $package..."
     # yes | NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive sudo apt install -y --fix-missing "$package" || echo "Failed to install $package"
     NEEDRESTART_MODE=a sudo apt install -y --fix-missing "$package" || echo "Apt Failed to install $package"
-    yes | NEEDRESTART_MODE=a sudo yum install -y "$package" 2>/dev/null || echo "Dnf Failed to install $package"
-    yes | pacman -S --noconfirm --needed "$package" 2>/dev/null || echo "Archlinux pacman Failed to install $package"
+    yes | NEEDRESTART_MODE=a sudo yum install -y 2>/dev/null || echo "Dnf Failed to install $package"
   done
 
   # Enable my git
@@ -271,7 +264,6 @@ run_build_development_environment() {
   sudo adduser $USER libvirt
   sudo adduser $USER kvm
   sudo apt install -y cockpit-packagekit cockpit-storaged cockpit-networkmanager cockpit-sosreport -y
-  pacman -Syu --noconfirm $(pacman -Ssq '^cockpit') # archlinux equivelant of apt-get install cockpit*
   sudo ufw allow 9090/tcp
   sudo systemctl enable --now cockpit.socket
   for i in $(apt list | grep '^cockpit' | sed 's/\/.*//'); do
@@ -471,9 +463,6 @@ EOF
   # To fix sudo -i from hanging on the host
   printf '\n # To fix sudo -i from hanging on the host. ;\nDefaults !fqdn\n\n' >>/etc/sudoers
 
-  # archlinux needs open-vm tools service running...
-  systemctl enable --now vmtoolsd.service
-
   # Add VMware Wkstn Host of /mnt/hgfs (since open-vm-tools and open-vm-tools-desktop didnt have it)
   # (crontab -l 2>/dev/null; echo "@reboot sudo vmhgfs-fuse .host:/ /mnt/hgfs/ -o allow_other -o uid=1000") | crontab -
 
@@ -573,12 +562,10 @@ function lessmd
 end
 EOF
 
-
-
-echo "@@ INSTALLING GHOSTTY WITH MY CONFIGSSSSSSSSSSSSSsssssssssssss..."
-apt install -y ghostty
-mkdir -p ~/.config/ghostty/
-echo "
+  echo "@@ INSTALLING GHOSTTY WITH MY CONFIGSSSSSSSSSSSSSsssssssssssss..."
+  apt install -y ghostty
+  mkdir -p ~/.config/ghostty/
+  echo "
 # MY GHOSTTY CONFIG FILE
 # WORKED FOR GHOSTTY (on MACOS + WSL2/Ub2604!)
 # On Linux save to your Ghostty config (~/.config/ghostty/config.ghostty)
@@ -628,32 +615,12 @@ maximize = true
 
 # make sure the annoying popup of 340x708 doesnt show up on WSL when you cat a main.rs
 resize-overlay = never
-" > ~/.config/ghostty/config.ghostty
-for i in `ls /home/` ; do mkdir -p /home/$i/.config/ghostty 2>/dev/null; cp -r  ~/.config/ghostty/ /home/$i/ ; chown -R $i:$i /home/$i/.config/ghostty ; done
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+" >~/.config/ghostty/config.ghostty
+  for i in $(ls /home/); do
+    mkdir -p /home/$i/.config/ghostty 2>/dev/null
+    cp -r ~/.config/ghostty/ /home/$i/
+    chown -R $i:$i /home/$i/.config/ghostty
+  done
 
   ################################################################################
   ################################################################################
@@ -726,7 +693,7 @@ NOTE:
   echo "INSTALLING dioxus / dx cli..."
   curl -sSL https://dioxus.dev/install.sh | bash
   rustup toolchain install stable
-  rustup target add wasm32-unknown-unknown  
+  rustup target add wasm32-unknown-unknown
   # Added these libraries to allow building dioxus gui apps (This worked to make a dx via WSL YEAHHH!!!)
   apt install -y libgtk-3-dev libsoup2.4-dev build-essential pkg-config libwebkit2gtk-4.1-dev libxdo-dev
 
@@ -742,10 +709,9 @@ NOTE:
   cargo install cargo-binstall
   # Use Github to get the raw binaries and just trust whatever someone else compiled
   for i in just bacon ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-cache trunk; do
-      echo "Installing $i..."
-      cargo binstall -y "$i"
+    echo "Installing $i..."
+    cargo binstall -y "$i"
   done
-
 
   echo -e "\e[32mRUST INSTALL COMPLETE!!! NOW... Installing Neovim (LazyVim base)...\e[0m"
   echo -e "\e[32mRUST INSTALL COMPLETE!!! NOW... Installing Neovim (LazyVim base)...\e[0m"
@@ -1281,7 +1247,7 @@ run_launch_3_ubuntu_containers() {
   # Image name to use
   image_name="ub2404"
   # Hostname prefix
-  hostname_prefix="ub"
+  hostname_prefix="ceph"
 
   # SETUP MYYYYYYY Make a dev_network
   docker network create --subnet=172.16.99.0/24 dev_network 2>/dev/null
@@ -1632,24 +1598,22 @@ run_launch_1_ubuntu_container() {
 } # END OF run_launch_1_ubuntu_container
 
 launch_lxd_init() {
-#  echo "Disabling FIREWALL DANGEROUSLY!!!!!!!!!!!!!!!!!!!!"
-#  ufw disable
+  #  echo "Disabling FIREWALL DANGEROUSLY!!!!!!!!!!!!!!!!!!!!"
+  #  ufw disable
   echo "PURGING EVERYTHING+CONTAINERS AND REINSTALLING LXD SERVICE!!!"
   snap remove lxd --purge
-  snap install lxd  
+  snap install lxd
   echo "Cleaning /etc/hosts from any ub01/ub02/ub03 ..."
   sed -i 's/.*ub0[123].*//' /etc/hosts
   sed -i "s/.*$container_name.*//" /etc/hosts
   chmod 777 /etc/hosts
   echo "Launching: lxd init --minimal ..."
-  # archlinux needs this for lxd later...
   lxd init --minimal
-  usermod -v 1000000-1000999999 -w 1000000-1000999999 root
   echo "Exposing Lxd WebUI webpage, and starting it up as http://localhost:8443/ "
   lxc config set core.https_address :8443
   echo "Here is your current lxd profile show default -- configuration:"
   lxc profile show default
-echo "
+  echo "
 (1) FIRST... [SETUP br0]
 First make sure you have a br0, and ping -I br0 google.com is actually working. Its gonna be sumtin' like dis yo:
 sudo nmcli connection add type bridge con-name br0 ifname br0
@@ -1673,8 +1637,8 @@ TO...
     nictype: bridged # <---- ADD THIS 
     parent: br0      # <---- ADD THIS
     type: nic"
-  read -p "Press enter when you are ready to edit it!!!"         
-  lxc profile edit default  
+  read -p "Press enter when you are ready to edit it!!!"
+  lxc profile edit default
   echo "Remember that UFW HAS TO BE OFF -- TO HAVE YOUR CONTAINERS GET IP ADDRESSES FROM DHCP OUTBOUND!!!"
 } # END OF launch_lxd_init
 
