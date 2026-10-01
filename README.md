@@ -14,7 +14,7 @@ The script **permanently** converts your Linux host as a Docker/LXD server with 
 **WARNING: (THIS SCRIPT IS IRREVERSABLE!), 🌌.** 
 
 * Ensure your host is backed up. Once you launch this script, you can **never undo it.**
-* Ensure it is a *recent* Ubuntu/Fedora release.
+* Ensure it is a *recent* Archlinux/Cachy/Ubuntu/Fedora release.
 * Launch the bash and follow the prompts, including neovim with a :quit to let it initiate.
 ```bash
    bash ./bldub.sh
