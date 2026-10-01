@@ -1694,7 +1694,7 @@ launch_ubuntu_1_lxc_container() {
   # container_name=${container_name:-$default_name}
 
   if [ -z "$1" ]; then
-    read -p "Enter a name for the $image container (default: $default_name): " container_name
+    read -p "BUILDING A LXC+RDP CONTAINER. Note: Arch might not work, so just paste the code INSIDE AFTER A REBOOT. Ok... >>> Enter a name for the $image container (default: $default_name): " container_name
     container_name=${container_name:-$default_name}
   else
     container_name=$1
