@@ -7,6 +7,9 @@
 # TODO: STILL REQUIRES RUNNING VIA CLI TO BYPASS THE GUI PROMPTS FOR SDDM and KDUMP!!!!!!!!!!!!
 
 CONTAINERNAME='ub2604rdp01'
+echo "BUILDING A LXC+RDP CONTAINER. Note: Arch might not work, so just paste the code INSIDE AFTER A REBOOT. 
+Ok... 
+"
 read -p "Press enter to continue to create $CONTAINERNAME which is connected to a [br0] WHICH YOU ALREADY HAVE UP RIGHT? (Ctrl+C to Cancel)"
 
 echo "Rebuilding a fresh Ubuntu2604 container..."
