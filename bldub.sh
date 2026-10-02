@@ -1134,6 +1134,12 @@ EOF
   echo "" >>/etc/fish/config.fish
 
   updatedb &
+
+  echo "FIXING NGINX TO MAKE SURE IT DOESNT START AND ANNOYINGLY USE PORT 80!!!"
+  systemctl disable --now nginx
+
+  echo "Script complete. Build Development Environment is now ready!"
+
 } # END OF run_build_development_environment
 
 run_build_docker_ub2404_baseline() {
@@ -1250,9 +1256,6 @@ docker tag eeb1301ee626 ub2404  (to tag it)
   # I DECIDED TO LEAVE THIS SO THAT I CAN DEBUG THE BASELINE LATER
   echo "Removing the original template... baselineUbContainer"
   docker rm -f baselineUbContainer
-
-  echo "FIXING NGINX TO MAKE SURE IT DOESNT START AND ANNOYINGLY USE PORT 80!!!"
-  systemctl disable --now nginx
 
   echo "FIXING DOCKER SO THAT IT DIDNT BREAK LXC!!!!!!!!!!!!!!!!"
   # Add rules to iptables (ubuntu) to accept forwarding traffic for our containers subnet to the internet. Cloud servers and Ubuntu do not save iptables rules by default on reboot.
