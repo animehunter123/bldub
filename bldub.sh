@@ -741,7 +741,7 @@ NOTE:
 
   cargo install cargo-binstall
   # Use Github to get the raw binaries and just trust whatever someone else compiled
-  for i in just bacon ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-cache trunk; do
+  for i in just bacon ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-cache trunk cargo-edit; do
       echo "Installing $i..."
       cargo binstall -y "$i"
   done
