@@ -150,6 +150,7 @@ run_build_development_environment() {
   sudo echo wireshark-common wireshark-common/install-setuid boolean true | sudo debconf-set-selections
   # sudo DEBIAN_FRONTEND=noninteractive apt-get install --force-confold -y wireshark-common
   sudo apt-get install --force-confold -y wireshark-common
+  yes | pacman -Sy paru
 
   # SILENT INSTALLS: Create the list of packages
   packages=(
@@ -577,6 +578,7 @@ EOF
 
 echo "@@ INSTALLING GHOSTTY WITH MY CONFIGSSSSSSSSSSSSSsssssssssssss..."
 apt install -y ghostty
+yes | paru -Sy ghostty
 mkdir -p ~/.config/ghostty/
 echo "
 # MY GHOSTTY CONFIG FILE
