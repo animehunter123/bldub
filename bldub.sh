@@ -150,11 +150,11 @@ run_build_development_environment() {
   sudo echo wireshark-common wireshark-common/install-setuid boolean true | sudo debconf-set-selections
   # sudo DEBIAN_FRONTEND=noninteractive apt-get install --force-confold -y wireshark-common
   sudo apt-get install --force-confold -y wireshark-common
-  yes | pacman -Sy paru
+  yes | pacman -Sy  --noconfirm paru
 
   # SILENT INSTALLS: Create the list of packages
   packages=(
-    vim vim-gtk3 python3-pip p7zip-full ansible apt-utils arping baobab build-essential byobu bzip2
+    paru vim vim-gtk3 python3-pip p7zip-full ansible apt-utils arping baobab build-essential byobu bzip2
     cifs-utils cmake cockpit curl dos2unix emacs expect ffmpeg findutils firefox ftp g++ gcc git
     glances gparted gzip gpg htop iotop k3b krdc less logrotate lshw lsof make meld
     mlocate mtr mysql-client nano ncdu neofetch net-tools nethogs nfs-common nfs-kernel-server nginx
@@ -171,6 +171,7 @@ run_build_development_environment() {
     NEEDRESTART_MODE=a sudo apt install -y --fix-missing "$package" || echo "Apt Failed to install $package"
     yes | NEEDRESTART_MODE=a sudo yum install -y "$package" 2>/dev/null || echo "Dnf Failed to install $package"
     yes | pacman -S --noconfirm --needed "$package" 2>/dev/null || echo "Archlinux pacman Failed to install $package"
+    yes | paru -S --noconfirm --needed "$package" 2>/dev/null || echo "Archlinux pacman Failed to install $package"
   done
 
   # Enable my git
