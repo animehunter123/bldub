@@ -132,6 +132,9 @@ run_build_development_environment() {
   sudo dnf install -y snapd
   sudo dnf install -y snap
   snap install lxd
+  dnf install -y lxd
+  yes | pacman -S --noconfirm --needed lxd 2>/dev/null || echo "Archlinux pacman Failed to install $package"
+
 
   # export DEBIAN_FRONTEND=noninteractive # I DISABLED THIS TO ENSURE THAT YOU FOLLOW THE PROMPTS!!!!!!!!!!!
   export ACCEPT_EULA=Y
@@ -206,6 +209,8 @@ run_build_development_environment() {
   echo "For Kubernetes k8s with kubespray'ing the innards of lxds, its important to sudo modprobe dummy... enabling this permanently..."
   sudo modprobe dummy
   snap install lxd # Running it again
+  dnf install -y lxd
+  yes | pacman -S --noconfirm --needed lxd 2>/dev/null || echo "Archlinux pacman Failed to install $package"
 
   # Function to add module to modules-load.d
   add_to_modules_load() {
@@ -1674,6 +1679,9 @@ launch_lxd_init() {
   sudo rm -rf /var/lib/lxd
 
   snap install lxd  
+  dnf install -y lxd
+  yes | pacman -S --noconfirm --needed lxd 2>/dev/null || echo "Archlinux pacman Failed to install $package"
+
   echo "Cleaning /etc/hosts from any ub01/ub02/ub03 ..."
   sed -i 's/.*ub0[123].*//' /etc/hosts
   sed -i "s/.*$container_name.*//" /etc/hosts
