@@ -1642,6 +1642,13 @@ launch_lxd_init() {
 #  ufw disable
   echo "PURGING EVERYTHING+CONTAINERS AND REINSTALLING LXD SERVICE!!!"
   snap remove lxd --purge
+
+  # lxd / lxc cachyOS leftover stuff cleanup to keep it idiomatic/persistant state
+  sudo systemctl stop lxd lxd.socket
+  sudo rm -f /var/lib/lxd/unix.socket
+  sudo systemctl start lxd.socket
+  sudo systemctl start lxd
+
   snap install lxd  
   echo "Cleaning /etc/hosts from any ub01/ub02/ub03 ..."
   sed -i 's/.*ub0[123].*//' /etc/hosts
