@@ -118,6 +118,12 @@ run_build_development_environment() {
   umount /mnt/hgfs 2>/dev/null 1>/dev/null
   dpkg --configure -a
 
+  # lxd / lxc cachyOS leftover stuff cleanup to keep it idiomatic/persistant state
+  sudo systemctl stop lxd lxd.socket
+  sudo rm -f /var/lib/lxd/unix.socket
+  sudo systemctl start lxd.socket
+  sudo systemctl start lxd
+
   echo "SNAP: Installing lxd because it just rocks (without running 'lxd init')"
   sudo dnf install -y snapd
   sudo dnf install -y snap
@@ -181,6 +187,13 @@ run_build_development_environment() {
   # Enable Fedora Dev Tools (Forcefully and dangerously!!!)
   dnf groupinstall "Development Tools" -y --allowerasing
   dnf group install "development-tools" # >Fedora44 dnf (v5 method)
+
+  # lxd / lxc cachyOS leftover stuff cleanup to keep it idiomatic/persistant state
+  sudo systemctl stop lxd lxd.socket
+  sudo rm -f /var/lib/lxd/unix.socket
+  sudo systemctl start lxd.socket
+  sudo systemctl start lxd
+
 
   # THIS SECTION IS FOR ENABLING MODPROBE DUMMY mode so that kubespray will properly install kubernetes on LXD CONTAINERS!!!!!!!!!!!!
   echo "For Kubernetes k8s with kubespray'ing the innards of lxds, its important to sudo modprobe dummy... enabling this permanently..."
