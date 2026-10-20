@@ -127,6 +127,8 @@ run_build_development_environment() {
       sudo btrfs subvolume delete "/var/lib/lxd/$subvol"
   done
   sudo rm -rf /var/lib/lxd
+  sudo systemctl start lxd.socket
+  sudo systemctl start lxd
 
   echo "SNAP: Installing lxd because it just rocks (without running 'lxd init')"
   sudo dnf install -y snapd
@@ -204,6 +206,8 @@ run_build_development_environment() {
       sudo btrfs subvolume delete "/var/lib/lxd/$subvol"
   done
   sudo rm -rf /var/lib/lxd
+  sudo systemctl start lxd.socket
+  sudo systemctl start lxd
 
   # THIS SECTION IS FOR ENABLING MODPROBE DUMMY mode so that kubespray will properly install kubernetes on LXD CONTAINERS!!!!!!!!!!!!
   echo "For Kubernetes k8s with kubespray'ing the innards of lxds, its important to sudo modprobe dummy... enabling this permanently..."
@@ -1677,6 +1681,8 @@ launch_lxd_init() {
       sudo btrfs subvolume delete "/var/lib/lxd/$subvol"
   done
   sudo rm -rf /var/lib/lxd
+  sudo systemctl start lxd.socket
+  sudo systemctl start lxd
 
   snap install lxd  
   dnf install -y lxd
