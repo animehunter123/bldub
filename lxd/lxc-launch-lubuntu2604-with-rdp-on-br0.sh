@@ -6,7 +6,7 @@
 # !!!!!!!!! WAIT:
 # TODO: STILL REQUIRES RUNNING VIA CLI TO BYPASS THE GUI PROMPTS FOR SDDM and KDUMP!!!!!!!!!!!!
 
-CONTAINERNAME='ub2604rdp01'
+CONTAINERNAME='rdp01'
 echo "BUILDING A LXC+RDP CONTAINER. Note: Arch might not work, so just paste the code INSIDE AFTER A REBOOT. 
 Ok... 
 "
