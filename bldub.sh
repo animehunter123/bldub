@@ -121,8 +121,8 @@ run_build_development_environment() {
   # lxd / lxc cachyOS leftover stuff cleanup to keep it idiomatic/persistant state
   sudo systemctl stop lxd lxd.socket
   sudo rm -f /var/lib/lxd/unix.socket
-  sudo systemctl start lxd.socket
-  sudo systemctl start lxd
+  sudo btrfs subvolume delete /var/lib/lxd/storage-pools/default --recursive
+  sudo rm -rf /var/lib/lxd/storage-pools/default
 
   echo "SNAP: Installing lxd because it just rocks (without running 'lxd init')"
   sudo dnf install -y snapd
@@ -191,9 +191,8 @@ run_build_development_environment() {
   # lxd / lxc cachyOS leftover stuff cleanup to keep it idiomatic/persistant state
   sudo systemctl stop lxd lxd.socket
   sudo rm -f /var/lib/lxd/unix.socket
-  sudo systemctl start lxd.socket
-  sudo systemctl start lxd
-
+  sudo btrfs subvolume delete /var/lib/lxd/storage-pools/default --recursive
+  sudo rm -rf /var/lib/lxd/storage-pools/default
 
   # THIS SECTION IS FOR ENABLING MODPROBE DUMMY mode so that kubespray will properly install kubernetes on LXD CONTAINERS!!!!!!!!!!!!
   echo "For Kubernetes k8s with kubespray'ing the innards of lxds, its important to sudo modprobe dummy... enabling this permanently..."
@@ -1659,8 +1658,8 @@ launch_lxd_init() {
   # lxd / lxc cachyOS leftover stuff cleanup to keep it idiomatic/persistant state
   sudo systemctl stop lxd lxd.socket
   sudo rm -f /var/lib/lxd/unix.socket
-  sudo systemctl start lxd.socket
-  sudo systemctl start lxd
+  sudo btrfs subvolume delete /var/lib/lxd/storage-pools/default --recursive
+  sudo rm -rf /var/lib/lxd/storage-pools/default
 
   snap install lxd  
   echo "Cleaning /etc/hosts from any ub01/ub02/ub03 ..."
