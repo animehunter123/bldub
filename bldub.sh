@@ -277,6 +277,16 @@ run_build_development_environment() {
     fi
   done
 
+
+
+echo '
+# THIS IS SO THAT VMWARE CAN SEE HYPER GRAPHICS!!! LAME WORKAROUND LMAO!!!
+hl.env("LIBGL_ALWAYS_SOFTWARE", "1")
+
+' >> ~/.config/hypr/hyprland.lua
+
+
+
   # NOW LETS GET MINICONDA IN HERE!!!
   apt install -y wget
   dnf install -y wget
