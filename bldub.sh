@@ -277,15 +277,15 @@ run_build_development_environment() {
     fi
   done
 
-
+# DISABLEDDDDDDDDDDDDDDDDDDDDD IDK
 # The omarchy VMs have a VBLBAKC SCREEN IN VMAWRWRE WROIKRSATQA SO THIS IS A WORKAROUND!!
-mkdir -p ~/.config/hypr
-touch ~/.config/hypr/hyprland.lua
-echo '
--- # THIS IS SO THAT VMWARE CAN SEE HYPER GRAPHICS!!! LAME WORKAROUND LMAO!!!
-hl.env("LIBGL_ALWAYS_SOFTWARE", "1")
-
-' >> ~/.config/hypr/hyprland.lua
+#mkdir -p ~/.config/hypr
+#touch ~/.config/hypr/hyprland.lua
+#echo '
+#-- # THIS IS SO THAT VMWARE CAN SEE HYPER GRAPHICS!!! LAME WORKAROUND LMAO!!!
+#hl.env("LIBGL_ALWAYS_SOFTWARE", "1")
+#
+#' >> ~/.config/hypr/hyprland.lua
 
 
 
