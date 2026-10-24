@@ -278,7 +278,7 @@ run_build_development_environment() {
   done
 
 
-
+# The omarchy VMs have a VBLBAKC SCREEN IN VMAWRWRE WROIKRSATQA SO THIS IS A WORKAROUND!!
 echo '
 # THIS IS SO THAT VMWARE CAN SEE HYPER GRAPHICS!!! LAME WORKAROUND LMAO!!!
 hl.env("LIBGL_ALWAYS_SOFTWARE", "1")
