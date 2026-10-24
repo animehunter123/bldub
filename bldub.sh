@@ -282,7 +282,7 @@ run_build_development_environment() {
 mkdir -p ~/.config/hypr
 touch ~/.config/hypr/hyprland.lua
 echo '
-# THIS IS SO THAT VMWARE CAN SEE HYPER GRAPHICS!!! LAME WORKAROUND LMAO!!!
+-- # THIS IS SO THAT VMWARE CAN SEE HYPER GRAPHICS!!! LAME WORKAROUND LMAO!!!
 hl.env("LIBGL_ALWAYS_SOFTWARE", "1")
 
 ' >> ~/.config/hypr/hyprland.lua
