@@ -169,7 +169,7 @@ run_build_development_environment() {
 
   # SILENT INSTALLS: Create the list of packages
   packages=(
-    paru vim vim-gtk3 python3-pip p7zip-full ansible apt-utils arping baobab build-essential byobu bzip2
+    paru vim vim-gtk3 python3-pip 7zip p7zip-full ansible apt-utils arping baobab build-essential byobu bzip2
     cifs-utils cmake cockpit curl dos2unix emacs expect ffmpeg findutils firefox ftp g++ gcc git
     glances gparted gzip gpg htop iotop k3b krdc less logrotate lshw lsof make meld
     mlocate mtr mysql-client nano ncdu neofetch net-tools nethogs nfs-common nfs-kernel-server nginx
