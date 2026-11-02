@@ -72,8 +72,8 @@ run_build_development_environment() {
 
   echo "Installing Grub Customizer (life saver)... (NOT WORKING ATRM BUT LEF IT IN HEREEEEEEEEEEEE)"
   # add-apt-repository -y ppa:trebelnik-stefina/grub-customizer
-  apt update -y 
-  apt install -y grub-customizer  
+  apt update -y
+  apt install -y grub-customizer
 
   echo "SNAP: Installing zed via curl (and disabling signin, ai, autoupdate, cursorblink,trustworkspaces)!!!"
   apt install -y curl
@@ -124,7 +124,7 @@ run_build_development_environment() {
   sudo btrfs subvolume delete /var/lib/lxd/storage-pools/default --recursive
   sudo systemctl stop lxd lxd.socket
   for subvol in $(sudo btrfs subvolume list -o /var/lib/lxd/ | awk '{print $NF}' | tac); do
-      sudo btrfs subvolume delete "/var/lib/lxd/$subvol"
+    sudo btrfs subvolume delete "/var/lib/lxd/$subvol"
   done
   sudo rm -rf /var/lib/lxd
   sudo systemctl start lxd.socket
@@ -136,7 +136,6 @@ run_build_development_environment() {
   snap install lxd
   dnf install -y lxd
   yes | pacman -S --noconfirm --needed lxd 2>/dev/null || echo "Archlinux pacman Failed to install $package"
-
 
   # export DEBIAN_FRONTEND=noninteractive # I DISABLED THIS TO ENSURE THAT YOU FOLLOW THE PROMPTS!!!!!!!!!!!
   export ACCEPT_EULA=Y
@@ -165,7 +164,7 @@ run_build_development_environment() {
   sudo echo wireshark-common wireshark-common/install-setuid boolean true | sudo debconf-set-selections
   # sudo DEBIAN_FRONTEND=noninteractive apt-get install --force-confold -y wireshark-common
   sudo apt-get install --force-confold -y wireshark-common
-  yes | pacman -Sy  --noconfirm paru
+  yes | pacman -Sy --noconfirm paru
 
   # SILENT INSTALLS: Create the list of packages
   packages=(
@@ -176,7 +175,7 @@ run_build_development_environment() {
     nmap open-vm-tools open-vm-tools-desktop openssh-server partitionmanager pssh python-is-python3 python3-pip python3-venv qdirstat kate
     remmina rsync sed ssh sshfs sudo tcpdump telnet terminator timeshift tshark tcpdump usb-creator-gtk
     wget whois wireshark xclip xz-utils rofi locate docker-compose chromium-browser htop btop fish lxc lxc-templates lxcfs cmake
-    guake xclip createrepo-c iftop nload gcc open-vm-tools gtkmm3 libxtst mesa
+    guake xclip createrepo-c iftop nload gcc open-vm-tools gtkmm3 libxtst mesa pandoc ghostty clang dos2unix
   )
 
   # Iterate through the list and install each package (Future proofing this script in case pknames chnge)
@@ -203,7 +202,7 @@ run_build_development_environment() {
   sudo btrfs subvolume delete /var/lib/lxd/storage-pools/default --recursive
   sudo systemctl stop lxd lxd.socket
   for subvol in $(sudo btrfs subvolume list -o /var/lib/lxd/ | awk '{print $NF}' | tac); do
-      sudo btrfs subvolume delete "/var/lib/lxd/$subvol"
+    sudo btrfs subvolume delete "/var/lib/lxd/$subvol"
   done
   sudo rm -rf /var/lib/lxd
   sudo systemctl start lxd.socket
@@ -277,17 +276,21 @@ run_build_development_environment() {
     fi
   done
 
-# DISABLEDDDDDDDDDDDDDDDDDDDDD IDK
-# The omarchy VMs have a VBLBAKC SCREEN IN VMAWRWRE WROIKRSATQA SO THIS IS A WORKAROUND!!
-#mkdir -p ~/.config/hypr
-#touch ~/.config/hypr/hyprland.lua
-#echo '
-#-- # THIS IS SO THAT VMWARE CAN SEE HYPER GRAPHICS!!! LAME WORKAROUND LMAO!!!
-#hl.env("LIBGL_ALWAYS_SOFTWARE", "1")
-#
-#' >> ~/.config/hypr/hyprland.lua
+  # DISABLEDDDDDDDDDDDDDDDDDDDDD IDK
+  # echo "Installing webmin for dhcp group management of iscdhcp or whatever its called."
+  # curl -fsSL https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh
+  # sudo apt update && sudo apt install --install-recommends -y webmin
+  # sudo dnf install -y webmin
 
-
+  # DISABLEDDDDDDDDDDDDDDDDDDDDD IDK
+  # The omarchy VMs have a VBLBAKC SCREEN IN VMAWRWRE WROIKRSATQA SO THIS IS A WORKAROUND!!
+  #mkdir -p ~/.config/hypr
+  #touch ~/.config/hypr/hyprland.lua
+  #echo '
+  #-- # THIS IS SO THAT VMWARE CAN SEE HYPER GRAPHICS!!! LAME WORKAROUND LMAO!!!
+  #hl.env("LIBGL_ALWAYS_SOFTWARE", "1")
+  #
+  #' >> ~/.config/hypr/hyprland.lua
 
   # NOW LETS GET MINICONDA IN HERE!!!
   apt install -y wget
@@ -616,13 +619,11 @@ function lessmd
 end
 EOF
 
-
-
-echo "@@ INSTALLING GHOSTTY WITH MY CONFIGSSSSSSSSSSSSSsssssssssssss..."
-apt install -y ghostty
-yes | paru -Sy ghostty
-mkdir -p ~/.config/ghostty/
-echo "
+  echo "@@ INSTALLING GHOSTTY WITH MY CONFIGSSSSSSSSSSSSSsssssssssssss..."
+  apt install -y ghostty
+  yes | paru -Sy ghostty
+  mkdir -p ~/.config/ghostty/
+  echo "
 # MY GHOSTTY CONFIG FILE
 # WORKED FOR GHOSTTY (on MACOS + WSL2/Ub2604!)
 # On Linux save to your Ghostty config (~/.config/ghostty/config.ghostty)
@@ -672,32 +673,12 @@ maximize = true
 
 # make sure the annoying popup of 340x708 doesnt show up on WSL when you cat a main.rs
 resize-overlay = never
-" > ~/.config/ghostty/config.ghostty
-for i in `ls /home/` ; do mkdir -p /home/$i/.config/ghostty 2>/dev/null; cp -r  ~/.config/ghostty/ /home/$i/ ; chown -R $i:$i /home/$i/.config/ghostty ; done
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+" >~/.config/ghostty/config.ghostty
+  for i in $(ls /home/); do
+    mkdir -p /home/$i/.config/ghostty 2>/dev/null
+    cp -r ~/.config/ghostty/ /home/$i/
+    chown -R $i:$i /home/$i/.config/ghostty
+  done
 
   ################################################################################
   ################################################################################
@@ -770,7 +751,7 @@ NOTE:
   echo "INSTALLING dioxus / dx cli..."
   curl -sSL https://dioxus.dev/install.sh | bash
   rustup toolchain install stable
-  rustup target add wasm32-unknown-unknown  
+  rustup target add wasm32-unknown-unknown
   # Added these libraries to allow building dioxus gui apps (This worked to make a dx via WSL YEAHHH!!!)
   apt install -y libgtk-3-dev libsoup2.4-dev build-essential pkg-config libwebkit2gtk-4.1-dev libxdo-dev
 
@@ -786,10 +767,9 @@ NOTE:
   cargo install cargo-binstall
   # Use Github to get the raw binaries and just trust whatever someone else compiled
   for i in just bacon ripgrep fd-find eza zoxide starship delta tokei dust bat git-cliff onefetch cargo-cache trunk cargo-edit; do
-      echo "Installing $i..."
-      cargo binstall -y "$i"
+    echo "Installing $i..."
+    cargo binstall -y "$i"
   done
-
 
   echo -e "\e[32mRUST INSTALL COMPLETE!!! NOW... Installing Neovim (LazyVim base)...\e[0m"
   echo -e "\e[32mRUST INSTALL COMPLETE!!! NOW... Installing Neovim (LazyVim base)...\e[0m"
@@ -1182,6 +1162,34 @@ EOF
   echo "FIXING NGINX TO MAKE SURE IT DOESNT START AND ANNOYINGLY USE PORT 80!!!"
   systemctl disable --now nginx
 
+  echo "Disabling selinux for dev stuff..."
+  # 1. Forcefully drop into Permissive mode immediately (no reboot required)
+  sudo setenforce 0
+  # 2. Modify the configuration file to keep it permanently disabled on next boot
+  if [ -f /etc/selinux/config ]; then
+    sudo sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
+  elif [ -f /etc/sysconfig/selinux ]; then
+    sudo sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/sysconfig/selinux
+  fi
+  # 3. Output completion confirmation
+  echo -e "\n\e[1;32m[SUCCESS]\e[0m SELinux has been forcefully set to Permissive mode in memory and disabled permanently in the config file!"
+
+  echo "Disabling firewall for dev stuff..."
+  systemctl disable --now firewalld
+  ufw disable
+  # 1. Stop and completely lock down the management services
+  sudo ufw disable
+  sudo systemctl disable --now firewalld ufw nftables iptables 2>/dev/null
+  sudo systemctl mask firewalld ufw nftables iptables 2>/dev/null
+  # 2. Flush all remaining kernel rules (The ultimate reset)
+  sudo iptables -F
+  sudo iptables -X
+  sudo iptables -P INPUT ACCEPT
+  sudo iptables -P FORWARD ACCEPT
+  sudo iptables -P OUTPUT ACCEPT
+  # 3. Flush nftables rules if present
+  sudo nft flush ruleset 2>/dev/null
+
   echo "Script complete. Build Development Environment is now ready!"
 
 } # END OF run_build_development_environment
@@ -1206,6 +1214,9 @@ export ACCEPT_EULA="y"
 apt update
 yes | unminimize            # For `man curl` to work correctly
 
+# THESE ARE PACKAGES ONLY FOR THE CONTAINER NOT THE FULL HOST!!!!
+# THESE ARE PACKAGES ONLY FOR THE CONTAINER NOT THE FULL HOST!!!!
+# THESE ARE PACKAGES ONLY FOR THE CONTAINER NOT THE FULL HOST!!!!
 # Note "7zip" package is only in UB2404, not ub2004. Same for mlocate3=>locate
 packages=(
   7zip lsof byobu curl cifs-utils fish glances htop inetutils-ftp 
@@ -1215,10 +1226,14 @@ packages=(
   p7zip p7zip-full p7zip-rar python3-virtualenv samba smbclient tcpdump 
   ufw vim wget unzip git ssh whois iotop nethogs python-is-python3 sudo 
   pandoc ghostty clang
-)
+) # THESE ARE PACKAGES ONLY FOR THE CONTAINER NOT THE FULL HOST!!!!
+# THESE ARE PACKAGES ONLY FOR THE CONTAINER NOT THE FULL HOST!!!!
+# THESE ARE PACKAGES ONLY FOR THE CONTAINER NOT THE FULL HOST!!!!
+# THESE ARE PACKAGES ONLY FOR THE CONTAINER NOT THE FULL HOST!!!!
 
 for package in "${packages[@]}"; do
   apt install -y "$package"
+  dnf install -y "$package"
 done
 
 apt-get install -y --no-install-recommends systemd systemd-sysv dbus dbus-user-session
@@ -1679,8 +1694,8 @@ run_launch_1_ubuntu_container() {
 } # END OF run_launch_1_ubuntu_container
 
 launch_lxd_init() {
-#  echo "Disabling FIREWALL DANGEROUSLY!!!!!!!!!!!!!!!!!!!!"
-#  ufw disable
+  #  echo "Disabling FIREWALL DANGEROUSLY!!!!!!!!!!!!!!!!!!!!"
+  #  ufw disable
   echo "PURGING EVERYTHING+CONTAINERS AND REINSTALLING LXD SERVICE!!!"
   snap remove lxd --purge
 
@@ -1690,13 +1705,13 @@ launch_lxd_init() {
   sudo btrfs subvolume delete /var/lib/lxd/storage-pools/default --recursive
   sudo systemctl stop lxd lxd.socket
   for subvol in $(sudo btrfs subvolume list -o /var/lib/lxd/ | awk '{print $NF}' | tac); do
-      sudo btrfs subvolume delete "/var/lib/lxd/$subvol"
+    sudo btrfs subvolume delete "/var/lib/lxd/$subvol"
   done
   sudo rm -rf /var/lib/lxd
   sudo systemctl start lxd.socket
   sudo systemctl start lxd
 
-  snap install lxd  
+  snap install lxd
   dnf install -y lxd
   yes | pacman -S --noconfirm --needed lxd 2>/dev/null || echo "Archlinux pacman Failed to install $package"
 
@@ -1712,7 +1727,7 @@ launch_lxd_init() {
   lxc config set core.https_address :8443
   echo "Here is your current lxd profile show default -- configuration:"
   lxc profile show default
-echo "
+  echo "
 (1) FIRST... [SETUP br0]
 First make sure you have a br0, and ping -I br0 google.com is actually working. Its gonna be sumtin' like dis yo:
 sudo nmcli connection add type bridge con-name br0 ifname br0
@@ -1736,8 +1751,8 @@ TO...
     nictype: bridged # <---- ADD THIS 
     parent: br0      # <---- ADD THIS
     type: nic"
-  read -p "Press enter when you are ready to edit it!!!"         
-  lxc profile edit default  
+  read -p "Press enter when you are ready to edit it!!!"
+  lxc profile edit default
   echo "Remember that UFW HAS TO BE OFF -- TO HAVE YOUR CONTAINERS GET IP ADDRESSES FROM DHCP OUTBOUND!!!"
 } # END OF launch_lxd_init
 
@@ -1763,9 +1778,7 @@ launch_ubuntu_1_lxc_container() {
     container_name=$1
   fi
 
-
-
-# LOOPDEVICE- ASK IF THEY WANNA FOR THE LXC
+  # LOOPDEVICE- ASK IF THEY WANNA FOR THE LXC
   # Ask whether to create a file-backed loop device for this container
   local loopdev=""
   local loopfile=""
@@ -1792,13 +1805,6 @@ launch_ubuntu_1_lxc_container() {
     echo "No loop device requested."
   fi
 
-
-
-
-
-
-
-
   lxc delete $container_name --force 2>/dev/null 1>/dev/null
   sed -i "s/.*$container_name.*//" /etc/hosts
 
@@ -1815,18 +1821,15 @@ launch_ubuntu_1_lxc_container() {
   # UNSAFE WAY IS:
   lxc launch $image $container_name -c security.nesting=true -c security.privileged=true # UNSAFE WAY!
 
-
-
-
-# LOOPDEVICE - MAP THE LOOP123... NOWWWWWWWWW!!!!!!!
+  # LOOPDEVICE - MAP THE LOOP123... NOWWWWWWWWW!!!!!!!
   if [[ -n "$loopdev" ]]; then
     echo "Attaching $loopdev to $container_name..."
     # lxc config device add "$container_name" osd disk \
     #   source="$loopdev" \
     #   path="$loopdev"
-lxc config device add "$container_name" osd unix-block \
-  source="$loopdev" \
-  path="$loopdev"
+    lxc config device add "$container_name" osd unix-block \
+      source="$loopdev" \
+      path="$loopdev"
     if [[ $? -ne 0 ]]; then
       echo "ERROR: Failed to attach $loopdev to $container_name"
       losetup -d "$loopdev"
@@ -1835,10 +1838,7 @@ lxc config device add "$container_name" osd unix-block \
     echo "Attached $loopdev to $container_name"
   fi
 
-
-
-
-  lxc config set $container_name raw.lxc "lxc.apparmor.profile=unconfined"               # UNSAFE WAY!
+  lxc config set $container_name raw.lxc "lxc.apparmor.profile=unconfined" # UNSAFE WAY!
   lxc stop $container_name
   lxc start $container_name
 
