@@ -1058,6 +1058,13 @@ Script complete.
   ################################################################
   ################################################################
 
+  # extra bldub for vi workaround...
+  cp /usr/bin/vi /usr/bin/vi.orig
+  cp /usr/bin/vim /usr/bin/vim.orig
+  cp /usr/bin/nvim /usr/bin/n
+  cp /usr/bin/nvim /usr/bin/vi
+  cp /usr/bin/nvim /usr/bin/vim
+
   # ensure that the system fish config has 'lxc' aliased to 'sudo lxc' and the same for 'sudo docker
   printf 'alias lxc "sudo lxc"\n' >>/etc/fish/config.fish
   printf 'alias lxcl "sudo lxc list -c nst4sS"\n' >>/etc/fish/config.fish #This is a nice shorthand!
