@@ -183,7 +183,8 @@ run_build_development_environment() {
     echo "Installing $package..."
     # yes | NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive sudo apt install -y --fix-missing "$package" || echo "Failed to install $package"
     NEEDRESTART_MODE=a sudo apt install -y --fix-missing "$package" || echo "Apt Failed to install $package"
-    yes | NEEDRESTART_MODE=a sudo yum install -y "$package" 2>/dev/null || echo "Dnf Failed to install $package"
+    #    yes | NEEDRESTART_MODE=a sudo yum install -y "$package" 2>/dev/null || echo "Dnf Failed to install $package"
+    yes | NEEDRESTART_MODE=a dnf install -y "$package" 2>/dev/null || echo "Dnf Failed to install $package"
     yes | pacman -S --noconfirm --needed "$package" 2>/dev/null || echo "Archlinux pacman Failed to install $package"
     # yes | paru -S --noconfirm --needed "$package" 2>/dev/null || echo "Archlinux pacman Failed to install $package"
   done
@@ -324,6 +325,8 @@ run_build_development_environment() {
     echo $i
     apt-get install -y $i
   done
+  #disable the annoying banner
+  rm -f /etc/issue.d/cockpit.issue /etc/motd.d/cockpit
 
   echo ok... Rocky Installing LIBVIRT/KVM/VIRSH
   yes | dnf install -y util-linux-user qemu-kvm libvirt virt-install libvirt-client virt-manager cockpit
