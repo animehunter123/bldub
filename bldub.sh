@@ -1793,7 +1793,9 @@ launch_ubuntu_1_lxc_container() {
   local loopdev=""
   local loopfile=""
 
-  read -p "Create a 1GB loop device for $container_name? [y/N]: " create_loop
+  # DISABLED!!!!!!!!!!!!!!!
+  #read -p "Create a 1GB loop device for $container_name? [y/N]: " create_loop
+  create_loop="N"
 
   if [[ "$create_loop" =~ ^[Yy]$ ]]; then
     loopfile="/var/lib/lxd/containers/${container_name}-osd.img"
@@ -1830,6 +1832,50 @@ launch_ubuntu_1_lxc_container() {
 
   # UNSAFE WAY IS:
   lxc launch $image $container_name -c security.nesting=true -c security.privileged=true # UNSAFE WAY!
+
+  echo FIXING DNS STATICALLY TO 1.1.1.1!!!!!!!!!!!!!
+  lxc exec "$container_name" -- bash -c '
+echo "ok starting to fix dns to 1.1.1.1"
+
+# 1. Unlock /etc/resolv.conf in case it was previously made immutable
+chattr -i /etc/resolv.conf 2>/dev/null
+
+# 2. Break symlinks and write directly to /etc/resolv.conf
+rm -f /etc/resolv.conf
+printf "nameserver 1.1.1.1\nnameserver 1.0.0.1\n" > /etc/resolv.conf
+
+# 3. Lock /etc/resolv.conf so DHCP/network managers cannot overwrite it
+chattr +i /etc/resolv.conf 2>/dev/null
+
+# 4. Override systemd-resolved
+if [ -d "/etc/systemd" ]; then
+  mkdir -p /etc/systemd/resolved.conf.d
+  printf "[Resolve]\nDNS=1.1.1.1 1.0.0.1\nFallbackDNS=\n" > /etc/systemd/resolved.conf.d/99-force-dns.conf
+  systemctl restart systemd-resolved 2>/dev/null
+fi
+
+# 5. Override NetworkManager
+if [ -d "/etc/NetworkManager" ]; then
+  mkdir -p /etc/NetworkManager/conf.d
+  printf "[main]\ndns=none\n" > /etc/NetworkManager/conf.d/99-force-dns.conf
+  systemctl reload NetworkManager 2>/dev/null || systemctl restart NetworkManager 2>/dev/null
+fi
+
+# 6. Override dhclient
+if [ -d "/etc/dhcp" ]; then
+  grep -q "supersede domain-name-servers" /etc/dhcp/dhclient.conf 2>/dev/null || \
+  echo "supersede domain-name-servers 1.1.1.1, 1.0.0.1;" >> /etc/dhcp/dhclient.conf
+fi
+
+# 7. Override resolvconf tool
+if [ -d "/etc/resolvconf/resolv.conf.d" ]; then
+  printf "nameserver 1.1.1.1\nnameserver 1.0.0.1\n" > /etc/resolvconf/resolv.conf.d/head
+  resolvconf -u 2>/dev/null
+fi
+
+echo "Done. Testing DNS resolution..."
+getent hosts cloudflare.com || nslookup cloudflare.com 1.1.1.1
+'
 
   # LOOPDEVICE - MAP THE LOOP123... NOWWWWWWWWW!!!!!!!
   if [[ -n "$loopdev" ]]; then
